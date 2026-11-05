@@ -161,6 +161,41 @@ input[type=range]::-moz-range-track{height:8px;background:#0e0a1a;border:2px sol
 .ntag b{font-weight:inherit;background:rgba(12,10,26,.75);padding:2px 4px}.ntag i{font-style:normal;font-size:11px;line-height:1}
 .ntag.off{flex-direction:column-reverse}.ntag.off i{font-size:16.5px}
 #nsc{font-size:11px;margin-top:4px;text-shadow:1px 1px 0 #000}#nsc small{display:block;color:var(--muted);font-size:11px}
+#sq{display:none;border-color:#ffd23a !important;pointer-events:auto;margin-top:8px;width:186px;background:rgba(23,18,38,.94);border:3px solid var(--pk);padding:8px 10px 10px;text-align:left;text-shadow:none;box-shadow:4px 4px 0 rgba(255,61,139,.45)}
+#sq.on{display:block;animation:zpin .25s ease-out}
+#sq .zk{color:#ffd23a !important;font-size:11px;letter-spacing:.16em;color:var(--pk)}
+#sq .zn{font-size:16.5px;margin:2px 0 5px;line-height:1.1}
+#sq .zi{font-size:11px;color:var(--muted);font-weight:400;line-height:1.4}
+#sq .zi b{color:#ffd23a;font-weight:700}
+#sq .zi span{color:#3a3050}
+#sq .zbt{display:flex;gap:6px;margin-top:8px}
+#sq .zbt button{border:0;padding:9px 0;font-size:16.5px;font-weight:900}
+#sq .zbt button:first-child{flex:1;background:var(--pk);color:#2a0d1c;box-shadow:3px 3px 0 var(--pk2)}
+#sq .zbt button:last-child{width:40px;background:#3a2c58;color:#fff}
+#sq .zbt button:first-child{background:#ffd23a;color:#2a2008;box-shadow:3px 3px 0 #9a7a10}
+#sobj{display:none;margin:6px 3px 0;width:136px;background:rgba(23,18,38,.92);padding:5px 7px 6px;text-align:left;text-shadow:none;box-shadow:0 -3px 0 0 #ffd23a,0 3px 0 0 #ffd23a,-3px 0 0 0 #ffd23a,3px 0 0 0 #ffd23a}
+#sobj b{display:block;font-weight:inherit;font-size:11px;letter-spacing:.14em;color:#ffd23a;text-transform:uppercase}
+#sobj span{display:block;font-size:11px;color:#fbeff6;margin-top:3px}
+#sobj i{display:block;height:5px;background:#0e0a1a;margin-top:5px}#sobj i u{display:block;height:100%;background:#ffd23a;text-decoration:none}
+#dlg{display:none;position:fixed;inset:0;z-index:7;flex-direction:column;justify-content:flex-end;align-items:stretch;padding:0 max(12px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(10,7,22,0) 40%,rgba(10,7,22,.78) 100%);cursor:pointer}
+#dlg .dbox{position:relative;max-width:560px;width:100%;margin:0 auto;background:#1b1530;padding:14px 14px 16px 118px;min-height:118px;box-shadow:0 -4px 0 0 var(--pk),0 4px 0 0 var(--pk),-4px 0 0 0 var(--pk),4px 0 0 0 var(--pk),0 10px 0 0 rgba(0,0,0,.45)}
+#dlg img{position:absolute;left:8px;bottom:6px;width:96px;height:112px;image-rendering:pixelated;filter:drop-shadow(0 0 8px rgba(255,95,168,.35))}
+#dlg .dnm{display:block;font-weight:inherit;font-size:16.5px;color:var(--pk);margin-bottom:4px}
+#dlg .dln{margin:0;font-size:16.5px;line-height:1.5;color:#fbeff6;min-height:3em}
+#dlg .dnx{position:absolute;right:10px;bottom:6px;font-size:11px;color:var(--pk);animation:rec 1s steps(1) infinite}
+#dlg.me .dbox{padding:14px 118px 16px 14px;box-shadow:0 -4px 0 0 var(--cy),0 4px 0 0 var(--cy),-4px 0 0 0 var(--cy),4px 0 0 0 var(--cy),0 10px 0 0 rgba(0,0,0,.45)}
+#dlg.me img{left:auto;right:8px;filter:drop-shadow(0 0 8px rgba(110,231,255,.35))}#dlg.me .dnm{color:var(--cy);text-align:right}#dlg.me .dnx{right:auto;left:10px;color:var(--cy)}
+#dlg .dskip{position:fixed;top:calc(12px + env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));background:rgba(23,18,38,.9);border:0;color:var(--muted);font-size:11px;padding:8px 12px;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+#chap{display:none;position:fixed;inset:0;z-index:8;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#0b0714;text-align:center;padding:20px}
+#chap::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px);pointer-events:none}
+#chap.on{animation:chin .6s ease-out}@keyframes chin{from{opacity:0}to{opacity:1}}
+#chap .cc1{font-size:16.5px;letter-spacing:.4em;color:var(--pk);padding-left:.4em}
+#chap .cc2{font-size:44px;color:#fff4fa;text-shadow:4px 4px 0 var(--pk2),8px 8px 0 #3a0f2a;line-height:1.1}
+#chap .cc3{font-size:11px;letter-spacing:.2em;color:var(--cy);text-transform:uppercase}
+.stbar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#2a2008;margin:0 3px 14px;padding:9px 12px;box-shadow:0 -3px 0 0 #ffd23a,0 3px 0 0 #ffd23a,-3px 0 0 0 #ffd23a,3px 0 0 0 #ffd23a}
+.stbar span{display:block;font-size:11px;color:#d8c48a;letter-spacing:.06em}.stbar b{display:block;font-weight:inherit;font-size:16.5px;color:#ffd23a}.stbar .dbt{text-align:right}
+.mb3{position:relative}.mrow2 .mb3{font-size:11px;letter-spacing:.06em;gap:5px;padding:12px 2px}.mrow2 .mb3 .mi{width:12px;height:12px}.mrow2{gap:5px}
+body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:-8px;font-style:normal;font-size:11px;background:var(--cy);color:#06202a;padding:1px 4px}
 .gt{margin:0;font-size:22px;letter-spacing:.14em}
 @media (orientation:landscape) and (max-height:560px){
 #menu{flex-direction:row;align-items:center;justify-content:space-between;gap:24px}
@@ -177,9 +212,9 @@ input[type=range]::-moz-range-track{height:8px;background:#0e0a1a;border:2px sol
 <div id="gar"></div>
 <div id="game"><canvas id="c"></canvas>
  <div id="hud">
-  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="nsc"></div></div>
+  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="nsc"></div><div id="sobj"></div></div>
   <div id="tc"><div id="cm"></div><div class="angw"><i id="ang"></i></div></div>
-  <div id="tr"><div id="sp">0</div><div class="lbl" data-t="км/ч">км/ч</div><div class="trb"><button id="bset" class="ib" aria-label="Настройки" data-ta="Настройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.2-1.5 2.4 2.4-1.5 2.2c.4.6.7 1.2.9 1.9l2.6.5v3.4l-2.6.5c-.2.7-.5 1.3-.9 1.9l1.5 2.2-2.4 2.4-2.2-1.5c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.2 1.5-2.4-2.4 1.5-2.2c-.4-.6-.7-1.2-.9-1.9L2 13.7v-3.4l2.6-.5c.2-.7.5-1.3.9-1.9L4 5.7l2.4-2.4 2.2 1.5c.6-.4 1.2-.7 1.9-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"/></svg></button><button id="bmap" data-t="карта">карта</button><button id="bgar" data-t="гараж">гараж</button></div><div id="zp"></div><div id="zb"></div></div>
+  <div id="tr"><div id="sp">0</div><div class="lbl" data-t="км/ч">км/ч</div><div class="trb"><button id="bset" class="ib" aria-label="Настройки" data-ta="Настройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.2-1.5 2.4 2.4-1.5 2.2c.4.6.7 1.2.9 1.9l2.6.5v3.4l-2.6.5c-.2.7-.5 1.3-.9 1.9l1.5 2.2-2.4 2.4-2.2-1.5c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.2 1.5-2.4-2.4 1.5-2.2c-.4-.6-.7-1.2-.9-1.9L2 13.7v-3.4l2.6-.5c.2-.7.5-1.3.9-1.9L4 5.7l2.4-2.4 2.2 1.5c.6-.4 1.2-.7 1.9-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"/></svg></button><button id="bmap" data-t="карта">карта</button><button id="bgar" data-t="гараж">гараж</button></div><div id="zp"></div><div id="sq"></div><div id="zb"></div></div>
   <div id="tut"></div>
   <div id="res"></div><div id="cdn"></div><div id="ntags"></div>
  </div>
@@ -190,12 +225,14 @@ input[type=range]::-moz-range-track{height:8px;background:#0e0a1a;border:2px sol
 <div id="menu"><div class="mtop"><div class="coins" id="mcoins">0 ¥</div></div>
  <div class="mlogo"><div class="mjp">東京ドリフト</div><h1 class="mt" data-t="ЗАНОС">ЗАНОС</h1><div class="mt2" data-t="ТОКИО">ТОКИО</div></div>
  <div class="mbot"><div id="mcap"><i></i><span></span></div>
-  <button class="mb mb1" data-m="play"><span data-t="ИГРАТЬ">ИГРАТЬ</span></button>
-  <button class="mb mb2" data-m="duo"><span data-t="ВДВОЁМ">ВДВОЁМ</span><em style="display:none"></em></button>
-  <div class="mrow2"><button class="mb mb3" data-m="edit"><span data-t="РЕДАКТОР">РЕДАКТОР</span></button><button class="mb mb3" data-m="set"><span data-t="НАСТРОЙКИ">НАСТРОЙКИ</span></button></div>
+  <button class="mb mb1" data-m="story"><span data-t="СЮЖЕТ">СЮЖЕТ</span></button>
+  <button class="mb mb2" data-m="play"><span data-t="СВОБОДНАЯ ЕЗДА">СВОБОДНАЯ ЕЗДА</span></button>
+  <div class="mrow2"><button class="mb mb3" data-m="duo"><span data-t="ВДВОЁМ">ВДВОЁМ</span><em style="display:none"></em></button><button class="mb mb3" data-m="edit"><span data-t="РЕДАКТОР">РЕДАКТОР</span></button><button class="mb mb3" data-m="set"><span data-t="НАСТРОЙКИ">НАСТРОЙКИ</span></button></div>
  </div>
 </div>
 <div id="duo" role="dialog" aria-label="Игра вдвоём" data-ta="Игра вдвоём"></div>
+<div id="dlg"><div class="dbox"><img alt="" width="96" height="112"><div class="dtx"><b class="dnm"></b><p class="dln"></p></div><span class="dnx">▼</span></div><button class="dskip" data-t="Пропустить">Пропустить</button></div>
+<div id="chap"></div>
 <div id="set"></div>
 <div id="toast"></div>
 <script>
@@ -229,6 +266,28 @@ var TMP=[0,0,0,0],TMP2=[0,0,0,0];
 
 // ===== i18n: Russian is the source text, English via dictionary =====
 var EN={
+ 'СЮЖЕТ':'STORY',
+ 'СВОБОДНАЯ ЕЗДА':'FREE RIDE',
+ 'Глава 1':'Chapter 1',
+ 'Наследство':'Inheritance',
+ 'утро · Токио':'morning · Tokyo',
+ 'Глава 1 пройдена':'Chapter 1 complete',
+ 'Глава 2 «Пьяный стиль» — скоро':'Chapter 2 “Drunken Style” — coming soon',
+ 'награда':'reward',
+ 'Начать':'Start',
+ 'Не вышло':'Failed',
+ 'Гэн набрал больше':'Gen scored more',
+ 'мало очков':'not enough points',
+ 'кадр с Гэном':'shot with Gen',
+ 'кадр! ты далеко от Гэна':'shot! you’re too far from Gen',
+ 'удары':'hits',
+ 'вернись к метке':'go back to the marker',
+ 'Гэн':'Gen',
+ 'доедь до финиша':'reach the finish',
+ 'цель':'goal',
+ 'глава пройдена':'chapter complete',
+ 'долг':'debt',
+ 'Пропустить':'Skip',
  'Создать игру':'Create game',
  'Друг сканирует QR камерой телефона — игра откроется у него в браузере. Вы должны быть в одной сети: раздай ему точку доступа или подключитесь к одному Wi-Fi.':'Your friend scans the QR with their phone camera — the game opens in their browser. You need to be on the same network: share a hotspot or join the same Wi-Fi.',
  'Отсканируй камерой второго телефона':'Scan with the second phone’s camera',
@@ -354,6 +413,9 @@ function qrMake(text){var bytes=qrBytes(text),ver=0;
 function qrSvg(text,dark,light){var M=qrMake(text);if(!M)return'';var n=M.length,Q=4,W=n+Q*2,s='<svg viewBox="0 0 '+W+' '+W+'" shape-rendering="crispEdges" aria-hidden="true"><rect width="'+W+'" height="'+W+'" fill="'+(light||'#fff')+'"/>';
  for(var y=0;y<n;y++){var x=0;while(x<n){if(!M[y][x]){x++;continue}var x0=x;while(x<n&&M[y][x])x++;s+='<rect x="'+(x0+Q)+'" y="'+(y+Q)+'" width="'+(x-x0)+'" height="1" fill="'+(dark||'#000')+'"/>'}}
  return s+'</svg>'}
+
+// ===== character portraits (48x56 pixel art, PNG) =====
+var PORT={lyokha:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADyklEQVR4Xu2ZTWgTQRTHpyKllBJCKSJSJEgQKUVEsErw4EEvQUShSBEpwYN48CQikmORUIp4EBFRkCISRAJKkB7Eg4iUWkGKlNKWIkFqEI0lhFJKEZW3ydtOJju7b95u1oj9QcjHTnb+//cx+yXEFlv837Q1w3531+7fuv2urH4OdM7tQRpA4RM9UXu3/TNT1ufZA0es96QQlrmgjAQSDVn4hfK3uphMFz5Z3wdie+zfH0Z3iGSpbH33a8R3BkA8RPxw8nhVYDZLSipmCTLix8Q20mwaGsQbMFmpWKPBiFvPeMEuIZj0x/Cgdv/vJl5Z29QeQNBAIhKp9kapzConVgYw8jpQvBsoHOFmgmXADYp4GcwEF2MDcvRVsabiMQt++sFoFXIrHZ14XP+pQCmZrExGBpCTa9U13CKXo2pzBhXU9vmic/MgSIFsQI3+3v6EOD14njKHeJ577DgukxkV6fR1e9vi7KT12SQLZANO6IRRkcUj0A/qCuUG2wBG62/DMoB1GruTYutfmp2v++/02Mu6LFAhLaNeB65mQD2wkQxQuJK5b70owLi7+TeUoZ6QzoWcMqArHzRxK32xYXJ5m1pC8f59Ijt82/4PNDLl/IjVA244CUfctnEJzMDB1L06DR/GLzVoUsc8vXqMq9smkB4AYYtLM+LL9wVxIpN3FQXbYRyMP3vztXYs9SQvEAMY7dSDBVfxCI4LIgOBNzEVryYGbmz88rzIYWegcHmcqrVBrBPyCmQCyQBcdONdhLCgRB8gGfALrPHNwtcyOjI0GpiueHsna1++DADDPTtZE8s8Kn1l74NcQmH2AbX+ffcARF+N3kipaL0A3Wc1+tzyMTYQRhZMom9sAGimCVPxLAOtBulUwgn5GgH7wGRFkv8DJ26c6ANsA4B6oQOiKCbkcX7E+zIg3xIfEuv2MYGypsur1xPRYSeY85yAlQEQn420N1RWvnbP3y0LaPBU7bb63PpP0ddRPZ6eq2wYmzAygFGf3BUVhdU1cXTuo2N/XOuNOf4OjC0XHLe97dsvYl2dIlE0e/TkaUAuFRAuAyaCAsTLoBFcunXzuJ4LgXhVdLN5v1IWh7qjdcFKFPXP0bTOqOKDyIIafTAhA4YgI05N3pABuc5bBTAElQCZUEuqLgO6qPdOT4nlgeqD6rAA0WeW5sWz+ObFEGQCkLNhG/AqmbBNwHyyeEQ1YV0PeIlvJbA/oKRAN/mCBkoIohIGXtmWm5xsoFUxMhBGFryir2JkoBVp4zSwaZSoyPtVD2ZOwIr0z2eAZaAZvcDN6h/P8dYgJzCkqQAAAABJRU5ErkJggg==',hana:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAE8ElEQVR4XtWZTWhVRxTHp0GLbUNpxca2Cy32GUObirhw0UrIoo0hEa1dSRZapbQgRaGouHFVEJFuGorQINaKuLRN8aUxFSoigkXswy+CPhSL2Bgkuogf6EL5z8u579x5M3fOzL2x9Ach99177sz5n4+Z++5T6jkyu3ne06KnaypywCwHca1t9W+Fi/AKkEYty0G6Nh1kCuBOSYX4ouy7DqRzgUwBE5P/vDA6uEpPShPbBjcjzJ0MiT5sQ0ttRkha4RgYHVz1FOJ890qdp6DQ+CF4e4CywMnKBuFzhqJNIrk9si4JEPBGkXBFk0psyd3uxLby+rAziLDr62pTh0dGU3Zfzu9UAzdOUIbFAoJKyMbajsdKTTmVMFITw4WQQDgP9H+LHQISgjgDtDrwVFM0wUdb/lQnqv/q45nlPv0fUT525yu1Ys6PiePc7sZP7yW+ftrzkvp16KH+DxZ0zxRlwdsDTs50Jpee9B5OnAf4TMyd+N5pN3/DZX2NnA51HgQJsDW0j3daXvWZ5CJIgAsqGcL87DpPJYTSiSWoic2VqHLlEXYFPXefqtU9QO2D2vVHSo3jU6PdX5VZzO6h+qa/lq1rw0/Ugu55or0mVxPfvvqLmrtwjZ40ZBkl+CpFyyitQtJ9QJwB366atfZzbHYIxICq7QFA6jwopAeygHMhSB72OCIBvuhzuMM4vnDwk4ZzRSISIMXmsCnOFGQjJAuFCAgtEyL2vuAS8tW4JKomcP7Y1jecIqRZyJ0BOG9Cguia+ZkDEXkQL6Ocg6tP6Y8rvktPDUc/WPeH0x+6ZrOjMdcNLg/SI9rIzFWIJnt78ZKgyUxuna80nOMCJF9sRBmYeohLPUqbzpeWb0w5Uz21v8E50+bk3s2JDcazCfIR1QOIEp8Mjl2pVlRz+1a1cOp7swtchx3sOzb1J2YYLzT6IEqACUX7rXc7fAHTkB3PQCyiEpLQNHZO/b5tynJbY/mAmtA7+vjWyHHJsF4KycB/SXQGdL0OKnV856TXf9Q3b3qzWUOXTs7/PgOifYBwPZVKskBIoi9Z/4noEpLwRdemlNm+kb2S24IopIQ+/rbZOen2rk79p1ceY+fNU/tEISXE36bdPFt/J8Thzi/buCe5ZHuHGlJCQRnIei9E32NtjwO2c67vvSHOgyABNmwTwmHJc03MizKTQpqY/+hhPuTxPYCLCvkVJotcAqj2h8o/JHPs2n8oNd/K3h51wDjH7Xt6v05e0ceQS4BJtVrVDgMcl0olfdy2qDU5xvkiie6B0GbLIk8vBAvgk6GOeTnEgPupH2KCIi4h3nTnNtc3rn3loaRsYjhaHkqNt7S//mu+a6nlZG5kLqeJsfEH6ujs+m9jsaycGFZvtrysb79UvafeL72mj5f21590XWKcAuA8RXrP6cd6wO0fvpjyEQJs3P9st1PLK0d2WK+RABIByuM1UZgXYmwirD3Anbc5DlzOA3Ly+vVribM4djmfNV5vywOdFQTTtnc0CDCd51AmphuUEEWfcIlICchy3iyf5wGiz7GJSARkOW/LAq/ZIuDjZWXaFKEFSJ1HFtZ/3l6Ev05ut7Y6+85WTsEb2c8HLk5rL2D8EIIF8F4oqozMcUL6LVgAMR0rUsyYTdL650giZK757X8PiCqDxkazZkHNHJ0BEBMxF7FjRQugSOXtA36/JLMmzwCiIKDmm8+tVgAAAABJRU5ErkJggg==',reiko:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADrklEQVR4Xu2Zz0sUYRjH3zSiRFYSIjOLDkuIlKksImQdwjqEiIh18CBhN4uQDtIfECKeRMxbHTp4SSQ8dCjpUHYRW8VCRDxIWdmlMMJDh4zvq8/wzrsz7877aw+xH1hmZ52Z/X7med53ZkfGihQpUuS/p7L89K4vyQOuDqwKObc4z1obmyO/6sfvT1YZrHYmEB4hVUw8nmb9t7tyNoGYjYS1gBgeIeMYvNfDRsYm+Z9lERsJKwE5PEKKnDpREVr//G2br5OIKGMqYSwQF14MTYFVQAYVMRUoUR49BlXPIzS9dMAYMpmttAXk8Oh7uXV0wL40dkwktAVEbMO7wErAFWIVdNESUPW+K3TbSEtAF3G69IUzATks1kdu1XuXcCIgh6X1QpBYwOX0ubC8oXTTGQeJBZJALYNloTASOLQ4FeSjdhl7ucVfgJYgkNq/kQOZ+jNBFcTPxeMm5WDSDfNx71rV/ia0DAORwbHJ0FUb4Qea/loNdKMKEEkHq8+WMqrAn8ZuxrLTQbB0a19OgdbnnuQrWg78uJoYVwClJxB2bX2JVXZ1soahh4kiYBwQ4rF0MRaQKdnKsvn7HWzqcnXs2fdxYXMmYEsqlWIfVje1D2MsgH7dKE2HvrCt625kgK/LS8pg74+0sAvna/k2uhLGAlHMTo8rg8rgNno0mxtBR8JoFhKpyfSwzYW9pw1xVNc3hAasy7vUxBXAs5u4h1MmYObBa3J82GT3gMQCKlCFOGYeTPAXoLFA02Zz34jyuEmwbiGA6tRkevjzT7mdOob7Q+EBBcd+Jk8iRJxUgCTEsywSNQvZPE70IiAHzjd1usJJC4mIMw5VhD7zIeWsheKQhVzjXcA3TlrIZCYx2ScKJwLrmyts+9cOq0iVMbalvu8B4vbpmjqrIhkLVB0rD8IQkDicIA62IyBDvHq7mmDvMHkFxFKLXyaDsy8GywevlsTVS7VsZXWD1dXu/dih71ZdM5T/4MABVKFlIHB8Z41/nG7P/WX2Zqid/6205WakAAEJkY6267ESsRXQDU98LzsbvD96sil4//NLlgc3YWb2BSR2oyoROY2ahhd59/opDw2wxHpSqIVEIBE1c+UI2ISP6mtw484ou3ilN8gTt10+oiRCAjbhRRCQQrZ19rJnjwbYx4UpreBRVQCyRCDgMjw4l+nmY2D2ebh1TM9+XDsV5FYCIhDyQUEE0Ea+yHshs4GCy23kEi7gqv9lbILLFzMZujZ4aSEawCK+xoEXgULyD8j0sFC8BJMVAAAAAElFTkSuQmCC',misha:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAD+klEQVR4Xu2ZT0hUQRzHJ/EQIiJhyxKyLCEWyxIS0qmDp/AkESHRKaKDSAcP0UE8hXSICA8hHiI6dIiIkJCQTnvwJBJLLEuJhCwWUhIiyxIhGt+3zjrvNzNv599Gh/3AEr438+b7/f2Ztzsx1qZNmzZt/mdOdWcOW6nvRKiH64SOXjjJlj/9Vi7zq1rxXt/7AQDiIVRFqbLD8pk+5T0Y8zXhbUAUD7EUiNddB74mvAxQ8bpIN8uMjwlnAyrx2XQv29zejfQmRb23u4vtVmux8nI10enSxEk1z8V/WJiRHn1lYlabpXqzZw5te6LD1gAVz5uURx9/q8QDXMd9RB9ZoP0BE7bbrrUBkaQdxhRdk5viZYCSFH0Oz0IorAwk1f7S6oa2dCgwsVKuKD3YlpGVAR2ofxfQB74EMWATfc783evaLNgQxIALA/nzLtMknN4DdCdCTV+behS7/nbuvrQYHYMsTD5942XEOANiA0+OjUSfkIjPtGlk7wxwVBGn0DEbpc/eMXA2QGv44q2FmJiPLyYkcXTM63vHWcTzXAwZl5DI/LtCYzHUP4StbxTZt59f2NVLyVsj7mMcxo8/LkR9ACAez7XFOQMiiPbgwJDR2ourNbZ4+lw0VsyAK0EMAFXJUMQxLuWiwqmEOLpvnbbwMtrZq9lONf9Bo/se9GRablYKoi02PY3+g5fvY1P6erqMf+B4ZaBV2GTCuwdyN+ZY+dVUzMvt6TmFt+Xo2vTN0di9sdllNpx1D4W3AQrEP38YNySC+9SED8Y/6nU9wA+taBZA4dlaQ9vInWGp9hF9MJw9kDysbXYYnRl5GwDiyRs3oiojHnkuHOB7j6rmTQ0YNzFOC3RHhICfJpju73y8TcOqMDZgg6mJEAQ3gP0eH9rISY3tQ3AD/5pgBmwPpGzH6wjyHkin6nHY2v4RW0dXNvsHO6w/nToaK2+hNjgbKG7/kUTnB88arY1xpfWv9fmMNcz0d+0bzRdpakBMNSK9VMSSx5iKpojzRDOgnp2DxtpJB76JBiCel0cI0TpUZuLr6k+ttU2sE88Zyue0glzI9p9pTNvdq8Y+MKNreikDfKAq8iLFUjkygX9FBsdnWCZ3WeuhUl6Ryg7iN7e+a+fAUDrVzRir/4+nWFKxDPCo68Rjl3GteVPw/GpN/mVWN9EhZaNhoFnJqOBZoP2BKKtwib4ITACxpCIDLuJbTW8PSkaGmvB+E6uyYEqz2tfBTQArA9if+Z7dKvD847d0c6wMAJUJuhOhEWkfqOqf7jy24q0zwGlFJlzEg87QDcxLjL4L8HfpaHcy2YrFOtc1M94N1iWUlAUeRd2LDNdV2XONvnMJqUzYiBBN2MxT8RcBZfelMO+u5gAAAABJRU5ErkJggg==',kir:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADm0lEQVR4Xt2ZPWgUURSFJxIFlxRhWSWkEAuLNUq0MCqSQiE2otsJIpZiKSISG5EgFhqsRCxEtLEQtFrFxqAWW4hplqBxlRRBVhETgoUoiKicWe7kzpv35v3uj34QNjPzduacd899s7PbFwWiOLDpT2FwXfT9689o5duHPvG0uuOurHF9owqYgFh+nMSrEMfbENwA4CZ04sicbpyKthjgJuJY/VqRXl9XGRP6TQaZ0Mp9qw8ICC9EQ6m3t463IkZjVX1jQjADMkqloWh5+XP8yuEmfWlbhAhRPBgd3R3/hSBYBSjPshknSPTc3KtkH8YX+ovOXjLrtQu8GfMMiPCxrn3gHSGVeJOIUI/AiCteFeCxARAki4kOqoRLFZx7QJZ5iOf57gTeEeIN2mnxwClCJiuOLa4xClaBbmFtoB2z74O1ARniMqjbDomVAdmnR4j98vx2Ilq3DfLWfdnzRB5WBkIgGvTFywCJ6SZeBkTyDPGYcfLiZEIwAxDIIcGy/QTE12+c8zLhZGBm6kSsgYsbOXoh3odX+l8GHefPCTAB6Lw2OH8WEpl/cFl7XbEaGw+c1L5Hh7MBUUz5yMXUtRqPLmnHiJH79Kah05vBKkJ4cMdH3ompe6mLQfz7hXr0celdVCoN5orAcYzD+OLAcDIW4nFeW6wMqMBs/35bjXZs3RMPwbYM2o9xzYfT0bMrx231ZnCOkIza3bNaQTTGJS4yglSgm1g/D/DPQ+iHxafTWv2Y7eFt5VTeOfvO3El9V2TzaNkzFYBoF5wN0CxtPjipva5u9mVfx5vibCA0tETbYt0DAH3AZw3bsl54crWa6Dl0vpJZeZB9cfbFc+twMiCDvt9XNTVfNiEc+ESHCBYhEiNb32X7QogHwQxwIDjUjUpH0Dsx4CsO4PeAdpgKYiDv9y3REEHv8Y2SdxNDyGxt9W684Ye66FSBtbtW78pj45NeJtrSA53EOUJ5sbHFJ05WBrjo+fqtWOeLmce2elPcvFaJ9k8cjveN7DyV/EBu2htaAzLReSytVx/l2ZeBSVlovI62lLcbm8ltYoinmVYhVmBs77i2IrMva6kxVAECJjiVY9eVFVEaMBEvQ2ZIJ1hENABUJqQGXMWrDIkzbIKpicwyqhLv2qwu4kGzuZjxWb1/OrP6pQyEnPl2IZpIDPwL4gluwvhOjCi4xsgWXMc0esYGepX/w0Av5l+2jHKoD6wq0Ik+sMk/sDLQi/wFk2AFtxSRDFcAAAAASUVORK5CYII=',gen:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADbklEQVR4Xu2Yv2sUQRTHx5AiyHLFFcdxyBGOIxwoEuy0TJ30YhnEOqSyErGKFuJfYG1twEawEm0tFGI4juPQI1wgRTjEQoy8Wd45+3Zmdua9uXjCfZr7sbOz3+/7tcsqtWTJkv+aK/NSX8/aF669z6ajZNdNthGCwlev/nbG5tePFX0shZGkBkC8TzgFjEhNJDHginq3e6Mkut//XPhPmg2xATPqVDAV64ObDZGB2JIxAbOmwYUxMJl8U43GNf3pAo4DKUywM2CLPog+//hK1W7f1Z8u4LjNBCcL+TxLAIoPAczZMgQTzHf/sMEy4Kv9qugjaAL6wDatQlkNXegjJvomWG4SWBnw4at9k/GXI/3TVU6hiA1wow+gCQliAymQZEFkQBJ9RJoFkQEJres9yekz2AZSRN/MQj1rswxF34nhHvDhxa7q3X9cmDidnf2CgMHh85Iguub9wYPCGtgTjMQ8YrMNANIysNX/nb2XUQbYJSQVT+HuF50BAMsIL9rbeVQSdHT4pPSfbd27g3uzdbHRB9gZMAGxx/1P6vvpV7X3sNgLFDgO62C9KZ5LkgxwSFH/yTLwL2FlAPsAPodvn1Xqh2ibTUqjD7UPxIxPhN0DnIv54O7HzgACEykkC4gt+lzxl94Db56+9maBgzgD2A+2LFDBm9sbBY2cuU9JYiCkqc3SkTQthd3ELmzzXfrM7yOJAWjkZrtRaNQq0bA+9hWKDdFbCRRgiqcPZeY9gJrS542Uvp9wJxHbgBn19fWuGg77BSOI7SnTNDz7PlIXHBPRBmjUUbwUbjaiDNBaTyUe4WQjuImp+HkS0+CVBkA4ls1gkL9NA1JH3wSvY17bhbeEYIOsvjY7N1MtvfnW1rZu2nkA+zcaLbJ129ngTgNUvMm8xCPT6Xnhelm9ppTDROlRAsvFjDxlMhmrTsf9YgqiOD450acd90dqo5u/82k1m5XnQfSpASDLamp69lN/N8dtIQO+qF8mWizJAvzOMwH8LalZE6cSb6/hHIiuOQhiQVNQHVgp2kCs+BAhmzdvFfTR3xRqHLJgg5qoHKOLiFlebAOYBV9JYNR90YfzfWVXBdsA1rRZTiFCbOvLcz8cPUZje8AGjFY0VUXoWts4RXCsrqQQHyrcpCrqPvFAPlbXZCVEqRKFhK4LQdQDi8Af7PreYTegTkoAAAAASUVORK5CYII=',rin:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADZklEQVR4Xu2ZP2gUQRTGVwkS5IpwiAQ5gohFCgkih1U4UlmKiFWwusIitYhlShErCwuRK63FUqxCKkkhwSJFsAgSgshhEUKwiXwb3+bd3Px57+2sl+J+cNxeZnb2++a9mdmZFMWUKVOmTJILuR/ebi2cxNocHu5lfWbWxiB+tt2K9snx8DCriWwGJOJ/D38Wc+2rpQmQIxq1DVDKUM9DZAiIp3IyUtdELQNur1MPgxu3epWP7982xjzliobZgE/8nd6jqGiXHNEwGeDiuQgLPBKWdLpoeShBD0c+a+DpReMCYyg1BftQG5DMNikwJriJOqgNNAGfnbRMzIAvCpY0mpiBXKgMWPI/trD51gdtFFQGfLgC+W9c/9r6MPa3nJgNkFAu0CeY04QhsQFL+qSAoe3B+lgUNWkkNsDZeLUW1Hbz3pNgGYiVx9oNYTLgQmmE791Pb9XldahlAILLXl3uV9+45oZcUD432x5JG6SRFZOB3tM3I8/b3RyUomYePyyuv3tdGfKJRznqAVe4264EkwEfMNFZWSmLcO1LM/o71cvBjKWR0OL0efFsP0zp5UJ19j1pwzdEUswRwAvYle4D6XOiLPXX1a/khNmAhv3tryPV3d91+C8GmkS1pcRqfFwcVe/vdLLwY+u9WKPb+3f7L8uVl/Jfu8VUR4A2H9ptZArrpkY9C/GZgk7ZOt3VE18UPj4/Wy/uv1jz9j428u3i9ETPYkKdQvzokB8T0oY8lE48dZA2gE4hfC+K0iNIdQqFgBh8Ot3VsSqueKqbSisJ2QxwIDjnVBmjEQPXlm6XHwAjdN0EjRjgNCkemAzQ8XhuLO2aDHBo9sG39GiQ13Xv0ZpQrQM0Z3MDl1pFgXlcuhrzelg/cP+f0/93VFMr2pMe9KojQA1TTx0c7KleJTgwg/sB73mpeKCKgG+xury4XHsouFFBg1ITYgMQL00TH9LZ6MvgWVkX6SUxIVoNQ+LR+/PzC1UagKOdzWREeNTofrqPFsB/JpKRSEZA0vMQQZA4nxEq4/VDwAginopEdBBLxLtAHD7u2KBopcTzVIMJpFRseg6mUEo8CYpBMwxICUddN404eIP1jQlvBFLipVA0UuIlhCKhXgfOG1MDk2YsArnyvw6hRc83DkwpJJmBtPimXgkmA+eJv2EqBpUijQy/AAAAAElFTkSuQmCC',shizuka:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAD4UlEQVR4Xu2YT0hUQRzHfy0hVrItssgSIkvIEh0WD4tHkRAvgXTOEPEUBBERIRIeIiQ8hASKh5BYdOko0mmREOm4RHgIEZFFIpZYZFuMIkTjNzavefNm3vx763rYDyyP93bem9935vv7zbwH0KJFixYqOjt6TlRtbLlge6MIWaDt8Yvwu34kvOfgcN8pBqebWTB4DNQUFOYiImbaoWzkw4KvVivSbvA+F4s5zQDtmAYvCzSXG4RSacMTkUymAoJsZ8JaAG8ZDB4DS6dveMGVy9vCkWeFUjFnKkAWvA1UOGIjwjgHbJNVB5t8MC8bHOwIiv7j4f2P52HPUOEkQBV8basY6D+RHfZEYL7I8kQXIwvp2geFiYKXQWcBMbWRkQAdVMGjsLB1wZTIBehARaB92LJrQ6QCVKPfCCITYBr8l+XZSKykLUA3gXW5lu2TNjVJZG0BjQBngd0j2WC1DmzOPSZ93bz31Ndn760x73z3Qz4QD/s/Qp+DiYwWxPOBR6+MdFgJYEmnM+SUHilDEy9gfemZ75xvMzb3HnK5AaOAeawFsB4ulTYhGe/2C8tcD3Q2X3gHt3P93vXNhYdEhAva22k+iXG60UI4gijg4HsVrly9BKOjD2CjuA4iAeWdPRgcHoKVlXn4+eMXZHr7SLtyeSewLdHdmUaWxLHKJxI8svtxiRzRQvTHXsd2leISmQHEZWW2tpCIN9N3lW6gbb5tffbaYjXiC4IuTgJwS4DJijbCowqdNqZY5wBFVC55cLTZpGdHH8HSyW/NzzwHXBG96OvgnMTdObXvw0a/f2JWJ04pzgKaTSQCwmZhbXKB/BDe+66jjzgnMU02+pHra6kgnBQ2eBo4flKU7XLPPInp901+lEUjj7h8D2WJxEKisikS0gicFjIWtEKiKw7Z8SnvcirVA8WX92F4chEqlX3fdYCekyhmITIBFAyaBYNH+OtREbmAeDyhjK1erynb6KIlQPU+jP9fTrT5bBIG2qmzs4vYSNaOvBdr2ExLgIxYLAYYuC3svcfHx1aPMRaAQTcC9rkmYpQCqD10YauNDYeHdejoiJNbT2covFqFrsSmwUcFimCJHbVLFz6hALotcPG3C7wABEUg/NoRsFAzRn1k5I5Sb6GQ/2ctv6V8AmTBJxJJqNWqyk5cmJmZDty+vb1HruXzy+RI8iOB+fFfhCegGSPP0lbZgj+prHAMeHFra6ueCGUVahQ762+NHn0aNBC74UzE4DQntIo62gdtdB7REnCeaZqAzNB4YFwwD0xpWg6YIiu12gJoHjS6nIqYmnpO1gERTbMQBa305PUqKaGyMhrGXyFmutn0pAPUAAAAAElFTkSuQmCC',tetsu:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADfklEQVR4Xu2aMWhTURSGX0sGkQ4SgoQgHUoQKaUUKcWhg2SWjMWhFKfiKCIdnBxEREQcRRykdBBxEodOJUMnKVJKCSqhQ8EQNGTK4FConBfP63kn571377n3JR36QWnzct/t///n3HvTpEFwQTrFqenTPDOazHNyEF+4dJKrCWcDSQmjeCDNhGuFCi4ViBIOBm3S6x9PmM6HwkNzwfSpzb0UJwMIiABQCE2fjkGjWBUfeDGQJLI6cz18qnX006toinHJk5DS5sLTOPlbsGo9jtcKACAeEx8FuVTAFpcqOG2jUvtocDkr1AZMxP/uto39aE2oDJiK73x5ZWVCg8oAB5I2TdtmrAnOBkAQJE3TxmuAdN1nZZwNjBsnAzRpmjYkTMHE+XXEtP0krM8BuoC5AVvKdx5GxuHnq6WK9ZmgroCreGT3+bqt7xhqAz5A8a3D7+rpVAZ8pV+duxEJ1+5M3l7Mza0+iaV4uBV/DKSN0VZBVQHXvk1CM6+3CkiJc0zG2KKqwHnC+hwA4CxofngQ83Hz3pvY42/v7w/55GM+ProdG1N/um3915mXCoCwK5f7wa8/P8LvadBxKy8bqWNN8FYBW6RdZ2wVQDafbdn6cMZLC1HABDfC05bSp4eaDSoD8C7a7N3XQ8KRtcerNhpCYD7Nu3MqAxIgOkk4Tddn+oBqESPSdppG491ecO3W1NAQzeJFvJ3EEiCYwsWfVWZbvN8EpwoAplXgrYPitb2POBswMUHF0/XgKh7wtoizXg6D8KzFrMGbgaR9HIzx59Bsebo03k9osH1ocrWNwWm882JwFoB4vLawsBjs758t7M5xVxN6DNUuRD/X2v26M5jw6HNMOIeLf7u2GBTrG+Gw5aVaFILtYWZkgH8QF4m2AJPnRgA6HzUDZBlKNCCm7AHaQhI8nKzqiAZAvCZlCeh/XA8ILOL1zb3gUz07EV4dXpGhXUgrvjdTj74QSTyMw96XODhoJroCM7ydo4MMn/CRfPH/gpYAA1lwE/Pzs7Fblpdq0foIDZik3m53gkqlnPW7IyQTJuIBMFAqFYNutxfNx00AYGTSRLyGRr+quS1EEiu1FnTLRLPZMvpvEtsKYJKSGBPg99EKIHw+45cS0D4w6ShIC4tXwtiABkgrbVfRQufM1UBSP/skdwN5c2EgL7LWDj5vVYFR7ES227WVgfPIP/Q+4uWMuMlmAAAAAElFTkSuQmCC',ghost:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADlElEQVR4Xu2Zv2sUURDHV0mRYglyBJEgIcghIsFCRFKmsJAgYiFWFhYWliJiZWFhbW1hYWEhKUWCpX+AiMURYjgkBDxEQwjhihTByHfjnLOzs2/3zbwDi/vAssnbd7vf7/x4+3LJsgkTJkwI0cnnj8YZoRPjuDkXPTV9mB0eTKmP2R1uu5/vvgEhRRPnFs6Pfv62tVkyAmNeE0kMQDwiDbhgIEVLvCbcBkg8CW8SrOEx4TLAI+/FakLvrgT83BlU7nJ6dq4Yx1mCEuxk80exPWE2UBd9Ev7j/YuKyDM3HhXjOAPNSCwnYz8AQuI14RLMwaFlKRaTAQ2IoejWmeDRBylMJDFA4i14TbgNcPFU4yEoO/3ehsVvBbcBD2Sik88XtylWosi9k8uALJ02Dayx/vahuaFdBlLgLSWzAU/jgu7ihZJ/KqNYzAYki3efFUcb5FzKguW9EL0XQpO9e3pdjSIgE703VTPymlY+N59/iNpim7cSdWjCidA1K+YSkjXsxXq/6BICVEb00Mv3Xlb0f379oDKmzVt9vDyaF1s+wJwBDsRu9r9k3399zW5dDVfl6pPbxYH5XLyVJBkI0V/fKV3uXpwtfk/RwCB5ExfimOidwSBbunbJGuBGTBmgPsAZ2wCChFOUR+O9jVKTyuij9kHsX2OuDOBhcuMlhcdgEQ/MGSDkitSEFn2reFcGOHVr+MdXn0rzlu9fafIXjTsD1A+8FwDES8EYO7uUj0Ra1n1JEgNkAmdphDcy4WlaSZIXGaA61tZ3bcxT95xkBjgQrIkeB8lfZLKh+TtgHKbGkoE2K1QqkmQg9psE3vTeXjAb4KKnZ44TORhstQrs7nA7m5tbODaS/fsXlMVMlAFNNBfe7S62MoB5/X6vmEtGrGYaDTSJBm2Fl3rjr1kyYjUTNADxVB4ElYlFtAa/D88Kf27o/wa1q5AmnkglXkL3HQ73SwfM1C0Ula0ETZSR5yALdSYQxZWVO8X0tbXVLM9PZcPhXmks9Fn0BAxI8nwmO9j/XQzzZi9lgKIeEt8ExEG4BsbbZA9iJTAFXTIbIwOhkpEgSrz5UoD78RVJgzLDTRQGYsS3hcoHoIzqslKHlgUgTZi3EqEs1JVJU+23hfdI43sgllBp0bU2fdAWlwEtC1TH2raCrkmTTbUfwmWAiBXA52tGYyi+GvEsmyEgjt4DsSa1d4EEjW5u4v+FsRo4fqvuRUc/hj8v1dfEteD6qwAAAABJRU5ErkJggg==',seiji:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAD+klEQVR4Xu2ZP2gUQRTGxxCCHks4DqsQUoSAcsghIhJUQqqUYinBQlJYiIiFBMtUIqlEJIWFVbAWyxQSQhSLICFFiBKukCOIyBLkOEECyjfc23s3N7O783ZWU+QHx/3Z2d3ve39m5u6UOuGEE0qjFk38Ke3iXU6VcQMSPhIp9bttv0Pc/hrk3kEuQnDh4+dn9MetvQ2rAxgLYSKIAR/hnBAmChuAeJRKVsRNMB7ZoRKTZqOQAS7eVSppkAkgzYbYAImP4x+qVjubKrRME0PiOytVWHwIRAYo+pLII2N4ECg96h8JIgN54UIpY4c7a/phM4HJwHfx8zZA0U+DomwK5dhMSPA2kAXEQ5yJ6/OiBDcAqo25xIQrCwc720W1a7wM8KnTRlqUbVmx4dsHXgakuMTvri4PNLovQQyYs03eaIegsAEqG98mHWtcDKG/mAFf0WUwHOqiWJUnZ+eTyzXXXw9cmh8Hm88XdR/Uby8mqzqCEo3k31t5bebMDRxuVqlUnDE4+PgmOTY2fdM5rtPpaAO0MfTZmXoZAHwlJgNcKGETjHFnzl1Tvz6/18OwFly+u6S2Xi4lWfARD4KU0NT1BWt0zQy4xhVBNAuZO8r9zVfqy/62enL/u3q36i4pgOMYh/EbKw8S7dI1QZQB1CsaEFMhSqVXLrhcy13rR7GavhXrxD98NuEc54PIAMdW/zbMcba9EALj+hnGhbiJ6UatrcHp0gRi+cJlir+ysKxPod+RfL7gi3rgOOGdAZpKKUqYVvNkgbBFn1/LJ/pAlAHfm+RFcl1RBkwoCxvrH9TM7NXk8NvHK8nrG0/v9UV/P+6o+UcvRKI5QQxQWeHZVU68dKhpJRE3EZWQDRIDocgEh79H5EEI8eIeyGKqVukzgvckHK9DUnghM+Hz/Vh3w6ZX7O7r0AQrIRehvnm5CJIB31/TeNMX7QWxAS66Uh1WrVZTjY9P5qqQ/vG9/9EkZrymUVO0njZbzUR0fNhWp7+5f7CiqbQ2d0fVqlFyHhnvHB71rpXzP7TMDLhEx90/7+r1S8lNIaqzt5mZBYzj5+3ufhowo3JmJtUAxCPdNrgAwvZZnnPpPBhpt3+qKBrVZdZjwrlHchpIE18mEA8TnKg6qjNiK6uBHqCScUWeQO2bEUcE0QdZmCUEcC71gmkAwBj1CDfStw5Q1LPEu4Ah3pw2bOJNINYEpqALD96XiYH/VTI+UGa4CW3gOIq3ZQGYJsRbCdQrn/74TOQqI1f58PrPA+8RsYHjQmkGGhcafR7N96EozcC/YqiMBsZ0inWCoo5n27qRhm0t4NC0WigDtkZGQ9qamxYr85hvA5s4txISbGIoC3yrjXF5901Z/AXQ7h9fi3r7OwAAAABJRU5ErkJggg==',ryu:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADg0lEQVR4Xu2ZsWsUQRTGx+OKcIQUFilCOI4gQeQQkaus8hdYWFmIhCBiKWJlZRHEKrWFBIsUwcLKwtJCgkUIQY6gRwjhiIdESRHCccXhybfH27ybnZndeTOnEe4HB8lmdub73vdmdpMoNWHChAkuLk9XB+Os0KVxTM5Fl6f6qt8rG5c5OWsHrx88AaGLJhZqi8mXB4etjAkYCzURxQDEo9K6aJtwTqiJYANcvKvaLkJMBBnQKx+C1ERJumhM8QAtKDmxRAaKiD/+1ZHWxguRgTwg/sf7NaOJ2MbGYsCGy5iUKAZ4VUkk4Cnw6zEJNiCpqq29JHgb4BvYVG2I45BY/TqHEpScRN4GXNhEmq6TMUmCnKgGJHx6+VDtN79Kbk0QG4ixKXky0n1hfs/NwSS+fu/5yF3NjdHvgWuMNAVRAoh9HEjmFSVgwlRxnSJjfBElcJEQvU7jWbC3+Tj1cXP5VcbTzptHmWumcW+fLqXjbq9+8P4NLUoCENva31Xff35TtdmeMyD8HOMwnouXIk6gUumq7fVn0nUzp87dtXeq262MPwG0z9buZ7FwF5jX95eaoARAkRRwxl+pX02162c+qg/+SgIXjeAETCk0Vl5YfW4+uTPyM6q+NIFoDzKOq62krww2oiRg2wsfX2+n6y49aFh7n5DsAZEBgNMCR6m08rx1pO0DxAZ8TPC2wWmk7xFJ5YmgJzH+MIvFObYNDOGxxQcnQJjaqQghlY+SAEdPIg/f8TbEe4A/8put4WlT2tlI1zG1Eo5X2g8L91eTsfXFRnqP5H8FhQ3o7ygQPTc3qzqd41TAl70DdaO3ldkT/LkAA2eNFXX92kI6jubhZkARQ85NDNH0geCTs7aqzJSSDxbVgfjdqVsjl/WHGsRPb69n7sV8NDfWwXp8fVsLWZ/EycacOfeHBebnauk89LWegi/6vABzZ69XB6ZEjC2ki3dx1DkcaSOAVuItQpiumwzY6J7+zrTVSAtRZLzy1fla8rFB1ZLgIx4aoIs00nppC+lVJ9Hto0Nvbai+Xm1bKkWBDmg61zNsqcSASbyPcEqBn0h5+FSfIBNgqK86KJn63Ue8DUrBtSckQBsZQUsFvQsRpo2cB9LCfVKoyFEM5KVgOpFiEWzAVf3Tbl/ValWr1tAUQLCBf02Jn/n/I0EJSDavTmgbBRm4CIgNFKn+TKWcfPIISeEPdxQbJI/NSyUAAAAASUVORK5CYII=',kageyama:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAD4ElEQVR4Xu2ZP2gTURzHTxGHcogEKRlKkJIpQylOpTg4iDiKg0gHhwydpBQJGR0cJYgUpwwdRIKDOIuIdJDSSUKHglCCBIWgEIocHTJY+b7rL/7ey7t39/5EO+QDIVzu3cv3+/vz7l0SRTNmzJhhohRXTqYZoXPTmJyLvjj3Oxodn9d+zTDpe3+/9wSEKhosXq1KwntfD6VjGPM1EcQAxCPSeYJ1+JrwNkDiffAx4WXAJH7w45vRU3l+IUg5XfCJnA4S3n/bMk5duduQTKAES1HlxLYn9MtDAXTRh/g84QTG5WWpCE4GTOIR2X9pwsnAWcKpidUM2JSODuoHl9XIOwOu4g/294Mk0tnAo0ZTvHzgJjCXWIks907OBkCzuVG4YaeFl4EQ+JbSfzNQW1oK4d/9Tozy4VyrPxGHn7cf5wqjsa8274zH0nyluJJ7Pcd6GUWTdRo3xBy6KJqMqOd05bPW2rHaYgffC5kyUCQ7tjj3gE8N9w+H4sVxnc+6hACVEf/SlfW2JGivvS4dc8H3nr4R57YfrkhjbMsHOGeAA/EfW6Po+88v4h1QlOm9Ui0J4VfmO+Nx9Rd7thUzQbAMkGgCgnXAEM6FaGAQpImpPLJEczAG4+O5hSg5Nj+1FcGphPDUhHoFiCREmcSr0YZwvGACoJdc6t+rB2Bi+cGW8+oBKAOYx/ZRkghSQiq3N3XPw+/FsGf1W9LwdCVLs+mCUxNzsKR2X/7dVkD8u+eNTC04z024lg4R3ADn9daH8eH9jZsTvYDo+5QP8DYAKAtoVvWOShnhjUxjfMWDID1w2tDiV+hOY3KTp4qHcODauJwgBkiM6XGQok5mQogHTvcBE2oJoWFV8SEJbkDFdZdZlCAlZPtLAjV+iD5wNiD9oRGn8RoM+oUCN0z6UbmcPjriB11+kW1vWBnQiebCFxdrhQxgXK93IMaSEdDtdqNaddkqM7kG8kSDosI5uGZ399OEYcomz4wpK0YD4jfQ0/IgqExcRKusrl6XTOAY8yMr/HtN/xtkrkI68UQI8QREqyTJL+kFM1kLxcRWggaqkecgSlkmUNtra+nzcKfTjuL4cpQkR9JnumtRTuVySUQfBlTi+FI0StJPeUlJGaCom8TnAXEQrgOfZxnnmYBYXVagS83G2ICpZFQQJVpFQoH5+IqkgzLDTYgSshHPm9lURgDlQ6CMgOka1YCulNJ50wyhpJy3EqYsZIm0EW+CG8u9D9hiKi06F3IV8zKgywKVgW5bQedUk3m1b8LLAGErgI/XGbVBPIT4LJsmII7uA7YmsxqYg2Z2buKzwlQNpHfVI+vo2/AHjqz+4r2mY7QAAAAASUVORK5CYII=',okada:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAADvElEQVR4Xu2ZT0hUURTGb9EmaBEtWsgg0sIkBhlkECERcSEtxEW4iBYhEiEuJFy0lmglIeFCXIhIi0iQFqIRLmSQWYhIDCJRLkJkkGpRBkG7iu/GeRzvnDdz/70gmB8Mw8zc99733fOde9/MKNWkSZMmTZpkzJVLrb+zusSFmCdOE9rT16N2tpVo4uuP43MhGoIO5kA8hLqys70TZCJKBWzFt7VdE/2hOr6VCDaQJl4Se3T00bVADQmKUJr4w8N3qr39RnJxvDbhnwPfKHkbsIkNCd9fX6gx0Dk0rt/jRnxMBEeIkGZZEk7QZzBiVsOFKAYgvp5YiZP9imrpLLhoFTkfegYf8QRMwDjOsbGx4iUl2EAMnqyX1cqH72p+b9951w4yIM3+yNScfkhIn6EKIUTpAUCiV2cnU/XQZzR2brRPjx1WB2pN5dVEsdN5V/ZaRumep7r3ImTyzsx+99iMPpfrjuxsAOJ3lx7pi/FVpHj7YWJm79WzVGN83Nr0aM04GHExESVCF6/fVFvl7URMsbdPNGGOG+jtE0244N3ENPuY0c/ffmoxeACY4TMN0sYNTy/XVNMF5wqgvN1jMzpGPEK8AoRpgsxJYDVyjQ9wNuAC7wXJTAy8I0RAJEWHwGuzkdPGSY3sQpQKQBwal5uSMMeFigfOyyjhsheYN27m7uu7BwDvCLms1Tb4ns+7ArwStCPfH5yw0ap5/PSBfvZZeThReoBY3JxXv3JFdXDwXuXzHanPn14vWhtthHeECJQ+V7zb6DoiobMf1MQmvKnrRQnRCWlak2gRQiVgAisMosSR7vl9m9YkOEISEBz6RcWWaBUgzC/qfA/IwlQmFeDE+OWhHpkbyJooEfL5/Z+OCW1mbwNc9J2xe3qiK5W3VhPe0ZVXhUKXHvty6Xnyv4GPGScDkmguvL9/wMoAxpVKW3osmfc109BAmmgf4RwyS0ZQEZipVo9VLtdqXZm6BiCezxBBUbGd8XpIRmCid7A/Oay8WUr9AyT1bjRNPAdGTBOY0Tfrq3rYeK5VTba0q7mTQ7VQPdbv3RoaEY+hngAwYFLeLIk9Ii6jNuIBLgrBFAMAQxApYYqnY7l4gAiZoCLSaldjwFY8gYuTERcgno61RTJxJkKu4k34MtpW2dXxIRCjo0L3GeONkKIEeJwSA6HiOWRk9stp8vbU1ctJ7GxJM8BNZHIrYWaaxy02mRgAiBDHfB2LzAz8K3QPxMw/53R5IdkHLo/+/VvVlnr5J9DM/30FMjWAWcfy6Tr7LvwBWIvi6MET1NQAAAAASUVORK5CYII=',toyo:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAD4UlEQVR4XtWZv2sUQRTHJyJiIeGwEJFjOY4Q5BCxDMFCLCSlhQSREEIIYiEWwULyBwQLuUJEghxBQgghSBCxCCnEQoKliKSQEI7jsLCQIBZ2ke8ebzP7bmZ2581c1A8cududnf1+5/2YvcuQisjZM8khpvva2bXOOpo00nM/fnWGXLfGXDsj1XTI+F7XOt45iQ+4oUs4B0ZsJnTxhM3ESR+RNnzFU5RGk0YaMc7Oal09nfmkHtR60XIRHAFd/N5+t+h+GW+aY9n76ckruevGp/bTzwNPIZ+Vb97v5TMx/+zILNUFQalFNeWql6AI+Bhw4aqHIk4UDfjXiVLEwCf/iZF6Pq0kRDMQQ4yEoBRCcfEC5Cy3VgeW/yBqEZvEzs5NWY8TIUUsNsA7EMRDbFn4eKmJKDXAxeiR4BEgk3Tcx7QJUQT01dfFk/C7EyPZvV5s7fV9BiRcv14SBW8DLvG68CJgLIaJoC5EYBV9xAOML+pQZYhiQEJ794vksj6CDUhWn7iR/A6OQrCBv43YgKnjSEAUgLQexAZCqTUuhU6REmTA1Hk+fjudvkzYzlEUJIh24u52SymVF0mixy70UsIEnaOx59mg3rx+iAwAvmou4Rwa2z44OiONgjiFYuUwIZ3P+1EC4HHiXWtefFNg2siuzzWdX+BNiFOIc2f6YXZobeWJ8WZAH7f4aMY6rizBBrCSC49f5kRDpMmEfpyuCzXx36eQqIjxXRj5astlDs93/hkFLMl/IDIAYKI+Ppsv5N1yPy3WVCXnEfO4fn1zITZgpFE1dhe9RWL12+poA5C2TyLIAEVBB4Igcqu5WZhKIGT1QXAXMgETeHETFydG+8yGIupCHGxs+zvLTi164VLahK4+iGIA0E/hJiNcPIRTIwiNQFAN6FAXsX3XpbSi89Kuw4lmgOBdBYLpWKwv8jrRDXBC22QRAzcwaKK0USpgH8r8/6sMYgO66M3Vbe1exY8TNH5j/bVaf/s8+1erpLC9DOii7yXnMtEQMnn7ZpkFy11T+fwqned9t62uVWtqqaO8zRT2YZtozsHlWzkTMAWBBD8PFqavZudhALR/HqjacEUtdb5n51yRcUYA4vWVlmITT6IRgawND1dSExOVU9mxLZUc2kxYu5CveKw2Vp1ASkE4B6uOF4kHeK+b4MCMrVEYI+Ar3gZMbCiV/qV00YXboCjowIQpEn0RiCVejwRRRrwLUyRyBkLF8zQKAVEwwU1kBkLFF7G48sGZ5z7oJqI/SkijUFTINqIbsKF3qJgciwG+qcUkNRA7/8vuCS6wmZXpSMcSAb2NujYsSR0MzECMKJThD2OT/DfxDso4AAAAAElFTkSuQmCC',watanabe:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAA4CAYAAAC7UXvqAAAEEElEQVR4Xu2ZT0gUURzHf8keQmRZlhCR2BaRWMxDhMQiIh5kD0sH8SDRoYNBdIqojhESEhUW0iEiyEOHCAOJCg8msYclFhHxYCayiC0isodlEfEUGL+3/sY3s29m3p8Z/4AfkN2ZffPe9/t+f2bcBTjllONNvCmxF6bCSBiT86Lj7T0AxbxlorJTOhPkmoFM5txlJtqFSjFv+8TUkLEBFO8l2A80ZGKiwW8BL0zFI2jepE60DciKH+qY9t0jExPaBmRA8bdvpqVM6KJVA367T7uO4ol3Hwrs7eRy1rPAVetBOQJ+4gkSfyF9nZ3izbihk0rKBmTAXaYd/1v4xC7BY6/d1yUUA4dJKHdiZ96HiVIRy+a/KSo3N+0INLcmTXXWUd5cV55T24DOYmGgbGC7uhGGDm1OfBeSNoAFHDkXfN6LwHVkH/CUUwjZ3S5rh9yPxmiz3xAbym0Ur/41PgxDI6+hpyPBJssvl6AzEbdN/PblaJ2QOw8esXNLpQp7nRy5y15xLjruvjfB3ss+EylFACd1hhbFI4vVmE1w+tYYFN4/tM7hMUBtTAQq8C/aBoOvvu8f25EVX5vLABSPQnihBAquiT7AOW7z9wozgZGgKKiilEIERuF8bAfyn98wkdXydt26seZoXQTcxk3dv8YMbFSblHYfke5CTih/kZVvT2C1uAiRoQQkn/Z7biJ+juNw/M9nN6yx/HwqGKUQny4AY9AEANXcHNt9EXi+Oj7Hxl3t7lXR6YqxAVH+ixDlfxBo1QBC3Wj9xwtfHVisrZdS1jg85lFtnTzaNaDS6mTQnU87AgRGQiYKBO1+NF17LOlMP9YWjxjXgArTz79C72iGXbJdUH/2F2EcAaoHURRQMCESjrmvmzpEIAZkipovXJOidaJdxE5oJ50dBhGdM915IjADPChYJDoMAi9ivt/T7tO5MEyFEgEep6GgCd1A2ARigH3hpfhjnts1qvNo1wC/UHGDe7b5c9D73eDHt59P2X7FPBttgDgk9mS7lJIBV9EGOMwoz+RrwE90ou0KlNYWlBcm+OvRTDzWCJXqri0yXtHwNIDibemxDy4aJM75VoslmM7NWEtk+zKuKeX6KMGLdy7QkrAb2Cot1EWhs2sQkhfbLBHrq2uwND9l843z0lzFxY/ss9bWJGzuf8nbFE/B7MwXdj7blxFGQtiFnOJxEf5PBhSLohGReBEonkwguGZ/ZoC9x4iIOlSdAZH4o8TPhK0GSDyljDNV3MBxqsXMp48fvInZ3IytJiwDvHhZ4YcJacKU4k0Ecic+Sk68Ad8bmSzOOuDbKLZTPKY2Ws5lYX6iBf/VsaZPDYDVPlVgBo5D/rdfPvia0QsqaKqDwCKgQtfwVmCNItAaoDTyQqV9yvAfVVPEDL2lkZ4AAAAASUVORK5CYII='};
 
 // ===== WORLD GENERATION =====
 var D_DOWN=0,D_SHOP=1,D_RES=2,D_TRAD=3,D_PARK=4,D_PORT=5,D_FOREST=6;
@@ -2649,7 +2711,7 @@ function lightPass(){var lv=TODS.L,m=TODS.m;
  function one(v,isP){if(v&&v.rem){remLight(v,lv);return}if(isP)carLights(car.x,car.y,car.a,sprC?sprC.width:28,sprC?sprC.height:15,lv,K.b&&car.fw>0&&mode==='game',true);else{var V=VTY[v.vt];carLights(v.x,v.y,v.a,V.L,V.H+1,lv,(v.bk||0)>.3,false)}if(isP)underglow(lv)}
  function route(v,isP){var x=isP?car.x:v.x,y=isP?car.y:v.y,l=isP?(car.l|0):(v.l|0),sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
   if(l===0&&underTop(x,y,LR)){mk.push([v,isP]);bx0=Math.min(bx0,sx-LR);by0=Math.min(by0,sy-LR);bx1=Math.max(bx1,sx+LR);by1=Math.max(by1,sy+LR)}else one(v,isP)}
- for(i=0;i<AI.length;i++){if(!AI[i].fd)route(AI[i],false)}if(car)route(null,true);if(typeof NET!=='undefined'&&NET.on&&mode==='game')for(var rid in REM){if(REM[rid].vis)route(REM[rid],false)}
+ for(i=0;i<AI.length;i++){if(!AI[i].fd)route(AI[i],false)}if(car)route(null,true);if(typeof NET!=='undefined'&&NET.on&&mode==='game')for(var rid in REM){if(REM[rid].vis)route(REM[rid],false)}if(typeof RIV!=='undefined'&&mode==='game')for(var ri2=0;ri2<RIV.length;ri2++)route(RIV[ri2],false)
  if(mk.length){var bx=Math.max(0,Math.floor(bx0)),by=Math.max(0,Math.floor(by0)),bw=Math.min(VW,Math.ceil(bx1))-bx,bh=Math.min(VH,Math.ceil(by1))-by;
   if(bw>0&&bh>0){var mc=cx,lc=litLayer(bx,by,bw,bh);cx=lc;cx.globalCompositeOperation='lighter';cx.imageSmoothingEnabled=true;mk.forEach(function(e){one(e[0],e[1])});litCut(lc,bx,by,bw,bh);cx=mc;cx.globalCompositeOperation='lighter';cx.globalAlpha=1;cx.drawImage(LITC,bx,by,bw,bh,bx,by,bw,bh)}}
  cx.globalCompositeOperation='source-over';cx.globalAlpha=1;cx.imageSmoothingEnabled=false}
@@ -3053,17 +3115,19 @@ function menuLeave(){mode='';$('menu').style.display='none';$('duo').style.displ
  car=DEMO.saved;WP=DEMO.wp;AI=[];SMOKE=[];PART=[];BIRDS=[];brkReset();
  PR.forEach(function(p){if(p.t===P_CONE){p.kn=0;p.gone=0;p.cx=p.x;p.cy=p.y;p.ca=0}})}
 function menuAction(a){
- if(a==='play'){menuLeave();$('game').style.display='none';$('gar').style.display='block';renderGar();window.scrollTo(0,0)}
+ if(a==='story'){storyBegin();return}
+ if(a==='play'){if(typeof ST!=='undefined')ST.mode=false;menuLeave();$('game').style.display='none';$('gar').style.display='block';renderGar();window.scrollTo(0,0)}
  else if(a==='edit'){menuLeave();openEd()}
  else if(a==='set'){openSet()}
  else if(a==='duo'){lobbyOpen()}
  else if(a==='duox'){$('duo').style.display='none'}}
 var PXI_PLAY=['C........','CCC......','CCCCC....','CCCCCCC..','CCCCCCCCC','CCCCCCC..','CCCCC....','CCC......','C........'],
  PXI_DUO=['..CC....DD..','.CCCC..DDDD.','.CCCC..DDDD.','..CC....DD..','............','.CCCC..DDDD.','CCCCCC.DDDDD','CCCCCC.DDDDD','CCCCCC.DDDDD'],
+ PXI_BOOK=['CCCC.CCCC','CDDC.CDDC','CDDC.CDDC','CDDC.CDDC','CDDC.CDDC','CDDC.CDDC','CCCCCCCCC','.CCCCCCC.','.........'],
  PXI_EDIT=['......KK.','.....KCCK','....KCCK.','...KCCK..','..KCCK...','.KCCK....','KYYK.....','KYK......','KK.......'];
 function menuUI(){var m=$('menu');if(!m)return;
  var ic=function(sel,svg){var e=m.querySelector(sel);if(e)e.insertAdjacentHTML('afterbegin',svg)};
- ic('[data-m=play]',pxSvg(PXI_PLAY,{C:'#2a0d1c'},'mi'));ic('[data-m=duo]',pxSvg(PXI_DUO,{C:'#06202a',D:'#1d6f86'},'mi'));
+ ic('[data-m=story]',pxSvg(PXI_BOOK,{C:'#2a0d1c',D:'#ffd0e4'},'mi'));ic('[data-m=play]',pxSvg(PXI_PLAY,{C:'#06202a'},'mi'));ic('[data-m=duo]',pxSvg(PXI_DUO,{C:'#6ee7ff',D:'#2a9cc0'},'mi'));
  ic('[data-m=edit]',pxSvg(PXI_EDIT,{K:'#12141d',C:'#ffd23a',Y:'#ff6fae'},'mi'));ic('[data-m=set]',pxSvg(pxGear(),{C:'#6ee7ff'},'mi'));
  m.addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuAction(b.dataset.m)});
  $('duo').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuAction(b.dataset.m);else if(e.target.id==='duo')menuAction('duox')})}
@@ -3207,6 +3271,247 @@ function lobbyAct(a){
 document.addEventListener('click',function(e){var b=e.target.closest('#duo [data-n]');if(b)lobbyAct(b.dataset.n)});
 // a guest who scanned the QR joins automatically once the city is built
 var _moNet=menuOpen;menuOpen=function(){_moNet();if(NET.first){NET.first=false;if(netJoinUrl()&&/^https?:$/.test(location.protocol)){netConnect((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');lobbyOpen()}}if(NET.on)NET.away=true};
+
+// ===== rival cars: real physics + autopilot along a path (bosses, races) =====
+var RIV=[];
+function rivMake(o){var ci=o.car|0,C=CARS[ci],c={x:wrap(o.x),y:wrap(o.y),a:o.a||0,vx:0,vy:0,w:0,st:0,dr:false,drT:0,spin:0,l:0,hx:C.hx,hy:C.hy,P:carParams(ci,o.parts||[1,1,1]),sp:0,slip:0,fw:0,surf:1,under:false,m:C.m||1,tail:0};
+ var r={rem:true,riv:true,id:o.id||('riv'+RIV.length),name:o.name||'',col:o.tag||'#ffd23a',c:c,car:ci,spr:playerSprite(ci,BODYC[o.col|0],STRC[o.str|0]),glow:o.glow|0,
+  pts:o.pts,loop:!!o.loop,pi:0,P:0,hb:0,cool:.5,vmax:o.vmax||300,drift:o.drift==null?1:o.drift,wait:!!o.wait,wp:[null,null],x:c.x,y:c.y,a:c.a,l:0,vx:0,vy:0,d:0,b:0,sl:0,sp:0,vis:true};
+ rivPath(r,o.pts,o.loop);RIV.push(r);return r}
+function rivPath(r,pts,loop){if(!pts||pts.length<2)return;var P=pts.slice();if(loop)P.push(P[0]);var cum=[0];for(var i=1;i<P.length;i++){var dx=wd(P[i][0],P[i-1][0]),dy=wd(P[i][1],P[i-1][1]);cum.push(cum[i-1]+Math.hypot(dx,dy))}
+ r.pts=P;r.cum=cum;r.L=cum[cum.length-1];r.loop=loop;r.pi=0;r.P=0}
+function rivClear(){RIV=[]}
+function rivAt(r,d,out){var P=r.pts,C=r.cum,n=P.length;if(r.loop){d=((d%r.L)+r.L)%r.L}else d=clamp(d,0,r.L);var i=0;while(i<n-2&&C[i+1]<d)i++;var sl=(C[i+1]-C[i])||1,t=clamp((d-C[i])/sl,0,1),a=P[i],b=P[i+1],dx=wd(b[0],a[0]),dy=wd(b[1],a[1]);out[0]=a[0]+dx*t;out[1]=a[1]+dy*t;out[2]=Math.atan2(dy,dx);return out}
+function rivAI(r,dt){var c=r.c,I={s:0,t:1,b:0,h:0},P=r.pts;if(!P)return I;var n=P.length,best=1e18,bi=r.pi,bt=0;
+ for(var k=-3;k<40;k++){var i=r.pi+k;if(r.loop)i=((i%(n-1))+(n-1))%(n-1);else if(i<0||i>=n-1)continue;var p0=P[i],p1=P[i+1],ex=wd(p1[0],p0[0]),ey=wd(p1[1],p0[1]),l2=ex*ex+ey*ey||1,dx=wd(c.x,p0[0]),dy=wd(c.y,p0[1]),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=qx*qx+qy*qy;if(d<best){best=d;bi=i;bt=t}}
+ r.pi=bi;r.P=r.cum[bi]+(r.cum[bi+1]-r.cum[bi])*bt;
+ if(!r.loop&&r.L-r.P<20){I.t=0;I.b=1;return I}
+ var sp=c.sp,T=[0,0,0],A=[0,0,0],B=[0,0,0];
+ rivAt(r,r.P+24+sp*.2,T);var head=c.dr?Math.atan2(c.vy,c.vx):c.a,err=angd(Math.atan2(wd(T[1],c.y),wd(T[0],c.x)),head);
+ I.s=clamp(err*(c.dr?2.2:2.8),-1,1);
+ rivAt(r,r.P+10,A);var mt=0,md=0;for(var d2=40;d2<=60+sp*.9;d2+=20){rivAt(r,r.P+d2,B);var tt=angd(B[2],A[2]);if(Math.abs(tt)>Math.abs(mt)){mt=tt;md=d2}}
+ var vt=Math.min(r.vmax,Math.abs(mt)>1.2?175:Math.abs(mt)>.7?215:Math.abs(mt)>.35?270:330);r.cool-=dt;
+ if(!c.dr){if(sp>vt+25){I.t=0;I.b=clamp((sp-vt)/120,.3,1)}else if(sp>vt)I.t=.3;
+  if(r.drift&&r.cool<=0&&sp>120&&Math.abs(mt)>.42&&md<90+sp*.25){r.hb=.16+Math.min(.22,Math.abs(mt)*.1);r.cool=.9}}
+ else{I.t=Math.abs(err)>.9?.3:.85;if(r.drift&&Math.abs(mt)>.3&&Math.abs(err)<.8&&sp>110)I.h=1}
+ if(r.hb>0){r.hb-=dt;I.h=1;I.b=0;I.t=1;I.s=mt>0?1:-1}
+ if(r.stuck>.6){r.rev=.8;r.stuck=0}if(r.rev>0){r.rev-=dt;I.t=0;I.b=1;I.h=0;I.s=err>0?-1:1}
+ return I}
+// rivals use the normal collision code; keep its scoring side effects away from the player
+function rivUpdate(dt){if(!RIV.length)return;
+ for(var i=0;i<RIV.length;i++){var r=RIV[i],c=r.c;if(r.wait){r.x=c.x;r.y=c.y;r.a=c.a;continue}
+  var I=rivAI(r,dt),sv={pend:run.pend,score:run.score,msg:run.msg,mt:run.mt,coins:S.coins,cm:COLL.max,ch:COLL.hit,cx:COLL.px,cy:COLL.py,ah:AIHIT};
+  for(var n=0;n<3;n++){physStep(c,I,dt/3);layerUpdate(c);collide(c)}
+  run.pend=sv.pend;run.score=sv.score;run.msg=sv.msg;run.mt=sv.mt;S.coins=sv.coins;COLL.max=sv.cm;COLL.hit=sv.ch;COLL.px=sv.cx;COLL.py=sv.cy;AIHIT=sv.ah;
+  r.stuck=c.sp<25?(r.stuck||0)+dt:0;
+  r.x=c.x;r.y=c.y;r.a=c.a;r.vx=c.vx;r.vy=c.vy;r.l=c.l|0;r.d=c.dr?1:0;r.b=I.b>.2?1:0;r.sl=c.slip;r.sp=c.sp;remFx(r,dt)}}
+function rivDraw(z){for(var i=0;i<RIV.length;i++){var r=RIV[i];if((r.l|0)!==z)continue;var sp=r.spr,x=SX(r.x),y=SY(r.y),w=sp.width,h=sp.height;if(x<-70||y<-70||x>VW+70||y>VH+70)continue;
+ var ra=Math.round(r.a/(Math.PI/32))*(Math.PI/32);cx.save();cx.translate(x+2,y+3);cx.rotate(ra);cx.fillStyle='rgba(12,8,40,.4)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();
+ cx.save();cx.translate(x,y);cx.rotate(ra);cx.drawImage(sp,-w/2,-h/2);vehLights({bk:r.b,x:r.x,phy:0,tn:0,vt:-1},sp,false);cx.restore()}}
+// rival <-> player contact pushes both cars for real
+function rivCollide(c){var near=99;for(var i=0;i<RIV.length;i++){var r=RIV[i],o=r.c;if((o.l|0)!==(c.l|0))continue;var dx=wd(o.x,c.x),dy=wd(o.y,c.y);if(Math.abs(dx)>60||Math.abs(dy)>60)continue;var dd=Math.hypot(dx,dy)-o.hx-c.hx*.6;if(dd<near)near=dd;satPair(c,o,.25,.38)}return near}
+function rivTags(){var box=$('ntags');if(!box)return;var cr=cv.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+ for(var i=0;i<RIV.length;i++){var r=RIV[i],e=$('rt'+r.id);if(mode!=='game'||!r.name){if(e)e.remove();continue}
+  if(!e){e=document.createElement('div');e.id='rt'+r.id;e.className='ntag';e.innerHTML='<b></b><i></i>';box.appendChild(e)}
+  var q=scrXY(r.x,r.y),X=cr.left+q[0]/RVW*cr.width,Y=cr.top+q[1]/RVH*cr.height,x0=24,x1=W-24,y0=150,y1=H-230,off=X<x0||Y<y0-60||X>x1||Y>H-60;e.style.color=r.col;
+  if(off){var cx0=(x0+x1)/2,cy0=(y0+y1)/2,dx=X-cx0,dy=Y-cy0,s=Math.min((x1-x0)/2/Math.max(1,Math.abs(dx)),(y1-y0)/2/Math.max(1,Math.abs(dy)));X=cx0+dx*s;Y=cy0+dy*s;e.className='ntag off';e.lastChild.style.transform='rotate('+(Math.atan2(dy,dx)+Math.PI/2)+'rad)';e.lastChild.textContent='▲';e.firstChild.textContent=L(r.name)+' '+Math.round(Math.hypot(wd(r.x,car.x),wd(r.y,car.y))/4)+L('м')}
+  else{e.className='ntag';e.lastChild.textContent='▼';e.lastChild.style.transform='';e.firstChild.textContent=L(r.name);Y-=22}
+  e.style.left=Math.round(X)+'px';e.style.top=Math.round(Y)+'px'}
+ var ch=box.querySelectorAll('[id^=rt]');for(var k=0;k<ch.length;k++){var id=ch[k].id.slice(2),f=false;for(var j=0;j<RIV.length;j++)if(RIV[j].id===id)f=true;if(!f)ch[k].remove()}}
+var _dsRiv=drawSmoke;drawSmoke=function(z){if(RIV.length&&mode==='game')rivDraw(z);_dsRiv(z)};
+var _coRiv=collide;collide=function(c){var n=_coRiv(c);if(RIV.length&&mode==='game'&&c===car)n=Math.min(n,rivCollide(c));return n};
+var _huRiv=hud;hud=function(dt){_huRiv(dt);rivTags()};
+var _dmRiv=drawMini;drawMini=function(){_dmRiv();if(!RIV.length||!MMCX)return;var g=MMCX,k=MMS/(2*MMR),th=camRot()?-Math.PI/2-(cam.a||0):0,ct=Math.cos(th),st=Math.sin(th),D=DPR;
+ RIV.forEach(function(r){var dx=wd(r.x,car.x),dy=wd(r.y,car.y),X=clamp(MMS/2+(dx*ct-dy*st)*k,5*D,MMS-5*D),Y=clamp(MMS/2+(dx*st+dy*ct)*k,5*D,MMS-5*D);g.fillStyle='#12141d';g.fillRect(X-4*D,Y-4*D,8*D,8*D);g.fillStyle=r.col;g.fillRect(X-3*D,Y-3*D,6*D,6*D)})};
+
+// ===== STORY CAMPAIGN «Пьяный стиль» =====
+var WHO={lyokha:['Лёха','Lyokha'],hana:['Хана','Hana'],reiko:['Рэйко','Reiko'],misha:['Дядя Миша','Uncle Misha'],kir:['Кир','Kir'],gen:['Гэн','Gen'],rin:['Рин','Rin'],shizuka:['Сидзука','Shizuka'],
+ tetsu:['Тэцу','Tetsu'],ghost:['Призрак','Ghost'],seiji:['Сэйдзи','Seiji'],ryu:['Рю','Ryu'],kageyama:['Кагэяма','Kageyama'],okada:['Окада','Okada'],toyo:['Бабушка Тоё','Grandma Toyo'],watanabe:['Ватанабэ','Watanabe']};
+function LT(o){return o==null?'':typeof o==='string'?o:(S.lang==='en'?o.en:o.ru)}
+// ---- places (fixed city seed, so these are stable)
+var STP=null;
+function stPlaces(){if(STP)return STP;
+ function sp(k,i){var a=SPEC.filter(function(s){return s.k===k})[i||0];return a?{x:a.x+a.w/2,y:a.y+a.h/2}:{x:WS/2,y:WS/2}}
+ function snap(p,R){var q=gpsNear(p.x,p.y,R||320,true)||gpsNear(p.x,p.y,700);return q?{x:q.x,y:q.y,q:q}:{x:p.x,y:p.y}}
+ function zone(id){for(var i=0;i<ZONES.length;i++)if(ZONES[i].id===id)return ZONES[i];return null}
+ var sj=sp('sensoji');
+ STP={station:snap(sp('tstation')),garage:snap({x:sj.x+150,y:sj.y-170}),port:snap(sp('yard',1)),castle:snap(sp('castle')),wheel:snap(sp('ferris',1)),sensoji:snap(sj),
+  scramble:snap(zone('scr')||sj),naka:(function(){var z=zone('r2');var s=zoneStart(z);return{x:s.x,y:s.y}})(),c1:(function(){var z=zone('c1');return{x:z.x,y:z.y}})()};
+ STP.garage.name={ru:'Мастерская',en:'Garage'};STP.station.name={ru:'Вокзал',en:'Station'};STP.port.name={ru:'Порт',en:'Port'};STP.castle.name={ru:'Замок',en:'Castle'};
+ STP.wheel.name={ru:'Колесо обозрения',en:'Ferris wheel'};STP.sensoji.name={ru:'Сэнсо-дзи',en:'Senso-ji'};STP.scramble.name={ru:'Скрамбл',en:'Scramble'};STP.naka.name={ru:'Кольцо Нака',en:'Naka Ring'};STP.c1.name={ru:'Эстакада С1',en:'C1 Expressway'};
+ return STP}
+function stZone(id){for(var i=0;i<ZONES.length;i++)if(ZONES[i].id===id)return ZONES[i];return null}
+// ---- chapter 1 «Наследство»
+function D(who,ru,en){return[who,ru,en]}
+var STORY=[
+ {id:'k1',title:{ru:'Ключи',en:'The keys'},at:'station',type:'deliv',stops:['garage'],reward:50,auto:true,
+  goal:{ru:'Доедь до мастерской дяди Миши',en:'Drive to uncle Misha’s garage'},
+  pre:[D('lyokha','Токио. Дядь Миш, ну ты и забрался.','Tokyo. Uncle Misha, you really went far.'),
+       D('toyo','Ты Миша-младший? Похож. Так же криво паркуешься.','You’re little Misha? You look like him. You park just as crooked.'),
+       D('lyokha','Я ещё даже не парковался.','I haven’t even parked yet.'),
+       D('toyo','Вот и я о том же. Держи ключи. И онигири. Мастерская у Сэнсо-дзи, под эстакадой — розовые стрелки доведут.','That’s my point. Here are the keys. And onigiri. The garage is by Senso-ji, under the overpass — follow the pink arrows.')],
+  post:[D('hana','Эй! Ты кто такой и что делаешь у мастерской Миши?','Hey! Who are you and what are you doing at Misha’s garage?'),
+        D('lyokha','Я Лёха. Племянник. Мастерская теперь моя.','I’m Lyokha. His nephew. The garage is mine now.'),
+        D('hana','…Хана. Лавка запчастей напротив. Миша говорил, ты ездишь как бешеный.','…Hana. Parts shop across the street. Misha said you drive like a maniac.'),
+        D('lyokha','Врал. Я езжу лучше.','He lied. I drive better.'),D('hana','Сейчас проверим.','Let’s find out.')]},
+ {id:'k2',title:{ru:'Первый занос',en:'First drift'},at:'garage',type:'drift',goalPts:400,radius:520,reward:100,
+  goal:{ru:'Набери 400 очков заносом у мастерской',en:'Score 400 drift points near the garage'},
+  pre:[D('hana','Зажми ручник и поверни. Без руля машина едет ровно, с рулём — сразу занос.','Hold the handbrake and steer. Without steering the car goes straight, steer and it slides.'),
+       D('hana','Набери 400 очков, и я поверю, что ты не просто болтаешь.','Score 400 points and I’ll believe you’re not just talking.')],
+  post:[D('hana','Ладно, не врал. Но виляешь ты ужасно.','Fine, you didn’t lie. But you wobble terribly.'),D('lyokha','Это стиль.','It’s style.')]},
+ {id:'k3',title:{ru:'Хрупкий груз',en:'Fragile cargo'},at:'garage',type:'deliv',stops:['port','garage'],fragile:true,reward:200,
+  goal:{ru:'Забери детали в порту и привези без ударов',en:'Pick up the parts at the port and bring them back without hits'},
+  pre:[D('hana','Мне привезли детали в порт, а моя машина в ремонте. Съездишь?','My parts arrived at the port and my car is in the shop. Can you go?'),
+       D('hana','Коробка хрупкая. Каждый удар — минус из твоей платы.','The box is fragile. Every hit comes out of your pay.')],
+  post:function(r){return r.hits?[D('hana','Ну… часть деталей жива. Спасибо, наверное.','Well… some of the parts survived. Thanks, I guess.')]:[D('hana','Ни царапины. Беру тебя в курьеры.','Not a scratch. You’re hired as my courier.')]}},
+ {id:'k4',title:{ru:'Онигири на скорость',en:'Onigiri rush'},at:'garage',type:'deliv',stops:['castle','wheel','sensoji'],limit:90,reward:150,
+  goal:{ru:'Развези онигири: замок, колесо обозрения, Сэнсо-дзи',en:'Deliver onigiri: castle, Ferris wheel, Senso-ji'},
+  pre:[D('toyo','Внучок, развези онигири, пока горячие. Замок, колесо обозрения и Сэнсо-дзи.','Dear, deliver the onigiri while they’re hot. The castle, the Ferris wheel and Senso-ji.'),
+       D('toyo','На карте можно ставить метки — она сама покажет дорогу. Полторы минуты, не больше!','You can put markers on the map — it shows the way. A minute and a half, no more!')],
+  post:[D('toyo','Горячие! Миша возил так же. Только он ещё и пел.','Still hot! Misha delivered them the same way. Only he sang too.')]},
+ {id:'k5',title:{ru:'Ёппарай',en:'Yopparai'},at:'scramble',type:'drift',goalPts:600,radius:300,reward:200,
+  goal:{ru:'Набери 600 очков заносом на Скрамбле',en:'Score 600 drift points at the Scramble'},
+  pre:[D('hana','Скрамбл — главный перекрёсток города. Тут всегда толпа и камеры.','The Scramble is the city’s main crossing. There’s always a crowd and cameras.'),
+       D('hana','Покажи им заносы. Я сниму.','Show them some drifts. I’ll film.')],
+  post:[D('hana','Ты это специально так виляешь?','Do you wobble like that on purpose?'),D('lyokha','Конечно. Это стиль.','Of course. It’s style.'),
+        D('hana','Тогда у стиля уже есть имя. Весь Скрамбл зовёт тебя «ёппарай». Пьяный.','Then the style already has a name. The whole Scramble calls you “yopparai”. Drunk.'),
+        D('lyokha','Да я трезвый, как стекло!','I’m sober as glass!'),D('hana','Им это не объяснишь. Сорок тысяч просмотров за час.','Try telling them that. Forty thousand views in an hour.')]},
+ {id:'k6',title:{ru:'Господин Окада',en:'Mr. Okada'},at:'garage',type:'scene',reward:0,
+  goal:{ru:'Тебя ждут у мастерской',en:'Someone is waiting at the garage'},
+  pre:[D('okada','Алексей-сан? Окада, банк «Сакура-Траст». Примите мои соболезнования.','Alexei-san? Okada, Sakura Trust bank. My condolences.'),
+       D('okada','Мастерская заложена. Долг — тридцать тысяч иен. Первый взнос, две тысячи, — до конца месяца.','The garage is mortgaged. The debt is thirty thousand yen. The first payment, two thousand, is due by the end of the month.'),
+       D('okada','Я очень, очень на вас надеюсь.','I am very, very hopeful about you.'),
+       D('lyokha','(шёпотом) Почему он так улыбается?','(whispering) Why is he smiling like that?'),D('hana','Лучше не знать.','Better not to know.')],
+  post:[]},
+ {id:'k7',title:{ru:'Розовая линия',en:'The pink line'},at:'naka',type:'zone',zone:'r2',goalPts:3000,reward:250,
+  goal:{ru:'Кольцо Нака: держись линии, набери 3 000',en:'Naka Ring: follow the line, score 3,000'},
+  pre:[D('hana','На кольцах считают не занос, а линию. Видишь розовую траекторию? Чем ближе к ней, тем больше очков.','On the rings they don’t score the drift, they score the line. See the pink path? The closer you stay, the more points.'),
+       D('hana','По часовой. Против хода — ноль.','Clockwise. The wrong way gives zero.')],
+  post:[D('hana','Чисто. Почти.','Clean. Almost.')]},
+ {id:'k8',title:{ru:'Король вызывает',en:'The King calls'},at:'c1',type:'zone',zone:'c1',course:true,reward:300,
+  goal:{ru:'Проедь Эстакаду С1 до финиша',en:'Drive the C1 Expressway to the finish'},
+  pre:[D('gen','Это ты тот ёппарай с видео? Я Гэн. Король Скрамбла.','You’re that yopparai from the video? I’m Gen. King of the Scramble.'),
+       D('gen','Проедь эстакаду С1 до финиша — тогда поговорим всерьёз.','Drive the C1 to the finish — then we’ll talk for real.')],
+  post:[D('gen','Неплохо для пьяного. Завтра, Скрамбл. Приводи свою подружку с камерой.','Not bad for a drunk. Tomorrow, the Scramble. Bring your girlfriend with the camera.'),
+        D('hana','Я ему не подружка!','I’m not his girlfriend!')]},
+ {id:'k9',title:{ru:'Король Скрамбла',en:'King of the Scramble'},at:'scramble',type:'duel',zone:'scr',boss:'gen',reward:1500,
+  goal:{ru:'Набери больше очков, чем Гэн, за 45 секунд',en:'Outscore Gen in 45 seconds'},
+  pre:[D('gen','Правила простые: 45 секунд, у кого больше очков — тот король.','Simple rules: 45 seconds, whoever scores more is king.'),
+       D('gen','Каждые 10 секунд Хана делает кадр. Будь рядом со мной — и кадр твой.','Every 10 seconds Hana takes a shot. Be close to me and the shot is yours.'),
+       D('lyokha','Без проблем.','No problem.')],
+  post:[D('gen','…Ладно. Сегодня король ты. Но корону я ещё заберу.','…Fine. Today you’re king. But I’ll take the crown back.'),
+        D('hana','Миллион просмотров, Лёха. Тебя теперь знает весь город.','A million views, Lyokha. The whole city knows you now.')],
+  fail:[D('gen','Корона остаётся у меня. Приходи, когда протрезвеешь.','The crown stays with me. Come back when you sober up.')]},
+ {id:'k10',title:{ru:'Первый взнос',en:'First payment'},at:'garage',type:'pay',amount:2000,reward:0,
+  goal:{ru:'Внеси первый взнос — 2 000 ¥',en:'Make the first payment — 2,000 ¥'},
+  pre:[D('okada','Две тысячи иен. Ровно. Восхитительно, Алексей-сан.','Two thousand yen. Exactly. Delightful, Alexei-san.'),
+       D('okada','Осталось двадцать восемь. Я буду рядом.','Twenty-eight left. I’ll be around.'),
+       D('lyokha','Вот этого я и боялся.','That’s exactly what I was afraid of.')],
+  post:[], chapterEnd:1}
+];
+// ---- state
+if(!S.story||typeof S.story!=='object')S.story={m:0,started:0,debt:30000};
+var ST={mode:false,act:null,t:0,prog:0,hits:0,stop:0,routed:'',lastOk:false,gen:0,photo:0,prompt:false,end:null};
+function stCur(){return STORY[S.story.m|0]||null}
+function stPlace(k){var P=stPlaces();return P[k]}
+// ---- dialogue box (pauses the game)
+var DLG=null;
+function dlgOpen(lines,cb){if(!lines||!lines.length){if(cb)cb();return}
+ var was=mode;if(mode==='game'){mode='dlg';K.l=K.r=K.t=K.b=K.h=0;SL.on=false;SL.id=null;SL.v=0;slHide();auStop()}
+ DLG={l:lines,i:0,cb:cb,was:was,ch:0,tm:0,safe:false};var me0=DLG;requestAnimationFrame(function(){me0.safe=true});$('dlg').style.display='flex';$('ctl').style.visibility='hidden';document.body.classList.add('dlgon');dlgShow()}
+function dlgShow(){var d=DLG,ln=d.l[d.i],who=ln[0],me=who==='lyokha',e=$('dlg');e.className=me?'me':'';
+ e.querySelector('img').src=PORT[who]||'';e.querySelector('.dnm').textContent=WHO[who]?WHO[who][S.lang==='en'?1:0]:who;
+ d.txt=S.lang==='en'?ln[2]:ln[1];d.ch=0;clearInterval(d.tm);var p=e.querySelector('.dln');p.textContent='';
+ d.tm=setInterval(function(){d.ch+=2;p.textContent=d.txt.slice(0,d.ch);if(d.ch>=d.txt.length){clearInterval(d.tm);d.tm=0}},28)}
+function dlgNext(skip){var d=DLG;if(!d)return;
+ if(d.tm&&!skip){clearInterval(d.tm);d.tm=0;d.ch=d.txt.length;$('dlg').querySelector('.dln').textContent=d.txt;return}
+ d.i++;if(!skip&&d.i<d.l.length){dlgShow();return}
+ clearInterval(d.tm);DLG=null;$('dlg').style.display='none';$('ctl').style.visibility='';document.body.classList.remove('dlgon');
+ if(mode==='dlg'){mode='game';applyCtl();if(S.snd)auStart();last=performance.now();if(d.safe)requestAnimationFrame(loop)}
+ if(d.cb)d.cb()}
+// ---- chapter title card
+function chapterCard(top,title,sub,cb){var e=$('chap');e.innerHTML='<div class="cc1">'+top+'</div><div class="cc2">'+title+'</div><div class="cc3">'+sub+'</div>';e.style.display='flex';e.className='';void e.offsetWidth;e.className='on';
+ var done=false;function fin(){if(done)return;done=true;e.style.display='none';e.onclick=null;if(cb)cb()}e.onclick=fin;setTimeout(fin,3200)}
+// ---- start / finish
+function stPlaceCar(k){var p=stPlace(k),q=p.q||gpsNear(p.x,p.y,300,true);if(q){q.r.pt(q.s,TMP);var u=q.r.k==='loc'?q.r.hw*.42:(q.r.m||0)+.5*(q.r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=p.x;car.y=p.y}
+ car.vx=car.vy=car.w=0;car.sp=0;car.l=0;car.dr=false;cam.x=car.x;cam.y=car.y;cam.a=car.a;preload()}
+function stRoute(x,y){var q=gpsNear(x,y,300,true)||gpsNear(x,y,600);if(!q)return;WP={x:q.x,y:q.y,q:q};gpsRoute()}
+function storyBegin(){ST.mode=true;
+ if(!S.story.started){S.story.started=1;S.story.m=0;save();menuLeave();
+  chapterCard(L('Глава 1'),L('Наследство'),L('утро · Токио'),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}
+ else{menuLeave();$('game').style.display='none';$('gar').style.display='block';renderGar();window.scrollTo(0,0)}}
+function stStart(m){if(!m||ST.act)return;ST.act=m;ST.t=0;ST.prog=0;ST.hits=0;ST.stop=0;ST.gen=0;ST.photo=0;ST.end=null;stPromptHide();
+ dlgOpen(m.pre,function(){
+  if(m.type==='scene'){stDone(true);return}
+  if(m.type==='pay'){if(S.coins>=m.amount){S.coins-=m.amount;S.story.debt-=m.amount;save();stDone(true)}else{ST.act=null;toast(L('Нужно')+' '+m.amount+' ¥');return}return}
+  if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
+  if(m.type==='zone'||m.type==='duel'){var z=stZone(m.zone);if(!z){ST.act=null;return}zonePlace(z);if(m.type==='duel')stSpawnGen(z)}
+ })}
+function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.lastOk=ok;rivClear();
+ if(!ok){toast(L('Не вышло')+(why?': '+L(why):''));dlgOpen(m.fail||[],null);return}
+ var rw=m.reward||0;if(m.fragile)rw=Math.max(0,Math.round(rw*(1-.25*ST.hits)));
+ if(rw){S.coins+=rw;popup('+'+rw+' ¥','big')}
+ S.story.m=(S.story.m|0)+1;save();ST.routed='';WP=null;
+ var post=typeof m.post==='function'?m.post({hits:ST.hits}):m.post;
+ setTimeout(function(){dlgOpen(post,function(){
+  if(m.chapterEnd){chapterCard(L('Глава 1 пройдена'),L('Наследство'),L('Глава 2 «Пьяный стиль» — скоро'),null);return}
+  var n=stCur();if(n&&n.auto)stStart(n)})},m.type==='zone'||m.type==='duel'?1400:300)}
+// ---- boss: Gen drifts around the Scramble
+function stSpawnGen(z){var R=clamp(z.r*.5,55,100),pts=[];for(var i=0;i<36;i++){var a=-i/36*TAU;pts.push([z.x+Math.cos(a)*R,z.y+Math.sin(a)*R])}
+ var st=zoneStart(z),g=rivMake({id:'gen',name:'Гэн',tag:'#ffd23a',car:2,col:6,str:0,glow:1,x:z.x+R,y:z.y,a:-Math.PI/2,pts:pts,loop:true,vmax:230,wait:true});ST.gen=0;ST.photo=0}
+// ---- per-frame
+function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
+ if(!m){var c=stCur();if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
+  if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;stRoute(p.x,p.y)}
+  if(d<70&&!ZS)stPromptShow(c);else stPromptHide();return}
+ ST.t+=dt;
+ if(m.type==='deliv'){var s=P[m.stops[ST.stop]];if(Math.hypot(wd(s.x,car.x),wd(s.y,car.y))<48){ST.stop++;if(ST.stop>=m.stops.length){stDone(true);return}popup(LT(s.name)+' ✓','mul');var s2=P[m.stops[ST.stop]];stRoute(s2.x,s2.y)}
+  else if(!WP||!WP.pts)stRoute(s.x,s.y);
+  if(m.limit&&ST.t>m.limit){WP=null;stDone(false,'время вышло')}}
+ if(m.type==='drift'&&ST.prog>=m.goalPts)stDone(true);
+ if(m.type==='duel'&&ZS&&ZS.z.id===m.zone){var g=RIV[0];if(g){g.wait=ZS.ph!=='go'}
+  if(ZS.ph==='go'){var el=ZS.z.T-ZS.t;ST.gen+=dt*(g&&g.d?66:50)*(1+.15*Math.sin(el*.7));
+   var ph=Math.floor(el/10);if(ph>ST.photo&&el<44){ST.photo=ph;stFlash();var near=g&&Math.hypot(wd(g.x,car.x),wd(g.y,car.y))<80&&car.l===g.l;if(near){ZS.score+=400;popup(L('кадр с Гэном')+' +400','big')}else flash(L('кадр! ты далеко от Гэна'),1.2)}}}
+ rivUpdate(dt)}
+function stFlash(){var f=$('fade');f.style.transition='none';f.style.background='#fff';f.classList.add('on');setTimeout(function(){f.style.transition='';f.classList.remove('on');setTimeout(function(){f.style.background=''},300)},60)}
+// ---- prompt near a mission start
+function stPromptShow(c){if(ST.prompt===c.id)return;ST.prompt=c.id;var e=$('sq');
+ e.innerHTML='<div class="zk">'+L('СЮЖЕТ')+' · '+L('Глава 1')+'</div><div class="zn">'+stEsc(LT(c.title))+'</div><div class="zi">'+stEsc(LT(c.goal))+'</div>'+(c.reward?'<div class="zi">'+L('награда')+' <b>+'+c.reward+' ¥</b></div>':'')+'<div class="zbt"><button data-st="go">'+L('Начать')+'</button></div>';e.classList.add('on')}
+function stPromptHide(){if(!ST.prompt)return;ST.prompt=false;$('sq').classList.remove('on')}
+function stEsc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='go'){var c=stCur();if(c)stStart(c)}});
+document.addEventListener('pointerdown',function(e){if(!DLG)return;if(e.target.closest('.dskip')){e.preventDefault();dlgNext(true);return}if(e.target.closest('#dlg')){e.preventDefault();dlgNext(false)}});
+// ---- objective HUD
+function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||!m||mode!=='game'){e.style.display='none';return}e.style.display='block';var P=stPlaces(),t='',bar=-1;
+ if(m.type==='deliv'){var s=P[m.stops[ST.stop]],d=Math.round(Math.hypot(wd(s.x,car.x),wd(s.y,car.y))/4);t=LT(s.name)+' · '+d+' '+L('м')+(m.stops.length>1?' · '+(ST.stop+1)+'/'+m.stops.length:'');
+  if(m.limit){var left=Math.max(0,Math.ceil(m.limit-ST.t));t+=' · '+Math.floor(left/60)+':'+(left%60<10?'0':'')+left%60}if(m.fragile&&ST.stop>0)t+=' · '+L('удары')+': '+ST.hits}
+ else if(m.type==='drift'){var dd=Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y));t=Math.min(m.goalPts,Math.floor(ST.prog+(dd<m.radius?run.pend:0)))+' / '+m.goalPts+(dd>m.radius?' · '+L('вернись к метке'):'');bar=Math.min(1,(ST.prog+(dd<m.radius?run.pend:0))/m.goalPts)}
+ else if(m.type==='duel'){t=L('Гэн')+': '+fmtN(ST.gen)+'  ·  '+L('ты')+': '+fmtN(ZS?ZS.score+run.pend:0)}
+ else if(m.type==='zone'){t=m.course?L('доедь до финиша'):L('цель')+': '+fmtN(m.goalPts)}
+ e.innerHTML='<b>'+stEsc(LT(m.title))+'</b><span>'+stEsc(t)+'</span>'+(bar>=0?'<i><u style="width:'+Math.round(bar*100)+'%"></u></i>':'')}
+// ---- hooks
+var _zuSt=zonesUpdate;zonesUpdate=function(dt){stUpdate(dt);if(ST.mode&&ST.act&&!ZS){if(ZP){ZP=null;zPrompt(null)}return}_zuSt(dt)};
+var _zeSt=zoneEnd;zoneEnd=function(why){var z=ZS&&ZS.z,sc=ZS?Math.floor(ZS.score):0;_zeSt(why);var m=ST.act;if(!m||!z||m.zone!==z.id)return;
+ if(m.type==='duel'){var g=Math.floor(ST.gen);stDone(why!=='out'&&sc>g,why==='out'?'выехал из зоны':'Гэн набрал больше')}
+ else if(m.course)stDone(why==='fin',why==='fin'?'':'не успел к финишу');
+ else stDone(why!=='out'&&sc>=m.goalPts,why==='out'?'выехал из зоны':'мало очков')};
+var _bkSt=bank;bank=function(){var p=run&&run.pend>0?Math.floor(run.pend):0;_bkSt();var m=ST.act;if(p&&m&&m.type==='drift'){var P=stPlaces()[m.at];if(Math.hypot(wd(P.x,car.x),wd(P.y,car.y))<m.radius)ST.prog+=p}};
+var _loSt=lose;lose=function(m){if(m==='Бам!'&&ST.act&&ST.act.fragile&&ST.stop>0)ST.hits++;_loSt(m)};
+var _huSt=hud;hud=function(dt){_huSt(dt);stHud()};
+var _dzSt=drawZones;drawZones=function(l){_dzSt(l);if(!ST.mode||l!==0||mode!=='game')return;var P=stPlaces(),m=ST.act,c=stCur(),t=null;
+ if(m&&m.type==='deliv')t=P[m.stops[ST.stop]];else if(!m&&c)t=P[c.at];if(!t)return;stBeacon(SX(t.x),SY(t.y))};
+function stBeacon(x,y){if(x<-30||y<-30||x>VW+30||y>VH+30)return;var ph=(TIME*1.1)%1,r=6+ph*16;cx.fillStyle='rgba(255,210,58,'+(1-ph).toFixed(2)+')';for(var k=0;k<18;k++){var a=k/18*TAU;cx.fillRect(Math.round(x+Math.cos(a)*r)-1,Math.round(y+Math.sin(a)*r)-1,2,2)}
+ var by=y-14+Math.round(Math.sin(TIME*3)*2);cx.fillStyle='#1a1426';cx.fillRect(x-5,by-7,11,13);cx.fillStyle='#ffd23a';cx.fillRect(x-4,by-6,9,11);cx.fillStyle='#1a1426';cx.fillRect(x-1,by-4,3,5);cx.fillRect(x-1,by+2,3,2)}
+var _dmSt=drawMini;drawMini=function(){_dmSt();if(!ST.mode||!MMCX)return;var P=stPlaces(),m=ST.act,c=stCur(),t=m&&m.type==='deliv'?P[m.stops[ST.stop]]:(!m&&c?P[c.at]:null);if(!t)return;
+ var g=MMCX,k=MMS/(2*MMR),th=camRot()?-Math.PI/2-(cam.a||0):0,ct=Math.cos(th),st=Math.sin(th),Dp=DPR,dx=wd(t.x,car.x),dy=wd(t.y,car.y),X=clamp(MMS/2+(dx*ct-dy*st)*k,6*Dp,MMS-6*Dp),Y=clamp(MMS/2+(dx*st+dy*ct)*k,6*Dp,MMS-6*Dp);
+ g.fillStyle='#1a1426';g.fillRect(X-5*Dp,Y-5*Dp,10*Dp,10*Dp);g.fillStyle='#ffd23a';g.fillRect(X-4*Dp,Y-4*Dp,8*Dp,8*Dp);g.fillStyle='#1a1426';g.fillRect(X-1*Dp,Y-3*Dp,2*Dp,4*Dp);g.fillRect(X-1*Dp,Y+2*Dp,2*Dp,1.5*Dp)};
+var _omSt=openMap;openMap=function(){_omSt();if(!ST.mode)return;var P=stPlaces(),m=ST.act,c=stCur(),t=m&&m.type==='deliv'?P[m.stops[ST.stop]]:(!m&&c?P[c.at]:null);if(!t)return;
+ var cvs=$('mapc'),g=cvs.getContext('2d'),k=cvs.width/WS,Dp=DPR,X=wrap(t.x)*k,Y=wrap(t.y)*k;g.fillStyle='#1a1426';g.fillRect(X-8*Dp,Y-8*Dp,16*Dp,16*Dp);g.fillStyle='#ffd23a';g.fillRect(X-7*Dp,Y-7*Dp,14*Dp,14*Dp);g.fillStyle='#1a1426';g.fillRect(X-1.5*Dp,Y-5*Dp,3*Dp,6*Dp);g.fillRect(X-1.5*Dp,Y+3*Dp,3*Dp,2*Dp);
+ g.font=Math.round(11*Dp)+'px TokyoPx,monospace';g.fillStyle='#ffd23a';g.fillText(LT((m||c).title),X+10*Dp,Y+4*Dp)};
+var _rgSt=renderGar;renderGar=function(){_rgSt();if(!ST.mode)return;var c=stCur(),n=Math.min(STORY.length,(S.story.m|0)+1),e=document.createElement('div');e.className='stbar';
+ e.innerHTML='<div><span>'+L('СЮЖЕТ')+' · '+L('Глава 1')+' · '+L('Наследство')+'</span><b>'+(c?stEsc(LT(c.title))+' · '+n+'/'+STORY.length:L('глава пройдена'))+'</b></div><div class="dbt"><span>'+L('долг')+'</span><b>'+fmtN(S.story.debt)+' ¥</b></div>';
+ var top=$('gar').querySelector('.top');if(top)top.insertAdjacentElement('afterend',e)};
+var _moSt=menuOpen;menuOpen=function(){ST.mode=false;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
 
 boot();
 </script>
