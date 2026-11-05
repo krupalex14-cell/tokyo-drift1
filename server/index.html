@@ -1892,11 +1892,12 @@ function aiPhys(a,dt,idx){
  if(sp<5&&Math.abs(a.w)<.2)a.rest+=dt;else a.rest=0;
  COLL.max=sv.max;COLL.hit=sv.hit;COLL.px=sv.px;COLL.py=sv.py;
 }
+var AICAP={g:62,e:12};
 function aiManage(car,cam,VW,VH){
  for(var i=AI.length-1;i>=0;i--){var a=AI[i],ax=Math.abs(wd(a.x,car.x)),ay=Math.abs(wd(a.y,car.y));if(ax>1500||ay>1500||(a.phy&&(ax>700||ay>700))||(a.phy&&a.rest>3&&(Math.abs(wd(a.x,cam.x))>VW/2+60||Math.abs(wd(a.y,cam.y))>VH/2+60)))AI.splice(i,1)}
  var ng=0,ne=0;AI.forEach(function(a){if(a.l)ne++;else ng++});
  for(var t=0;t<3;t++){
-  var want=ng<62?0:ne<12?1:-1;if(want<0)break;
+  var want=ng<AICAP.g?0:ne<AICAP.e?1:-1;if(want<0)break;
   var an=Math.random()*TAU,d=want?200+Math.random()*900:420+Math.random()*700,px=wrap(car.x+Math.cos(an)*d),py=wrap(car.y+Math.sin(an)*d);
   if(Math.abs(wd(px,cam.x))<VW/2+50&&Math.abs(wd(py,cam.y))<VH/2+50)continue;
   var cand=[];(want?DH:RH).q(px-70,py-70,px+70,py+70,function(sp){var k=sp.r.k;if(want?k==='exp':(k==='art'||k==='touge'))cand.push(sp)});
@@ -2602,7 +2603,7 @@ function gpsUpdate(dt){if(!WP||!WP.pts)return;var pts=WP.pts,n=pts.length,best=1
  for(var i=Math.max(0,WP.pi-4);i<Math.min(n-1,WP.pi+60);i++){var p0=pts[i],p1=pts[i+1],ex=p1[0]-p0[0],ey=p1[1]-p0[1],l2=ex*ex+ey*ey||1,dx=wd(car.x,p0[0]),dy=wd(car.y,p0[1]),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=qx*qx+qy*qy;if(d<best){best=d;bi=i;bt=t}}
  best=Math.sqrt(best);WP.pi=bi;var segL=WP.cum[bi+1]-WP.cum[bi];WP.P=WP.cum[bi]+segL*bt;
  if(best>95){WP.ofT=(WP.ofT||0)+dt;if(WP.ofT>1.1&&TIME-WP.rt>1.6)gpsRoute()}else WP.ofT=0;
- if(Math.hypot(wd(car.x,WP.x),wd(car.y,WP.y))<46){popup('Приехали!','mul');if(S.snd)try{auBell()}catch(e){}WP=null}}
+ if(Math.hypot(wd(car.x,WP.x),wd(car.y,WP.y))<46){if(!WP.st){popup('Приехали!','mul');if(S.snd)try{auBell()}catch(e){}}WP=null}}
 // --- sprites
 function gpsSpr(){if(GARR)return GARR;var cols=[[255,61,139],[232,84,170],[196,112,206],[156,150,232],[118,190,248],[90,224,255],[255,236,246]],N=32,Z=19,C=9,out=[];
  for(var ci=0;ci<cols.length;ci++)out.push([]);
@@ -3330,15 +3331,25 @@ var WHO={lyokha:['Лёха','Lyokha'],hana:['Хана','Hana'],reiko:['Рэйк�
 function LT(o){return o==null?'':typeof o==='string'?o:(S.lang==='en'?o.en:o.ru)}
 // ---- places (fixed city seed, so these are stable)
 var STP=null;
+// a stop on a wide arterial (2-3 lanes each way), at the kerb lane, well away from junctions
+function stSnapWide(p,R){var best=null;R=R||600;
+ RH.q(p.x-R,p.y-R,p.x+R,p.y+R,function(sp){var r=sp.r;if(r.k!=='art')return;
+  for(var k=sp.i;k<=sp.j;k+=2){var s=k*r.ds;if(s<r.za+90||s>r.len-r.zb-90)continue;var x=r.xs[k],y=r.ys[k],d=Math.hypot(wd(x,p.x),wd(y,p.y));if(d>R)continue;
+   var nearJ=false,jx=r.jx||[];for(var q=0;q<jx.length;q++)if(Math.hypot(wd(jx[q].x,x),wd(jx[q].y,y))<r.hw+60){nearJ=true;break}if(nearJ)continue;
+   var sc=d-(r.nl>=3?150:0);if(!best||sc<best.sc)best={sc:sc,r:r,s:s}}});
+ if(!best){var q2=gpsNear(p.x,p.y,R,true)||gpsNear(p.x,p.y,R*2);return q2?{x:q2.x,y:q2.y,cx:q2.x,cy:q2.y}:{x:p.x,y:p.y,cx:p.x,cy:p.y}}
+ best.r.pt(best.s,TMP);var u=best.r.hw-18;return{x:wrap(TMP[0]-TMP[3]*u),y:wrap(TMP[1]+TMP[2]*u),cx:TMP[0],cy:TMP[1],a:Math.atan2(TMP[3],TMP[2]),r:best.r,s:best.s}}
 function stPlaces(){if(STP)return STP;
- function sp(k,i){var a=SPEC.filter(function(s){return s.k===k})[i||0];return a?{x:a.x+a.w/2,y:a.y+a.h/2}:{x:WS/2,y:WS/2}}
- function snap(p,R){var q=gpsNear(p.x,p.y,R||320,true)||gpsNear(p.x,p.y,700);return q?{x:q.x,y:q.y,q:q}:{x:p.x,y:p.y}}
+ function sp(k,i){var a=SPEC.filter(function(s){return s.k===k}),b=a[Math.min(i||0,a.length-1)];return b?{x:b.x+b.w/2,y:b.y+b.h/2}:{x:WS/2,y:WS/2}}
+ function near(k,to,minD){var a=SPEC.filter(function(s){return s.k===k}),best=null,bd=1e9;a.forEach(function(s){var x=s.x+s.w/2,y=s.y+s.h/2,d=Math.hypot(wd(x,to.x),wd(y,to.y));if(d>=(minD||0)&&d<bd){bd=d;best={x:x,y:y}}});return best||sp(k)}
  function zone(id){for(var i=0;i<ZONES.length;i++)if(ZONES[i].id===id)return ZONES[i];return null}
- var sj=sp('sensoji');
- STP={station:snap(sp('tstation')),garage:snap({x:sj.x+150,y:sj.y-170}),port:snap(sp('yard',1)),castle:snap(sp('castle')),wheel:snap(sp('ferris',1)),sensoji:snap(sj),
-  scramble:snap(zone('scr')||sj),naka:(function(){var z=zone('r2');var s=zoneStart(z);return{x:s.x,y:s.y}})(),c1:(function(){var z=zone('c1');return{x:z.x,y:z.y}})()};
- STP.garage.name={ru:'Мастерская',en:'Garage'};STP.station.name={ru:'Вокзал',en:'Station'};STP.port.name={ru:'Порт',en:'Port'};STP.castle.name={ru:'Замок',en:'Castle'};
- STP.wheel.name={ru:'Колесо обозрения',en:'Ferris wheel'};STP.sensoji.name={ru:'Сэнсо-дзи',en:'Senso-ji'};STP.scramble.name={ru:'Скрамбл',en:'Scramble'};STP.naka.name={ru:'Кольцо Нака',en:'Naka Ring'};STP.c1.name={ru:'Эстакада С1',en:'C1 Expressway'};
+ var sj=sp('sensoji'),W=stSnapWide;
+ STP={station:W(sp('tstation')),garage:W(sj),hana:W(near('gas',sj,1800)),toyo:W(near('pagoda',sj,700)),bank:W(sp('skytree')),
+  port:W(near('yard',sj,900)),castle:W(sp('castle')),wheel:W(near('ferris',sj)),sensoji:W({x:sj.x,y:sj.y+260}),tower:W(sp('tower')),
+  scramble:W(zone('scr')||sj,420),naka:(function(){var z=zone('r2');var s=zoneStart(z);return{x:s.x,y:s.y}})(),c1:(function(){var z=zone('c1');return{x:z.x,y:z.y}})()};
+ var N={garage:['Мастерская','Garage'],station:['Вокзал','Station'],hana:['Лавка Ханы','Hana’s shop'],toyo:['Ларёк бабушки Тоё','Grandma Toyo’s stall'],bank:['Банк «Сакура-Траст»','Sakura Trust bank'],
+  port:['Порт','Port'],castle:['Замок','Castle'],wheel:['Колесо обозрения','Ferris wheel'],sensoji:['Сэнсо-дзи','Senso-ji'],tower:['Токийская башня','Tokyo Tower'],scramble:['Скрамбл','Scramble'],naka:['Кольцо Нака','Naka Ring'],c1:['Эстакада С1','C1 Expressway']};
+ for(var k in N)STP[k].name={ru:N[k][0],en:N[k][1]};
  return STP}
 function stZone(id){for(var i=0;i<ZONES.length;i++)if(ZONES[i].id===id)return ZONES[i];return null}
 // ---- chapter 1 «Наследство»
@@ -3349,25 +3360,25 @@ var STORY=[
   pre:[D('lyokha','Токио. Дядь Миш, ну ты и забрался.','Tokyo. Uncle Misha, you really went far.'),
        D('toyo','Ты Миша-младший? Похож. Так же криво паркуешься.','You’re little Misha? You look like him. You park just as crooked.'),
        D('lyokha','Я ещё даже не парковался.','I haven’t even parked yet.'),
-       D('toyo','Вот и я о том же. Держи ключи. И онигири. Мастерская у Сэнсо-дзи, под эстакадой — розовые стрелки доведут.','That’s my point. Here are the keys. And onigiri. The garage is by Senso-ji, under the overpass — follow the pink arrows.')],
+       D('toyo','Вот и я о том же. Держи ключи. И онигири. Мастерская у Сэнсо-дзи — розовые стрелки доведут.','That’s my point. Here are the keys. And onigiri. The garage is by Senso-ji — follow the pink arrows.')],
   post:[D('hana','Эй! Ты кто такой и что делаешь у мастерской Миши?','Hey! Who are you and what are you doing at Misha’s garage?'),
         D('lyokha','Я Лёха. Племянник. Мастерская теперь моя.','I’m Lyokha. His nephew. The garage is mine now.'),
-        D('hana','…Хана. Лавка запчастей напротив. Миша говорил, ты ездишь как бешеный.','…Hana. Parts shop across the street. Misha said you drive like a maniac.'),
-        D('lyokha','Врал. Я езжу лучше.','He lied. I drive better.'),D('hana','Сейчас проверим.','Let’s find out.')]},
- {id:'k2',title:{ru:'Первый занос',en:'First drift'},at:'garage',type:'drift',goalPts:400,radius:520,reward:100,
-  goal:{ru:'Набери 400 очков заносом у мастерской',en:'Score 400 drift points near the garage'},
+        D('hana','…Хана. У меня лавка запчастей при заправке в Шопинге, Миша был моим лучшим клиентом. Говорил, ты ездишь как бешеный.','…Hana. I run a parts shop at the gas station in Shopping, Misha was my best customer. He said you drive like a maniac.'),
+        D('lyokha','Врал. Я езжу лучше.','He lied. I drive better.'),D('hana','Заезжай ко мне в лавку — проверим.','Come by my shop — we’ll see.')]},
+ {id:'k2',title:{ru:'Первый занос',en:'First drift'},at:'hana',type:'drift',goalPts:400,radius:560,reward:100,
+  goal:{ru:'Набери 400 очков заносом у лавки Ханы',en:'Score 400 drift points near Hana’s shop'},
   pre:[D('hana','Зажми ручник и поверни. Без руля машина едет ровно, с рулём — сразу занос.','Hold the handbrake and steer. Without steering the car goes straight, steer and it slides.'),
        D('hana','Набери 400 очков, и я поверю, что ты не просто болтаешь.','Score 400 points and I’ll believe you’re not just talking.')],
   post:[D('hana','Ладно, не врал. Но виляешь ты ужасно.','Fine, you didn’t lie. But you wobble terribly.'),D('lyokha','Это стиль.','It’s style.')]},
- {id:'k3',title:{ru:'Хрупкий груз',en:'Fragile cargo'},at:'garage',type:'deliv',stops:['port','garage'],fragile:true,reward:200,
+ {id:'k3',title:{ru:'Хрупкий груз',en:'Fragile cargo'},at:'hana',type:'deliv',stops:['port','hana'],fragile:true,reward:200,
   goal:{ru:'Забери детали в порту и привези без ударов',en:'Pick up the parts at the port and bring them back without hits'},
   pre:[D('hana','Мне привезли детали в порт, а моя машина в ремонте. Съездишь?','My parts arrived at the port and my car is in the shop. Can you go?'),
        D('hana','Коробка хрупкая. Каждый удар — минус из твоей платы.','The box is fragile. Every hit comes out of your pay.')],
   post:function(r){return r.hits?[D('hana','Ну… часть деталей жива. Спасибо, наверное.','Well… some of the parts survived. Thanks, I guess.')]:[D('hana','Ни царапины. Беру тебя в курьеры.','Not a scratch. You’re hired as my courier.')]}},
- {id:'k4',title:{ru:'Онигири на скорость',en:'Onigiri rush'},at:'garage',type:'deliv',stops:['castle','wheel','sensoji'],limit:90,reward:150,
+ {id:'k4',title:{ru:'Онигири на скорость',en:'Onigiri rush'},at:'toyo',type:'deliv',stops:['castle','wheel','sensoji'],limit:150,reward:150,
   goal:{ru:'Развези онигири: замок, колесо обозрения, Сэнсо-дзи',en:'Deliver onigiri: castle, Ferris wheel, Senso-ji'},
   pre:[D('toyo','Внучок, развези онигири, пока горячие. Замок, колесо обозрения и Сэнсо-дзи.','Dear, deliver the onigiri while they’re hot. The castle, the Ferris wheel and Senso-ji.'),
-       D('toyo','На карте можно ставить метки — она сама покажет дорогу. Полторы минуты, не больше!','You can put markers on the map — it shows the way. A minute and a half, no more!')],
+       D('toyo','На карте можно ставить метки — она сама покажет дорогу. Две с половиной минуты, не больше!','You can put markers on the map — it shows the way. Two and a half minutes, no more!')],
   post:[D('toyo','Горячие! Миша возил так же. Только он ещё и пел.','Still hot! Misha delivered them the same way. Only he sang too.')]},
  {id:'k5',title:{ru:'Ёппарай',en:'Yopparai'},at:'scramble',type:'drift',goalPts:600,radius:300,reward:200,
   goal:{ru:'Набери 600 очков заносом на Скрамбле',en:'Score 600 drift points at the Scramble'},
@@ -3376,12 +3387,12 @@ var STORY=[
   post:[D('hana','Ты это специально так виляешь?','Do you wobble like that on purpose?'),D('lyokha','Конечно. Это стиль.','Of course. It’s style.'),
         D('hana','Тогда у стиля уже есть имя. Весь Скрамбл зовёт тебя «ёппарай». Пьяный.','Then the style already has a name. The whole Scramble calls you “yopparai”. Drunk.'),
         D('lyokha','Да я трезвый, как стекло!','I’m sober as glass!'),D('hana','Им это не объяснишь. Сорок тысяч просмотров за час.','Try telling them that. Forty thousand views in an hour.')]},
- {id:'k6',title:{ru:'Господин Окада',en:'Mr. Okada'},at:'garage',type:'scene',reward:0,
-  goal:{ru:'Тебя ждут у мастерской',en:'Someone is waiting at the garage'},
-  pre:[D('okada','Алексей-сан? Окада, банк «Сакура-Траст». Примите мои соболезнования.','Alexei-san? Okada, Sakura Trust bank. My condolences.'),
+ {id:'k6',title:{ru:'Господин Окада',en:'Mr. Okada'},at:'bank',type:'scene',reward:0,
+  goal:{ru:'Тебя вызывают в банк у Скайтри',en:'The bank by the Skytree wants to see you'},
+  pre:[D('okada','Алексей-сан? Проходите. Окада, банк «Сакура-Траст». Примите мои соболезнования.','Alexei-san? Please come in. Okada, Sakura Trust bank. My condolences.'),
        D('okada','Мастерская заложена. Долг — тридцать тысяч иен. Первый взнос, две тысячи, — до конца месяца.','The garage is mortgaged. The debt is thirty thousand yen. The first payment, two thousand, is due by the end of the month.'),
        D('okada','Я очень, очень на вас надеюсь.','I am very, very hopeful about you.'),
-       D('lyokha','(шёпотом) Почему он так улыбается?','(whispering) Why is he smiling like that?'),D('hana','Лучше не знать.','Better not to know.')],
+       D('lyokha','(выйдя из банка, Хане по телефону) Почему он так улыбается?','(outside, on the phone to Hana) Why does he smile like that?'),D('hana','Лучше не знать.','Better not to know.')],
   post:[]},
  {id:'k7',title:{ru:'Розовая линия',en:'The pink line'},at:'naka',type:'zone',zone:'r2',goalPts:3000,reward:250,
   goal:{ru:'Кольцо Нака: держись линии, набери 3 000',en:'Naka Ring: follow the line, score 3,000'},
@@ -3402,7 +3413,16 @@ var STORY=[
   post:[D('gen','…Ладно. Сегодня король ты. Но корону я ещё заберу.','…Fine. Today you’re king. But I’ll take the crown back.'),
         D('hana','Миллион просмотров, Лёха. Тебя теперь знает весь город.','A million views, Lyokha. The whole city knows you now.')],
   fail:[D('gen','Корона остаётся у меня. Приходи, когда протрезвеешь.','The crown stays with me. Come back when you sober up.')]},
- {id:'k10',title:{ru:'Первый взнос',en:'First payment'},at:'garage',type:'pay',amount:2000,reward:0,
+ {id:'k9b',title:{ru:'Вечер у башни',en:'Evening at the Tower'},at:'hana',type:'deliv',stops:['tower'],fragile:true,reward:100,
+  goal:{ru:'Отвези Хану к Токийской башне. Камера у неё на коленях — без ударов',en:'Drive Hana to Tokyo Tower. The camera is on her lap — no hits'},
+  pre:[D('hana','Слушай… мне нужен ночной кадр Токийской башни для канала. Отвезёшь?','Listen… I need a night shot of Tokyo Tower for my channel. Will you drive me?'),
+       D('lyokha','Это свидание?','Is this a date?'),
+       D('hana','Это работа. Камера у меня на коленях, так что без ударов, ёппарай.','It’s work. The camera is on my lap, so no hits, yopparai.')],
+  post:function(r){var a=r.hits?[D('hana','Кадр смазан. Ну… сойдёт.','The shot is blurry. Well… it’ll do.')]:[D('hana','Идеальный кадр. Смотри, как светится.','A perfect shot. Look how it glows.')];
+   return a.concat([D('hana','Миша показывал мне твои видео с сопок. Говорил: «Вот увидишь, он приедет».','Misha used to show me your videos from the hills. He said: “You’ll see, he’ll come.”'),
+    D('lyokha','И как, оправдал?','So, did I live up to it?'),D('hana','Ты… неплохой. Для пьяного.','You’re… not bad. For a drunk.'),
+    D('lyokha','Это было почти признание.','That was almost a confession.'),D('hana','Это было «почти». Не обольщайся.','That was an “almost”. Don’t get ideas.')])}},
+ {id:'k10',title:{ru:'Первый взнос',en:'First payment'},at:'bank',type:'pay',amount:2000,reward:0,
   goal:{ru:'Внеси первый взнос — 2 000 ¥',en:'Make the first payment — 2,000 ¥'},
   pre:[D('okada','Две тысячи иен. Ровно. Восхитительно, Алексей-сан.','Two thousand yen. Exactly. Delightful, Alexei-san.'),
        D('okada','Осталось двадцать восемь. Я буду рядом.','Twenty-eight left. I’ll be around.'),
@@ -3433,9 +3453,9 @@ function dlgNext(skip){var d=DLG;if(!d)return;
 function chapterCard(top,title,sub,cb){var e=$('chap');e.innerHTML='<div class="cc1">'+top+'</div><div class="cc2">'+title+'</div><div class="cc3">'+sub+'</div>';e.style.display='flex';e.className='';void e.offsetWidth;e.className='on';
  var done=false;function fin(){if(done)return;done=true;e.style.display='none';e.onclick=null;if(cb)cb()}e.onclick=fin;setTimeout(fin,3200)}
 // ---- start / finish
-function stPlaceCar(k){var p=stPlace(k),q=p.q||gpsNear(p.x,p.y,300,true);if(q){q.r.pt(q.s,TMP);var u=q.r.k==='loc'?q.r.hw*.42:(q.r.m||0)+.5*(q.r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=p.x;car.y=p.y}
+function stPlaceCar(k){var p=stPlace(k),q=p.a!=null?null:gpsNear(p.x,p.y,300,true);if(p.a!=null){car.x=p.x;car.y=p.y;car.a=p.a}else if(q){q.r.pt(q.s,TMP);var u=q.r.k==='loc'?q.r.hw*.42:(q.r.m||0)+.5*(q.r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=p.x;car.y=p.y}
  car.vx=car.vy=car.w=0;car.sp=0;car.l=0;car.dr=false;cam.x=car.x;cam.y=car.y;cam.a=car.a;preload()}
-function stRoute(x,y){var q=gpsNear(x,y,300,true)||gpsNear(x,y,600);if(!q)return;WP={x:q.x,y:q.y,q:q};gpsRoute()}
+function stRoute(x,y){var q=gpsNear(x,y,200,true)||gpsNear(x,y,600);if(!q)return;WP={x:x,y:y,q:q,st:1};ST.rt=TIME;gpsRoute()}
 function storyBegin(){ST.mode=true;
  if(!S.story.started){S.story.started=1;S.story.m=0;save();menuLeave();
   chapterCard(L('Глава 1'),L('Наследство'),L('утро · Токио'),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}
@@ -3447,7 +3467,7 @@ function stStart(m){if(!m||ST.act)return;ST.act=m;ST.t=0;ST.prog=0;ST.hits=0;ST.
   if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
   if(m.type==='zone'||m.type==='duel'){var z=stZone(m.zone);if(!z){ST.act=null;return}zonePlace(z);if(m.type==='duel')stSpawnGen(z)}
  })}
-function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.lastOk=ok;rivClear();
+function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;AICAP.g=62;AICAP.e=12;ST.lastOk=ok;rivClear();
  if(!ok){toast(L('Не вышло')+(why?': '+L(why):''));dlgOpen(m.fail||[],null);return}
  var rw=m.reward||0;if(m.fragile)rw=Math.max(0,Math.round(rw*(1-.25*ST.hits)));
  if(rw){S.coins+=rw;popup('+'+rw+' ¥','big')}
@@ -3459,14 +3479,18 @@ function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.lastOk=ok;rivCl
 // ---- boss: Gen drifts around the Scramble
 function stSpawnGen(z){var R=clamp(z.r*.5,55,100),pts=[];for(var i=0;i<36;i++){var a=-i/36*TAU;pts.push([z.x+Math.cos(a)*R,z.y+Math.sin(a)*R])}
  var st=zoneStart(z),g=rivMake({id:'gen',name:'Гэн',tag:'#ffd23a',car:2,col:6,str:0,glow:1,x:z.x+R,y:z.y,a:-Math.PI/2,pts:pts,loop:true,vmax:230,wait:true});ST.gen=0;ST.photo=0}
+// ---- quiet streets during a mission: few cars, none parked on the target
+function stTraffic(t,cap){AICAP.g=cap||14;AICAP.e=3;if(FRAME%20)return;var ng=0;
+ for(var i=0;i<AI.length;i++){var a=AI[i];if(a.fd||a.l)continue;if(t&&Math.hypot(wd(a.x,t.x),wd(a.y,t.y))<170){a.fd=1;continue}if(++ng>AICAP.g+2)a.fd=1}}
 // ---- per-frame
 function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
  if(!m){var c=stCur();if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
   if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;stRoute(p.x,p.y)}
+  if(d<320)stTraffic(p,6);else if(AICAP.g!==62){AICAP.g=62;AICAP.e=12}
   if(d<70&&!ZS)stPromptShow(c);else stPromptHide();return}
- ST.t+=dt;
- if(m.type==='deliv'){var s=P[m.stops[ST.stop]];if(Math.hypot(wd(s.x,car.x),wd(s.y,car.y))<48){ST.stop++;if(ST.stop>=m.stops.length){stDone(true);return}popup(LT(s.name)+' ✓','mul');var s2=P[m.stops[ST.stop]];stRoute(s2.x,s2.y)}
-  else if(!WP||!WP.pts)stRoute(s.x,s.y);
+ ST.t+=dt;stTraffic(m.type==='deliv'?P[m.stops[ST.stop]]:(ZS?{x:ZS.z.x,y:ZS.z.y}:P[m.at]),0);
+ if(m.type==='deliv'){var s=P[m.stops[ST.stop]],sd=Math.hypot(wd(s.x,car.x),wd(s.y,car.y));if(sd<62){ST.stop++;if(ST.stop>=m.stops.length){stDone(true);return}popup(LT(s.name)+' ✓','mul');var s2=P[m.stops[ST.stop]];stRoute(s2.x,s2.y)}
+  else if((!WP||!WP.pts)&&sd>80&&TIME-(ST.rt||0)>1.5)stRoute(s.x,s.y);
   if(m.limit&&ST.t>m.limit){WP=null;stDone(false,'время вышло')}}
  if(m.type==='drift'&&ST.prog>=m.goalPts)stDone(true);
  if(m.type==='duel'&&ZS&&ZS.z.id===m.zone){var g=RIV[0];if(g){g.wait=ZS.ph!=='go'}
@@ -3511,7 +3535,7 @@ var _omSt=openMap;openMap=function(){_omSt();if(!ST.mode)return;var P=stPlaces()
 var _rgSt=renderGar;renderGar=function(){_rgSt();if(!ST.mode)return;var c=stCur(),n=Math.min(STORY.length,(S.story.m|0)+1),e=document.createElement('div');e.className='stbar';
  e.innerHTML='<div><span>'+L('СЮЖЕТ')+' · '+L('Глава 1')+' · '+L('Наследство')+'</span><b>'+(c?stEsc(LT(c.title))+' · '+n+'/'+STORY.length:L('глава пройдена'))+'</b></div><div class="dbt"><span>'+L('долг')+'</span><b>'+fmtN(S.story.debt)+' ¥</b></div>';
  var top=$('gar').querySelector('.top');if(top)top.insertAdjacentElement('afterend',e)};
-var _moSt=menuOpen;menuOpen=function(){ST.mode=false;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
+var _moSt=menuOpen;menuOpen=function(){ST.mode=false;AICAP.g=62;AICAP.e=12;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
 
 boot();
 </script>
