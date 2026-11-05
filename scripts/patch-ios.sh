@@ -9,5 +9,8 @@ cp native/ios/LocalServerPlugin.swift native/ios/MainViewController.swift "$A/"
 sed -i '' 's/customClass="CAPBridgeViewController" customModule="Capacitor"/customClass="MainViewController" customModule="App" customModuleProvider="target"/' "$A/Base.lproj/Main.storyboard" || true
 /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string 'Чтобы друг мог подключиться к твоей игре по Wi-Fi или точке доступа'" "$A/Info.plist" 2>/dev/null || \
 /usr/libexec/PlistBuddy -c "Set :NSLocalNetworkUsageDescription 'Чтобы друг мог подключиться к твоей игре по Wi-Fi или точке доступа'" "$A/Info.plist"
+# internet radio: allow http audio streams
+/usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$A/Info.plist" 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsForMedia bool true" "$A/Info.plist" 2>/dev/null || true
 echo "iOS: файлы скопированы. Откройте Xcode (npx cap open ios) и перетащите"
 echo "     LocalServerPlugin.swift и MainViewController.swift из папки App в группу App (Target: App)."

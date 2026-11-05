@@ -26,6 +26,14 @@ h1 span{display:block;font-size:16.5px;letter-spacing:.5em;color:var(--cy);text-
 .card{background:var(--panel);border:3px solid var(--line);padding:10px 4px;font-size:16.5px;display:flex;flex-direction:column;gap:4px;align-items:center}
 .card small{color:var(--muted);font-size:11px}
 .card.on{border-color:var(--pk);box-shadow:4px 4px 0 var(--pk2)}
+.card.cur small{color:var(--cy)}
+.cinfo{background:var(--panel);border:3px solid var(--line);padding:10px 12px;margin-top:10px}.cinfo>b{display:block;font-weight:inherit;font-size:16.5px;color:var(--pk)}.cinfo .desc{margin:2px 0 8px;font-size:11px}
+.cst{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:11px;color:var(--muted)}.cst span{width:86px}.cst i{flex:1;height:7px;background:#0e0a1a}.cst i u{display:block;height:100%;background:var(--cy);text-decoration:none}
+.cbt{display:flex;gap:8px;margin-top:10px;align-items:center}.cbt .buy{flex:1}.buy.td{background:#ffd23a;color:#2a2008;box-shadow:3px 3px 0 #9a7a10;flex:0 0 auto}.buy.sure{background:var(--pk);color:#2a0d1c;box-shadow:3px 3px 0 var(--pk2)}
+.cok{flex:1;color:var(--cy);font-size:11px}
+.buy.lk{background:#3a3050;color:#8a7ea8;box-shadow:none}
+#tdb{display:none;position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 150px);transform:translateX(-50%);z-index:6;align-items:center;gap:8px;background:rgba(42,32,8,.94);padding:6px 8px 6px 12px;box-shadow:0 -3px 0 0 #ffd23a,0 3px 0 0 #ffd23a,-3px 0 0 0 #ffd23a,3px 0 0 0 #ffd23a;white-space:nowrap}#tdb span{color:#ffd23a;font-size:11px}#tdb em{display:none}#tdb button{border:0;background:#ffd23a;color:#2a2008;font-size:11px;padding:6px 10px}
+.lkn{margin-top:10px;background:#2a2008;border:3px solid #ffd23a;padding:9px 12px;font-size:11px;color:#ffe9a8;line-height:1.45}.lkn .buy{display:block;width:100%;margin-top:8px;background:#ffd23a;color:#2a2008;box-shadow:3px 3px 0 #9a7a10}
 .part{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:3px solid var(--line);padding:10px 12px;margin-bottom:8px}
 .part small{color:var(--muted);font-weight:400;font-size:11px}
 .pips{display:flex;gap:4px;margin-top:6px}.pips i{width:24px;height:8px;background:var(--line)}.pips i.f{background:var(--pk)}
@@ -161,6 +169,8 @@ input[type=range]::-moz-range-track{height:8px;background:#0e0a1a;border:2px sol
 .ntag{position:fixed;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;font-size:11px;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;white-space:nowrap}
 .ntag b{font-weight:inherit;background:rgba(12,10,26,.75);padding:2px 4px}.ntag i{font-style:normal;font-size:11px;line-height:1}
 .ntag.off{flex-direction:column-reverse}.ntag.off i{font-size:16.5px}
+#rad{display:flex;gap:4px;margin:7px 3px 0;width:112px;pointer-events:auto}#rad .rb{flex:0 0 28px;height:26px;border:0;padding:0;background:rgba(20,16,40,.92);color:#fbeff6;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 -2px 0 0 rgba(20,16,40,.95),0 2px 0 0 rgba(20,16,40,.95)}#rad #radt{flex:1;color:#c8bcd8}#rad #radt.on{background:#ff3d8b;color:#2a0d1c}
+#radn{display:none;width:112px;margin:3px 3px 0;font-size:11px;color:#ffd23a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 1px 0 #000}
 #nsc{font-size:11px;margin-top:4px;text-shadow:1px 1px 0 #000}#nsc small{display:block;color:var(--muted);font-size:11px}
 #sq{display:none;border-color:#ffd23a !important;pointer-events:auto;margin-top:8px;width:186px;background:rgba(23,18,38,.94);border:3px solid var(--pk);padding:8px 10px 10px;text-align:left;text-shadow:none;box-shadow:4px 4px 0 rgba(255,61,139,.45)}
 #sq.on{display:block;animation:zpin .25s ease-out}
@@ -220,7 +230,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="gar"></div>
 <div id="game"><canvas id="c"></canvas>
  <div id="hud">
-  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="nsc"></div><div id="sobj"></div></div>
+  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="rad"><button class="rb" data-r="p" aria-label="Предыдущая станция" data-ta="Предыдущая станция">◀</button><button class="rb" id="radt" data-r="t" aria-label="Радио" data-ta="Радио"><svg viewBox="0 0 12 10" width="21" height="17" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h1v1h1v1h1v1H5V2H4V1H3zM0 3h12v7H0z"/><path fill="#14101e" d="M1 4h5v5H1zM7 4h4v1H7zM7 6h4v1H7zM7 8h4v1H7z"/><path fill="currentColor" d="M2 5h1v1H2zM4 5h1v1H4zM3 6h1v1H3zM2 7h1v1H2zM4 7h1v1H4z"/></svg></button><button class="rb" data-r="n" aria-label="Следующая станция" data-ta="Следующая станция">▶</button></div><div id="radn"></div><div id="nsc"></div><div id="sobj"></div></div>
   <div id="tc"><div id="cm"></div><div class="angw"><i id="ang"></i></div></div>
   <div id="tr"><div id="sp">0</div><div class="lbl" data-t="км/ч">км/ч</div><div class="trb"><button id="bset" class="ib" aria-label="Настройки" data-ta="Настройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.2-1.5 2.4 2.4-1.5 2.2c.4.6.7 1.2.9 1.9l2.6.5v3.4l-2.6.5c-.2.7-.5 1.3-.9 1.9l1.5 2.2-2.4 2.4-2.2-1.5c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.2 1.5-2.4-2.4 1.5-2.2c-.4-.6-.7-1.2-.9-1.9L2 13.7v-3.4l2.6-.5c.2-.7.5-1.3.9-1.9L4 5.7l2.4-2.4 2.2 1.5c.6-.4 1.2-.7 1.9-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"/></svg></button><button id="bmap" data-t="карта">карта</button><button id="bgar" data-t="гараж">гараж</button></div><div id="zp"></div><div id="sq"></div><div id="zb"></div></div>
   <div id="tut"></div>
@@ -297,6 +307,54 @@ var EN={
  'долг':'debt',
  'Пропустить':'Skip',
  'Дальше':'Next',
+ 'Предыдущая станция':'Previous station',
+ 'Следующая станция':'Next station',
+ 'Радио':'Radio',
+ 'ловлю…':'tuning…',
+ 'Радио не ловит — проверь интернет':'No radio signal — check the internet',
+ 'Скорость':'Speed',
+ 'Мощность':'Power',
+ 'Сцепление':'Grip',
+ 'Руль':'Handling',
+ 'на ходу':'driving now',
+ 'Сесть за руль':'Drive this one',
+ 'Точно купить?':'Sure? Buy for',
+ 'Купить':'Buy',
+ 'Тест-драйв':'Test drive',
+ 'Машины, тюнинг и покраска — в мастерской Миши. Заезжай в её ворота в городе.':'Cars, tuning and paint are done at Misha’s garage. Drive up to its doors in the city.',
+ 'Маршрут в мастерскую':'Route to the garage',
+ 'Это делается в мастерской Миши':'That’s done at Misha’s garage',
+ 'Машина твоя!':'The car is yours!',
+ 'Метка на мастерскую поставлена':'Garage marked on the map',
+ 'ТЕСТ-ДРАЙВ':'TEST DRIVE',
+ 'выезд с площадки — конец':'leaving the pad ends it',
+ 'Закончить':'Finish',
+ 'Нет площадки':'No test pad',
+ 'Сначала закончи миссию':'Finish the mission first',
+ 'МАСТЕРСКАЯ МИШИ':'MISHA’S GARAGE',
+ 'Машины и тюнинг':'Cars and tuning',
+ 'Купить машину, поставить детали, перекрасить':'Buy a car, fit parts, repaint',
+ 'Заехать':'Drive in',
+ 'Кэй-Мини':'Kei Mini',
+ 'Крошечная и вёрткая':'Tiny and nimble',
+ 'Тофу-86':'Tofu-86',
+ 'Лёгкая, идеальный баланс для заносов':'Light, perfect balance for drifting',
+ 'Кэйтора':'Kei Truck',
+ 'Грузовичок фермера. Смешно и боком':'A farmer’s mini truck. Funny and sideways',
+ 'Фургон Хаясэ':'Hayase Van',
+ 'Тяжёлый, но заносится как шкаф':'Heavy, but slides like a wardrobe',
+ 'Ротор-7':'Rotor-7',
+ 'Роторный мотор, крутится до звона':'Rotary engine that revs till it rings',
+ 'Тайфун Эво':'Typhoon Evo',
+ 'Полный привод: цепкий, но в занос неохотно':'All-wheel drive: grippy, reluctant to slide',
+ 'Самурай Турбо':'Samurai Turbo',
+ 'Два турбо, огромная мощность':'Twin turbo, huge power',
+ 'VIP Сэдан':'VIP Sedan',
+ 'Длинный и плавный, заносы как в кино':'Long and smooth, movie-style drifts',
+ 'Ретро 2000GT':'Retro 2000GT',
+ 'Классика шестидесятых':'A sixties classic',
+ 'Ниндзя RR':'Ninja RR',
+ 'Самая быстрая. Для королей перевала':'The fastest. For kings of the pass',
  'взнос главы':'chapter payment',
  'развернуло':'spun out',
  'Поймал!':'Caught it!',
@@ -1069,6 +1127,100 @@ function buildTrees(){
   blob(10,'#4a1e3a','#c4507e','#e87aa4','#ffc4dc',4),blob(9,'#4a1e3a','#c4507e','#e87aa4','#ffc4dc',5),
   blob(12,'#0a1f16','#163f2c','#22583a','#3a7a4c',6),blob(11,'#0a1f16','#163f2c','#22583a','#3a7a4c',7)];
 }
+
+// ===== ten more player cars (top-down, front to the right) =====
+(function(){
+ function PG(L,W){var g=[],i,j;for(j=0;j<W;j++){var r=[];for(i=0;i<L;i++)r.push('.');g.push(r)}
+  var cy=(W-1)/2,o={L:L,W:W,cy:cy,S:function(x,y,c){x=Math.round(x);y=Math.round(y);if(y>=0&&y<W&&x>=0&&x<L)g[y][x]=c},G:function(x,y){return(y>=0&&y<W&&x>=0&&x<L)?g[y][x]:'.'},
+   body:function(hw){o.hw=hw;for(var x=0;x<L;x++){var h=hw(x);if(h<0)continue;for(var y=0;y<W;y++)if(Math.abs(y-cy)<=h+.01)g[y][x]='B'}},
+   outline:function(){var e=[];for(var y=0;y<W;y++)for(var x=0;x<L;x++){if(g[y][x]==='.')continue;if(o.G(x-1,y)==='.'||o.G(x+1,y)==='.'||o.G(x,y-1)==='.'||o.G(x,y+1)==='.')e.push([x,y])}e.forEach(function(q){g[q[1]][q[0]]='K'})},
+   sides:function(c){for(var x=0;x<L;x++)for(var y=1;y<W-1;y++){if(g[y][x]!=='B')continue;if(g[y-1][x]==='K'||g[y+1][x]==='K')g[y][x]=c}},
+   top:function(x){var y=0;while(y<W&&g[y][x]==='.')y++;return y},bot:function(x){var y=W-1;while(y>=0&&g[y][x]==='.')y--;return y},
+   // glass between x0..x1, inset d from the body edge
+   glass:function(x0,x1,d,c){for(var x=x0;x<=x1;x++){var t=o.top(x)+d,b=o.bot(x)-d;for(var y=t;y<=b;y++)o.S(x,y,c||'W')}},
+   fill:function(x0,x1,y0,y1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)o.S(x,y,c)},
+   hl:function(x0,x1,y,c){for(var x=x0;x<=x1;x++)o.S(x,y,c)},
+   tire:function(x0,x1){for(var x=x0;x<=x1;x++){o.S(x,0,(x-x0)%2?'t':'T');o.S(x,W-1,(x-x0)%2?'t':'T')}},
+   mirror:function(x){o.S(x,0,'K');o.S(x+1,0,'M');o.S(x,W-1,'K');o.S(x+1,W-1,'M')},
+   lights:function(rx,fx,rows,frows){(rows||[o.top(rx)+1,o.bot(rx)-1]).forEach(function(y){o.S(rx,y,'R')});(frows||[o.top(fx)+1,o.bot(fx)-1]).forEach(function(y){o.S(fx,y,'Y')})},
+   rows:function(){return g.map(function(r){return r.join('')})}};return o}
+ var M=Math,A=[];
+ // 1 Кэй-Мини — tall little box
+ (function(){var g=PG(22,13);g.body(function(x){return x===0?4.5:x<=20?5.5:4.5});g.outline();g.sides('M');
+  g.glass(6,8,2);g.fill(9,14,3,9,'B');g.hl(9,14,3,'L');g.glass(15,17,2);g.S(16,4,'w');g.S(17,5,'w');for(var x=9;x<=14;x++){g.S(x,2,'W');g.S(x,10,'W')}
+  g.fill(1,1,3,9,'C');g.lights(2,20,[2,3,9,10],[3,9]);g.S(21,5,'V');g.S(21,6,'V');g.S(21,7,'V');
+  g.mirror(15);g.tire(3,5);g.tire(16,18);A.push({n:'Кэй-Мини',grid:g.rows(),pw:220,vmax:330,grip:1.05,turn:3.25,dturn:3.0,hx:11,hy:6.5,m:.8,price:1500,desc:'Крошечная и вёрткая'})})();
+ // 2 Тофу-86 — hatchback, pop-ups, side stripe
+ (function(){var g=PG(28,14);g.body(function(x){return x===0?5:x<=26?6:5});g.outline();g.sides('M');
+  for(var x=2;x<=26;x++){g.S(x,g.top(x)+1,'D');g.S(x,g.bot(x)-1,'D')}
+  g.glass(4,7,2);g.fill(8,14,3,10,'B');g.hl(8,14,3,'L');g.glass(15,18,2);g.S(17,4,'w');g.S(18,5,'w');for(x=8;x<=14;x++){g.S(x,2,'W');g.S(x,11,'W')}
+  g.hl(20,25,6,'M');g.hl(20,25,7,'M');g.fill(23,24,3,4,'K');g.fill(23,24,9,10,'K');
+  g.lights(1,26,[3,4,9,10],[3,10]);g.mirror(16);g.tire(4,7);g.tire(20,23);
+  A.push({n:'Тофу-86',grid:g.rows(),pw:260,vmax:385,grip:1.0,turn:3.0,dturn:3.15,hx:14,hy:7,m:.9,price:2500,desc:'Лёгкая, идеальный баланс для заносов'})})();
+ // 3 Кэйтора — little truck: cab at the front, open bed at the back
+ (function(){var g=PG(24,13);g.body(function(x){return x<=14?5.5:x<=22?5.5:4.5});g.outline();g.sides('M');
+  g.fill(1,13,2,10,'K');g.fill(2,12,3,9,'G');for(var x=3;x<=12;x+=3)g.hl(x,x,3,'c');g.fill(4,8,4,8,'O');g.fill(5,7,5,7,'r');
+  g.fill(14,16,2,10,'B');g.hl(14,16,2,'L');g.glass(17,19,2);g.S(18,4,'w');g.S(19,5,'w');
+  g.lights(1,22,[2,10],[3,9]);g.S(23,6,'V');g.mirror(17);g.tire(3,5);g.tire(17,19);
+  A.push({n:'Кэйтора',grid:g.rows(),pw:200,vmax:300,grip:.95,turn:3.1,dturn:3.25,hx:12,hy:6.5,m:.85,price:1200,desc:'Грузовичок фермера. Смешно и боком'})})();
+ // 4 Фургон Хаясэ — long van, roof rack
+ (function(){var g=PG(32,15);g.body(function(x){return x===0?6:x<=29?7:x===30?6.5:5.5});g.outline();g.sides('M');
+  g.fill(2,24,3,11,'B');for(var x=3;x<=23;x+=4){g.fill(x,x,3,11,'c')}for(x=3;x<=23;x++){g.S(x,3,'C');g.S(x,11,'C')}
+  for(x=4;x<=24;x++){g.S(x,2,'W');g.S(x,12,'W')}g.S(9,2,'K');g.S(15,2,'K');g.S(9,12,'K');g.S(15,12,'K');
+  g.glass(25,28,2);g.S(27,4,'w');g.S(28,5,'w');g.lights(1,30,[2,3,11,12],[3,11]);g.fill(31,31,5,9,'V');
+  g.mirror(26);g.tire(4,7);g.tire(24,27);
+  A.push({n:'Фургон Хаясэ',grid:g.rows(),pw:280,vmax:340,grip:.9,turn:2.4,dturn:2.75,hx:16,hy:7.5,m:1.4,price:2000,desc:'Тяжёлый, но заносится как шкаф'})})();
+ // 5 Ротор-7 — curvy coupe, bubble cabin, wing
+ (function(){var g=PG(30,15);function hw(x){if(x<2)return -1;if(x<=4)return 5+(x-2)*.6;if(x<=20)return 6+.5*M.sin((x-4)/16*M.PI);return M.max(4.4,6-(x-20)*.22)}
+  g.body(hw);g.outline();g.sides('M');
+  g.S(2,5,'R');g.S(2,9,'R');g.S(3,4,'R');g.S(3,10,'R');g.S(2,7,'V');
+  for(var y=0;y<15;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===14)?'K':'D')}g.S(2,3,'K');g.S(2,11,'K');
+  g.ell?0:0;for(var x=9;x<=17;x++){var h=hw(x)-2.2,cy=g.cy;for(y=M.ceil(cy-h);y<=M.floor(cy+h);y++)g.S(x,y,(x<=10||x>=15)?'W':'B')}
+  g.hl(11,14,4,'L');g.S(16,5,'w');g.S(17,6,'w');
+  for(x=19;x<=26;x++){g.S(x,g.top(x)+1,'L')}g.hl(22,26,7,'D');g.fill(24,25,4,4,'K');g.fill(24,25,10,10,'K');
+  g.lights(3,28,[4,10],[6,8]);g.mirror(15);g.tire(4,7);g.tire(20,23);
+  A.push({n:'Ротор-7',grid:g.rows(),pw:330,vmax:440,grip:1.05,turn:3.0,dturn:3.0,hx:15,hy:7.5,m:.95,price:5500,desc:'Роторный мотор, крутится до звона'})})();
+ // 6 Тайфун Эво — rally sedan: scoop, big wing, decals
+ (function(){var g=PG(31,15);g.body(function(x){return x<=1?-1:x===2?6:x<=29?7:6});g.outline();g.sides('M');
+  for(var y=0;y<15;y++){g.S(2,y,(y===0||y===14)?'K':'K');g.S(3,y,(y<=1||y>=13)?'K':'D')}
+  g.glass(6,8,2);g.fill(9,15,3,11,'B');g.hl(9,15,3,'L');g.glass(16,19,2);g.S(18,4,'w');g.S(19,5,'w');for(var x=9;x<=15;x++){g.S(x,2,'W');g.S(x,12,'W')}
+  g.fill(23,26,6,8,'V');g.hl(23,26,5,'K');g.hl(23,26,9,'K');for(x=21;x<=28;x+=2){g.S(x,3,'D');g.S(x,11,'D')}
+  g.lights(4,29,[3,4,10,11],[3,4,10,11]);g.fill(30,30,5,9,'V');g.mirror(17);g.tire(5,8);g.tire(22,25);
+  A.push({n:'Тайфун Эво',grid:g.rows(),pw:350,vmax:430,grip:1.25,turn:2.9,dturn:2.5,hx:15.5,hy:7.5,m:1.1,price:6500,desc:'Полный привод: цепкий, но в занос неохотно'})})();
+ // 7 Самурай Турбо — long-hood GT, round tail lights, wing
+ (function(){var g=PG(32,15);function hw(x){if(x<2)return -1;if(x<=3)return 6;if(x<=24)return 7;return M.max(5,7-(x-24)*.3)}
+  g.body(hw);g.outline();g.sides('M');for(var y=0;y<15;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===14)?'K':'D')}
+  g.S(3,3,'R');g.S(3,4,'r');g.S(3,10,'r');g.S(3,11,'R');g.S(2,6,'V');g.S(2,8,'V');
+  g.glass(7,9,2);g.fill(10,14,3,11,'B');g.hl(10,14,3,'L');g.glass(15,18,2);g.S(17,4,'w');g.S(18,5,'w');for(var x=10;x<=14;x++){g.S(x,2,'W');g.S(x,12,'W')}
+  for(x=20;x<=28;x++){g.S(x,6,'D');g.S(x,8,'D')}g.fill(24,26,7,7,'K');
+  g.lights(3,29,[5,9],[4,10]);g.S(30,7,'V');g.mirror(16);g.tire(5,8);g.tire(22,25);
+  A.push({n:'Самурай Турбо',grid:g.rows(),pw:400,vmax:470,grip:1.0,turn:2.75,dturn:2.95,hx:16,hy:7.5,m:1.15,price:9000,desc:'Два турбо, огромная мощность'})})();
+ // 8 VIP Сэдан — long, low, chrome
+ (function(){var g=PG(35,16);g.body(function(x){return x===0?6:x<=33?7.5:6.5});g.outline();g.sides('M');
+  for(var x=1;x<=33;x++){g.S(x,g.top(x)+1,'C');g.S(x,g.bot(x)-1,'C')}
+  g.glass(8,11,2);g.fill(12,19,3,12,'B');g.hl(12,19,3,'L');g.glass(20,23,2);g.S(22,4,'w');g.S(23,5,'w');for(x=12;x<=19;x++){g.S(x,2,'W');g.S(x,13,'W')}
+  for(x=26;x<=32;x+=2)g.S(x,7,'L');g.fill(34,34,5,10,'C');g.fill(33,33,6,9,'V');g.fill(1,1,4,11,'C');
+  g.lights(2,32,[3,4,11,12],[3,12]);g.mirror(21);g.tire(5,8);g.tire(26,29);
+  A.push({n:'VIP Сэдан',grid:g.rows(),pw:360,vmax:420,grip:.95,turn:2.5,dturn:2.9,hx:17.5,hy:8,m:1.35,price:7000,desc:'Длинный и плавный, заносы как в кино'})})();
+ // 9 Ретро 2000GT — long curvy hood, round lamps, chrome bumpers
+ (function(){var g=PG(31,14);function hw(x){if(x<1)return -1;if(x<=2)return 5;if(x<=12)return 5.5+.5*M.sin((x-2)/10*M.PI);if(x<=25)return 6;return M.max(3.5,6-(x-25)*.45)}
+  g.body(hw);g.outline();g.sides('M');g.fill(1,1,3,10,'C');
+  for(var x=4;x<=8;x++)g.S(x,g.top(x)+1,'L');g.glass(9,10,2);g.fill(11,13,3,10,'B');g.hl(11,13,3,'L');g.glass(14,16,2);g.S(16,4,'w');
+  for(x=17;x<=28;x++){g.S(x,6,'D');g.S(x,7,'D')}g.S(26,3,'Y');g.S(27,4,'Y');g.S(26,10,'Y');g.S(27,9,'Y');g.fill(30,30,5,8,'C');
+  g.lights(2,29,[3,10],[5,8]);g.mirror(14);g.tire(3,6);g.tire(21,24);
+  A.push({n:'Ретро 2000GT',grid:g.rows(),pw:300,vmax:425,grip:1.02,turn:2.9,dturn:2.9,hx:15.5,hy:7,m:.95,price:6000,desc:'Классика шестидесятых'})})();
+ // 10 Ниндзя RR — wide mid-engine wedge, canopy in the middle, intakes
+ (function(){var g=PG(32,16);function hw(x){if(x<1)return -1;if(x<=2)return 6;if(x<=19)return 7.5;return M.max(4.5,7.5-(x-19)*.3)}
+  g.body(hw);g.outline();g.sides('M');for(var y=0;y<16;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===15)?'K':'D')}
+  for(y=3;y<=12;y++)g.S(3,y,(y<=5||y>=10)?'R':'V');
+  [5,7,9].forEach(function(x){for(var y=5;y<=10;y++)g.S(x,y,'S')});g.fill(11,12,2,3,'V');g.fill(11,12,12,13,'V');
+  var cy=g.cy;for(var x=12;x<=21;x++){var h=hw(x)-2.5-M.max(0,(x-18)*.6);for(y=M.ceil(cy-h);y<=M.floor(cy+h);y++)g.S(x,y,(x<=13||x>=19)?'W':'B')}
+  g.hl(14,18,5,'L');g.S(20,6,'w');g.S(21,7,'w');
+  for(x=22;x<=28;x++){g.S(x,g.top(x)+1,'L')}for(x=24;x<=29;x++){g.S(x,7,'D');g.S(x,8,'D')}
+  g.lights(2,29,[4,11],[5,10]);g.mirror(18);g.tire(4,8);g.tire(21,25);
+  A.push({n:'Ниндзя RR',grid:g.rows(),pw:440,vmax:510,grip:1.18,turn:3.1,dturn:2.9,hx:16,hy:8,m:1.05,price:15000,desc:'Самая быстрая. Для королей перевала'})})();
+ A.forEach(function(c){CARS.push(c)});
+})();
 
 // ===== CHUNK BAKER =====
 var CHK=new Map(),BQ=[],FRAME=0,NH=null,LJH=null,SPH=null,PDH=null;
@@ -2882,6 +3034,7 @@ var TUTS=['Веди пальцем влево-вправо по экрану —
 try{var _sv=JSON.parse(localStorage.getItem('tokyo_drift'));if(_sv)for(var _k in _sv)S[_k]=_sv[_k]}catch(e){}
 if(!(S.sens>=50))S.sens=100;if(!(S.stp>=80))S.stp=100;if(S.bsz==null)S.bsz=1;if(S.vib==null)S.vib=1;S.ctl=S.ctl|0;if(S.lang!=='en'&&S.lang!=='ru')S.lang=/^ru|^uk|^be|^kk/i.test(navigator.language||'')?'ru':'en';
 if((S.eco|0)<2){if(S.best)['r0','r1','r2'].forEach(function(k){delete S.best[k]});S.eco=2}
+(function(){while(S.own.length<CARS.length)S.own.push(0);while(S.parts.length<CARS.length)S.parts.push([0,0,0]);if(S.car>=CARS.length)S.car=0})();
 function save(){try{localStorage.setItem('tokyo_drift',JSON.stringify(S))}catch(e){}}
 var ED={o:[],b:[],rm:[],sp:null};
 try{var _e=JSON.parse(localStorage.getItem('tokyo_ed'));if(_e&&_e.o)ED=_e;if(!ED.rm)ED.rm=[]}catch(e){}
@@ -2890,9 +3043,14 @@ function saveEd(){try{localStorage.setItem('tokyo_ed',JSON.stringify(ED))}catch(
 function renderGar(){
  var q='<div class="top"><div class="tg"><button class="gear" data-a="menu" aria-label="'+L('В меню')+'"><svg viewBox="0 0 9 9" shape-rendering="crispEdges" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 4h1V3h1V2h1V1h1v7H6V7H5V6H4V5H3z"/></svg></button><h2 class="gt">'+L('Гараж')+'</h2></div><div class="tg"><div class="coins">'+Math.floor(S.coins)+' ¥</div><button class="gear" data-a="set" aria-label="'+L('Настройки')+'">'+GEAR+'</button></div></div><canvas id="pv" width="200" height="84"></canvas>';
  q+='<div class="sec">'+L('Машина')+'</div><div class="grid3">';
- CARS.forEach(function(c,i){q+='<button class="card'+(S.car===i?' on':'')+'" data-a="car" data-i="'+i+'">'+L(c.n)+'<small>'+(S.own[i]?L(S.car===i?'выбрана':'в гараже'):c.price+' ¥')+'</small></button>'});
- q+='</div><div class="desc">'+L(CARS[S.car].desc)+'</div><div class="sec">'+L('Запчасти')+'</div>';
- var u=S.parts[S.car];PN.forEach(function(n,k){var l=u[k],p='';for(var j=0;j<3;j++)p+='<i'+(j<l?' class="f"':'')+'></i>';q+='<div class="part"><div>'+L(n)+'<small> — '+L(PD[k])+'</small><div class="pips">'+p+'</div></div>'+(l<3?'<button class="buy" data-a="up" data-i="'+k+'">'+UP[l]+' ¥</button>':'<span class="mx">'+L('макс.')+'</span>')+'</div>'});
+ if(GV==null||GV>=CARS.length)GV=S.car;var lk=garLocked();
+ CARS.forEach(function(c,i){q+='<button class="card'+(GV===i?' on':'')+(S.car===i?' cur':'')+'" data-a="car" data-i="'+i+'">'+L(c.n)+'<small>'+(S.own[i]?L(S.car===i?'выбрана':'в гараже'):fmtN(c.price)+' ¥')+'</small></button>'});
+ var V=CARS[GV];function bar(n,v){return'<div class="cst"><span>'+L(n)+'</span><i><u style="width:'+Math.round(clamp(v,.06,1)*100)+'%"></u></i></div>'}
+ q+='</div><div class="cinfo"><b>'+L(V.n)+'</b><div class="desc">'+L(V.desc)+'</div>'+bar('Скорость',(V.vmax-280)/240)+bar('Мощность',(V.pw-180)/270)+bar('Сцепление',(V.grip-.85)/.42)+bar('Руль',((V.turn+V.dturn)/2-2.35)/.95)+'<div class="cbt">'+
+  (S.own[GV]?(S.car===GV?'<span class="cok">'+L('на ходу')+'</span>':'<button class="buy'+(lk?' lk':'')+'" data-a="sel" data-i="'+GV+'">'+L('Сесть за руль')+'</button>'):
+   '<button class="buy'+(lk?' lk':'')+(BUYC===GV?' sure':'')+'" data-a="buy" data-i="'+GV+'">'+(BUYC===GV?L('Точно купить?')+' '+fmtN(V.price)+' ¥':L('Купить')+' · '+fmtN(V.price)+' ¥')+'</button><button class="buy td" data-a="td" data-i="'+GV+'">'+L('Тест-драйв')+'</button>')+'</div></div>';
+ q+=(lk?'<div class="lkn">'+L('Машины, тюнинг и покраска — в мастерской Миши. Заезжай в её ворота в городе.')+'<button class="buy" data-a="togar">'+L('Маршрут в мастерскую')+'</button></div>':'')+'<div class="sec">'+L('Запчасти')+'</div>';
+ var u=S.parts[S.car];PN.forEach(function(n,k){var l=u[k],p='';for(var j=0;j<3;j++)p+='<i'+(j<l?' class="f"':'')+'></i>';q+='<div class="part"><div>'+L(n)+'<small> — '+L(PD[k])+'</small><div class="pips">'+p+'</div></div>'+(l<3?'<button class="buy'+(garLocked()?' lk':'')+'" data-a="up" data-i="'+k+'">'+UP[l]+' ¥</button>':'<span class="mx">'+L('макс.')+'</span>')+'</div>'});
  q+='<div class="sec">'+L('Кузов')+'</div><div class="sw">'+BODYC.map(function(c,i){return'<button style="background:'+c+'" class="'+(S.col===i?'on':'')+'" data-a="col" data-i="'+i+'" aria-label="'+L('Цвет')+' '+(i+1)+'"></button>'}).join('')+'</div>';
  q+='<div class="sec">'+L('Полосы')+'</div><div class="sw">'+STRC.map(function(c,i){return'<button style="background:'+c+'" class="'+(S.str===i?'on':'')+'" data-a="str" data-i="'+i+'" aria-label="'+L('Полосы')+' '+(i+1)+'"></button>'}).join('')+'</div>';
  q+='<div class="sec">'+L('Неоновая подсветка')+'</div><div class="sw">'+GLOWC.map(function(c,i){return'<button style="background:'+(c||'#2a2040')+'" class="'+(S.glow===i?'on':'')+'" data-a="glow" data-i="'+i+'" aria-label="'+L('Подсветка')+' '+i+'">'+(c?'':'✕')+'</button>'}).join('')+'</div>';
@@ -2902,9 +3060,16 @@ function renderGar(){
 }
 var pvT=0;
 function pvLoop(t){if(mode===''){var c=$('pv');if(c){var x=c.getContext('2d');x.imageSmoothingEnabled=false;x.fillStyle='#2f5a96';x.fillRect(0,0,200,84);x.fillStyle='#3a68aa';for(var i=0;i<12;i++)x.fillRect(((i*41+Math.floor(t/30))%240)-20,8+i*6,18,1);x.fillStyle='#d6e2fa';x.fillRect(0,40,200,1);var sp=pvSpr();x.save();x.translate(100,42);x.rotate(Math.sin(t/1400)*.5-.15);x.scale(2,2);x.fillStyle='rgba(12,8,40,.4)';x.fillRect(-sp.width/2+2,-sp.height/2+2,sp.width,sp.height);if(S.glow){var gc=hex3(GLOWC[S.glow]),pu=.8+.2*Math.sin(t/240);x.globalCompositeOperation='lighter';x.imageSmoothingEnabled=true;x.globalAlpha=.6*pu;x.drawImage(glw(gc),-sp.width/2-16,-sp.height/2-13,sp.width+32,sp.height+26);x.globalAlpha=pu;x.drawImage(glw(gc),-sp.width/2-6,-sp.height/2-5,sp.width+12,sp.height+10);x.globalAlpha=1;x.globalCompositeOperation='source-over';x.imageSmoothingEnabled=false}x.drawImage(sp,-sp.width/2,-sp.height/2);x.restore()}}requestAnimationFrame(pvLoop)}
-var _pvk='',_pvs=null;function pvSpr(){var k=S.car+'_'+S.col+'_'+S.str;if(k!==_pvk){_pvk=k;_pvs=playerSprite(S.car,BODYC[S.col],STRC[S.str])}return _pvs}
+var _pvk='',_pvs=null;function pvSpr(){var ci=mode===''&&GV!=null&&GV<CARS.length?GV:S.car,k=ci+'_'+S.col+'_'+S.str;if(k!==_pvk){_pvk=k;_pvs=playerSprite(ci,BODYC[S.col],STRC[S.str])}return _pvs}
+var GV=null,BUYC=-1;
+function garLocked(){return false}
 function garAction(a,i){
- if(a==='car'){if(S.own[i])S.car=i;else if(S.coins>=CARS[i].price){S.coins-=CARS[i].price;S.own[i]=1;S.car=i}else{toast(L('Нужно')+' '+CARS[i].price+' ¥')}}
+ if(garLocked()&&(a==='buy'||a==='sel'||a==='up'||a==='col'||a==='str'||a==='glow')){toast(L('Это делается в мастерской Миши'));return}
+ if(a==='car'){GV=i;BUYC=-1;if(S.own[i]&&!garLocked())S.car=i}
+ else if(a==='sel'){if(S.own[i])S.car=i}
+ else if(a==='buy'){if(S.own[i])return;if(BUYC!==i){BUYC=i;renderGar();return}BUYC=-1;if(S.coins>=CARS[i].price){S.coins-=CARS[i].price;S.own[i]=1;S.car=i;toast(L('Машина твоя!'))}else{toast(L('Нужно')+' '+fmtN(CARS[i].price)+' ¥')}}
+ else if(a==='td'){tdStart(i);return}
+ else if(a==='togar'){togarage();return}
  else if(a==='up'){var l=S.parts[S.car][i];if(l<3&&S.coins>=UP[l]){S.coins-=UP[l];S.parts[S.car][i]++}else if(l<3)toast(L('Нужно')+' '+UP[l]+' ¥')}
  else if(a==='col')S.col=i;else if(a==='str')S.str=i;else if(a==='glow')S.glow=i;
  else if(a==='set'){openSet();return}
@@ -3769,7 +3934,9 @@ function stTraffic(t,cap){AICAP.g=cap||14;AICAP.e=3;if(FRAME%20)return;var ng=0;
  for(var i=0;i<AI.length;i++){var a=AI[i];if(a.fd||a.l)continue;if(t&&Math.hypot(wd(a.x,t.x),wd(a.y,t.y))<170){a.fd=1;continue}if(++ng>AICAP.g+2)a.fd=1}}
 // ---- per-frame
 function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
- if(!m){var c=stCur();if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
+ if(!m){var c=stCur(),gq=P.garage,gd=Math.hypot(wd(gq.x,car.x),wd(gq.y,car.y)),cp=c&&P[c.at],nearC=cp&&Math.hypot(wd(cp.x,car.x),wd(cp.y,car.y))<70;
+  if(gd<55&&car.sp<90&&!ZS&&!ZFADE&&!nearC&&typeof stGarPrompt==='function'){stGarPrompt();return}if(ST.prompt==='garage')stPromptHide();
+  if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
   if(c.auto&&!ZS&&!ZFADE&&ST.autoT!==c.id){ST.autoT=c.id;setTimeout(function(){if(!ST.act&&stCur()===c&&mode==='game'&&!DLG)stStart(c)},1200)}
   if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;stRoute(p.x,p.y)}
   if(d<320)stTraffic(p,6);else if(AICAP.g!==62){AICAP.g=62;AICAP.e=12}
@@ -3916,6 +4083,68 @@ window.tdBack=function(){try{
 document.addEventListener('visibilitychange',function(){
  if(document.hidden){save();if(AU)try{AU.c.suspend()}catch(e){}if(mode==='game'&&!(NET&&NET.on))openSet()}
  else{if(AU)try{AU.c.resume()}catch(e){}last=performance.now()}});
+
+// ===== story garage (GTA-style: shop only at Misha's garage), free test drives on the dock pad =====
+var GSHOP=false,TD={on:false};
+garLocked=function(){return !!(typeof ST!=='undefined'&&ST.mode&&!GSHOP&&!TD.on)};
+var _gaShop=garAction;garAction=function(a,i){if(a==='go'||a==='menu')GSHOP=false;_gaShop(a,i)};
+function togarage(){var q=stPlaces().garage;GSHOP=false;startGame(true);WP=null;stRoute(q.x,q.y);toast(L('Метка на мастерскую поставлена'))}
+// ---- test drive
+function tdPad(){return SPEC.filter(function(q){return q.k==='drift'})[0]||null}
+function tdBanner(on){var e=$('tdb');if(!e){e=document.createElement('div');e.id='tdb';document.body.appendChild(e);e.addEventListener('click',function(ev){if(ev.target.closest('button'))tdEnd()})}
+ if(!on){e.style.display='none';return}e.innerHTML='<span>'+L('ТЕСТ-ДРАЙВ')+' · '+stEsc(L(CARS[TD.ci].n))+'</span><em>'+L('выезд с площадки — конец')+'</em><button>'+L('Закончить')+'</button>';e.style.display='flex'}
+function tdStart(i){var s=tdPad();if(!s){toast(L('Нет площадки'));return}if(typeof ST!=='undefined'&&ST.act){toast(L('Сначала закончи миссию'));return}
+ TD={on:true,prev:S.car,coins:S.coins,ci:i,pos:car&&car.P?{x:car.x,y:car.y,a:car.a,l:car.l|0}:null};
+ S.car=i;startGame(false);car.x=s.x+s.w*.22;car.y=s.y+s.h*.5;car.a=0;car.vx=car.vy=0;cam.x=car.x;cam.y=car.y;cam.a=0;preload();WP=null;tdBanner(true);
+ popup(L('Тест-драйв')+': '+L(CARS[i].n),'big')}
+function tdStop(){if(!TD.on)return false;TD.on=false;S.car=TD.prev;S.coins=TD.coins;tdBanner(false);if(TD.pos&&car){car.x=TD.pos.x;car.y=TD.pos.y;car.a=TD.pos.a;car.l=TD.pos.l;car.vx=car.vy=0}return true}
+function tdEnd(){var ci=TD.ci;if(!tdStop())return;_hoTd();S.coins=TD.coins;GV=ci;save();renderGar()}
+function tdUpdate(){S.coins=TD.coins;var s=tdPad();if(!s)return;var m=40,dx=wd(car.x,s.x+s.w/2),dy=wd(car.y,s.y+s.h/2);if(Math.abs(dx)>s.w/2+m||Math.abs(dy)>s.h/2+m)tdEnd()}
+var _zuTd=zonesUpdate;zonesUpdate=function(dt){if(TD.on){if(ZP){ZP=null;zPrompt(null)}tdUpdate();return}_zuTd(dt)};
+var _hoTd=home;home=function(){if(TD.on){tdEnd();return}_hoTd()};
+var _moTd=menuOpen;menuOpen=function(){tdStop();GSHOP=false;_moTd()};
+var _huTd=hud;hud=function(dt){_huTd(dt);if(TD.on){var e=$('sobj');if(e)e.style.display='none'}};
+var _tbTd=window.tdBack;window.tdBack=function(){if(TD.on&&!DLG){tdEnd();return true}return _tbTd()};
+// ---- the "drive in" prompt at Misha's garage (story mode)
+function stGarPrompt(){if(ST.prompt==='garage')return;ST.prompt='garage';var e=$('sq');
+ e.innerHTML='<div class="zk">'+L('МАСТЕРСКАЯ МИШИ')+'</div><div class="zn">'+L('Машины и тюнинг')+'</div><div class="zi">'+L('Купить машину, поставить детали, перекрасить')+'</div><div class="zbt"><button data-st="shop">'+L('Заехать')+'</button></div>';e.classList.add('on')}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-st=shop]');if(!b)return;stPromptHide();GSHOP=true;home()});
+
+// ===== Japanese internet radio: list from the Radio Browser directory, played with a plain <audio> =====
+var RAD={a:null,list:null,on:false,i:0,busy:false,fails:0,lbl:0,was:false,tok:0};
+var RAD_FALLBACK=[{name:'LISTEN.moe · J-Pop',url:'https://listen.moe/fallback'},{name:'Gensokyo Radio',url:'https://stream.gensokyoradio.net/1/'}];
+var RAD_API=['https://de1.api.radio-browser.info','https://de2.api.radio-browser.info','https://fi1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info','https://all.api.radio-browser.info'];
+function radApp(){return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())}
+function radFetch(url,ms){return new Promise(function(res,rej){var done=false,t=setTimeout(function(){if(!done){done=true;rej('timeout')}},ms||6000);
+ fetch(url,{headers:{'Accept':'application/json'}}).then(function(r){return r.json()}).then(function(j){if(!done){done=true;clearTimeout(t);res(j)}}).catch(function(e){if(!done){done=true;clearTimeout(t);rej(e)}})})}
+function radLoad(cb){if(RAD.list&&!RAD.fb){cb();return}RAD.fb=false;
+ try{var c=JSON.parse(localStorage.getItem('tokyo_radio')||'null');if(c&&c.list&&c.list.length&&Date.now()-c.t<3*864e5){RAD.list=c.list;cb();return}}catch(e){}
+ var qs=['/json/stations/search?countrycode=JP&hidebroken=true&order=clickcount&reverse=true&limit=60','/json/stations/search?tag=jpop&hidebroken=true&order=clickcount&reverse=true&limit=30',
+  '/json/stations/search?tag=anime&hidebroken=true&order=clickcount&reverse=true&limit=15','/json/stations/search?tag=city%20pop&hidebroken=true&order=clickcount&reverse=true&limit=10'];
+ var k=0;function tryHost(){if(k>=RAD_API.length){RAD.list=RAD_FALLBACK.slice();RAD.fb=true;cb();return}var h=RAD_API[k++];
+  Promise.all(qs.map(function(q){return radFetch(h+q).catch(function(){return[]})})).then(function(rs){var seen={},out=[],https=location.protocol==='https:'&&!radApp();
+   rs.forEach(function(arr){(arr||[]).forEach(function(s){var u=s.url_resolved||s.url;if(!u||seen[u]||s.hls==1||s.lastcheckok===0)return;var cd=(s.codec||'').toUpperCase();if(cd&&!/MP3|AAC|OGG|OPUS/.test(cd))return;if(/\.m3u8|\.pls|\.m3u$|\.asx/i.test(u))return;if(https&&u.indexOf('https:')!==0)return;
+    seen[u]=1;out.push({name:(s.name||'').trim().slice(0,40)||'Radio',url:u,id:s.stationuuid,cc:s.countrycode})})});
+   if(!out.length){tryHost();return}RAD.host=h;RAD.list=out.slice(0,40).concat(RAD_FALLBACK.filter(function(f){return!seen[f.url]}));
+   try{localStorage.setItem('tokyo_radio',JSON.stringify({t:Date.now(),list:RAD.list}))}catch(e){}cb()}).catch(tryHost)}
+ tryHost()}
+function radAudio(){if(RAD.a)return RAD.a;var a=new Audio();a.preload='none';a.volume=.85;RAD.a=a;
+ a.addEventListener('playing',function(){RAD.fails=0;RAD.busy=false;radUI()});
+ a.addEventListener('error',function(){radFail(RAD.tok)});
+ a.addEventListener('stalled',function(){if(RAD.on&&a.paused===false)radUI()});return a}
+function radFail(tok){if(tok!==RAD.tok||!RAD.on)return;RAD.tok++;RAD.busy=false;if(++RAD.fails>6){radStop();toast(L('Радио не ловит — проверь интернет'));return}var t=RAD.tok;setTimeout(function(){if(t===RAD.tok&&RAD.on)radGo(1,true)},250)}
+function radPlay(){var a=radAudio(),s=RAD.list[RAD.i];if(!s){RAD.on=false;radUI();return}RAD.busy=true;var tok=++RAD.tok;radUI();
+ clearTimeout(RAD.to);RAD.to=setTimeout(function(){if(tok===RAD.tok&&RAD.busy)radFail(tok)},12000);
+ try{a.src=s.url;var p=a.play();if(p&&p.catch)p.catch(function(e){if(tok!==RAD.tok)return;if(e&&e.name==='NotAllowedError'){radStop();return}if(e&&e.name==='AbortError')return;radFail(tok)})}catch(e){radFail(tok)}
+ if(s.id&&RAD.host)fetch(RAD.host+'/json/url/'+s.id).catch(function(){});S.radio=RAD.i;save()}
+function radStop(){RAD.on=false;RAD.busy=false;RAD.tok++;clearTimeout(RAD.to);if(RAD.a){try{RAD.a.pause();RAD.a.removeAttribute('src');RAD.a.load()}catch(e){}}radUI()}
+function radToggle(){if(RAD.on){radStop();return}RAD.on=true;RAD.busy=true;radUI();radLoad(function(){if(!RAD.on)return;RAD.i=Math.min(RAD.list.length-1,S.radio|0);radPlay()})}
+function radGo(d,auto){var start=function(){if(!RAD.list.length)return;RAD.i=(RAD.i+d+RAD.list.length)%RAD.list.length;RAD.on=true;if(!auto)RAD.fails=0;radPlay();RAD.lbl=TIME+3.5};
+ if(!RAD.list){RAD.on=true;RAD.busy=true;radUI();radLoad(function(){RAD.i=S.radio|0;start()})}else start()}
+function radUI(){var b=$('radt'),n=$('radn');if(!b)return;b.classList.toggle('on',RAD.on);var s=RAD.list&&RAD.list[RAD.i];
+ n.textContent=RAD.on?(RAD.busy?L('ловлю…')+(s?' '+s.name:''):'♪ '+(s?s.name:'')):'';n.style.display=RAD.on?'block':'none'}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;e.preventDefault();var r=b.dataset.r;if(r==='t')radToggle();else radGo(r==='n'?1:-1)});
+document.addEventListener('visibilitychange',function(){if(!RAD.a)return;if(document.hidden){RAD.was=RAD.on;if(RAD.on)try{RAD.a.pause()}catch(e){}}else if(RAD.was&&RAD.on){try{RAD.a.play()}catch(e){}}});
 
 boot();
 </script>

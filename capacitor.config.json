@@ -2,6 +2,13 @@
   "appId": "com.tokyodrift.game",
   "appName": "Tokyo Drift",
   "webDir": "www",
-  "server": { "androidScheme": "https" },
-  "ios": { "contentInset": "never" }
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
 }
