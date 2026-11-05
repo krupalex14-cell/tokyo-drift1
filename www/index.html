@@ -309,6 +309,7 @@ var EN={
  'долг':'debt',
  'Пропустить':'Skip',
  'Дальше':'Next',
+ 'заедь на площадку':'drive onto the pad',
  'Громкость радио':'Radio volume',
  'кнопка радио — под мини-картой':'the radio button is under the minimap',
  'Код':'Code',
@@ -3632,6 +3633,14 @@ function stGarage(sj){var c={x:sj.x+sj.w/2,y:sj.y+sj.h/2},list=[];
  return null}
 // Reiko's ramen shop: on the Akagi pass road just before the start line
 function stRamen(z){var r=z.road,s=Math.max((r.za||0)+70,z.s0-170),u=laneU(r,1,0);r.pt(zcs(r,s),TMP);return{x:wrap(TMP[0]-TMP[3]*u),y:wrap(TMP[1]+TMP[2]*u),a:Math.atan2(TMP[3],TMP[2]),r:r,s:s,sd:u<0?-1:1}}
+function stPadGate(){var d=SPEC.filter(function(q){return q.k==='drift'})[0];if(!d)return null;var best=null;
+ // a gate: road right outside the edge and a clear path inside (the tyre walls block part of the edges); prefer the south side
+ [['S',0,1],['N',0,-1],['W',-1,0],['E',1,0]].forEach(function(sd,si){var nx=sd[1],ny=sd[2],len=ny?d.w:d.h,run=0,t0=0;
+  function edge(t){return ny?{x:d.x+t,y:ny>0?d.y+d.h:d.y}:{x:nx>0?d.x+d.w:d.x,y:d.y+t}}
+  for(var t=16;t<=len-16;t+=6){var e=edge(t),ok=occAt(e.x+nx*14,e.y+ny*14)===1;for(var k=-30;k<=46&&ok;k+=8)ok=stClear(e.x-nx*k,e.y-ny*k,13);
+   if(ok){if(!run)t0=t;run++;var sc=run+(si===0?3:0);if(run>=4&&(!best||sc>best.sc))best={sc:sc,t:(t0+t)/2,nx:nx,ny:ny,edge:edge}}else run=0}});
+ if(!best)return{x:d.x+d.w*.22,y:d.y+d.h*.5,a:0};
+ var e=best.edge(best.t);return{x:e.x-best.nx*60,y:e.y-best.ny*60,a:Math.atan2(-best.ny,-best.nx),g:{x:e.x+best.nx*30,y:e.y+best.ny*30}}}
 function stPlaces(){if(STP)return STP;
  function spec(k,i){var a=SPEC.filter(function(s){return s.k===k});return a[Math.min(i||0,a.length-1)]||null}
  function near(k,to,minD){var a=SPEC.filter(function(s){return s.k===k}),best=null,bd=1e9;a.forEach(function(s){var x=s.x+s.w/2,y=s.y+s.h/2,d=Math.hypot(wd(x,to.x),wd(y,to.y));if(d>=(minD||0)&&d<bd){bd=d;best=s}});return best||spec(k)}
@@ -3650,7 +3659,7 @@ function stPlaces(){if(STP)return STP;
   scramble:stSnapWide(zone('scr')||sj,420),naka:(function(){var z=zone('r2');var s=zoneStart(z);return{x:s.x,y:s.y}})(),c1:(function(){var z=zone('c1');return{x:z.x,y:z.y}})()};
  var NM={garage:['Мастерская','Garage'],station:['Вокзал','Station'],hana:['Лавка Ханы','Hana’s shop'],toyo:['Ларёк бабушки Тоё','Grandma Toyo’s stall'],bank:['Банк «Сакура-Траст»','Sakura Trust bank'],
   port:['Порт','Port'],castle:['Замок','Castle'],wheel:['Колесо обозрения','Ferris wheel'],sensoji:['Сэнсо-дзи','Senso-ji'],tower:['Токийская башня','Tokyo Tower'],scramble:['Скрамбл','Scramble'],naka:['Кольцо Нака','Naka Ring'],c1:['Эстакада С1','C1 Expressway']};
- STP.shinju=(function(){var z=zone('r0'),q=zoneStart(z);return{x:q.x,y:q.y}})();STP.stad=(function(){var z=zone('stad');return{x:z.x,y:z.y}})();STP.ramen=stRamen(zone('tg0'));STP.pad=(function(){var d=SPEC.filter(function(q){return q.k==='drift'})[0];return d?{x:d.x+d.w*.22,y:d.y+d.h*.5,a:0}:{x:STP.stad.x,y:STP.stad.y}})();
+ STP.shinju=(function(){var z=zone('r0'),q=zoneStart(z);return{x:q.x,y:q.y}})();STP.stad=(function(){var z=zone('stad');return{x:z.x,y:z.y}})();STP.ramen=stRamen(zone('tg0'));STP.pad=stPadGate()||{x:STP.stad.x,y:STP.stad.y};
  NM.shinju=['Кольцо Синдзю','Shinju Ring'];NM.pad=['Площадка в доках','Dock pad'];NM.stad=['Парковка у Стадиона','Stadium parking'];NM.ramen=['Раменная Рэйко','Reiko’s ramen shop'];
  for(var k in NM)STP[k].name={ru:NM[k][0],en:NM[k][1]};
  return STP}
@@ -3951,6 +3960,7 @@ function stStart(m,quick){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amou
 function stMain(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;
  if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
  if(m.type==='chase'){WP=null;stSpawnRin()}
+ if(m.type==='save'){WP=null;var pz=stZone(m.zone),pp=stPlace(m.at);if(pz&&!stOnPad(m)&&pp){var gq=pp.g||pp;stRoute(gq.x,gq.y)}}
  if(isZR(m)){var z=stZone(m.zone);if(!z){ST.act=null;return}zonePlace(z);if(m.type==='duel')stSpawnGen(z);if(m.type==='tandem')stSpawnReiko(z);if(m.type==='race')stSpawnSisters(z);if(m.type==='tt')m.rec=stRec(z)}}
 // ---- rivals on a course: a path along the pass in a given lane
 function stCoursePath(z,u,a,b){var r=z.road,pts=[];for(var s=a;s<=b;s+=18){r.pt(zcs(r,s),TMP);pts.push([TMP[0]-TMP[3]*u,TMP[1]+TMP[2]*u])}return pts}
@@ -3969,7 +3979,7 @@ function stSpawnRin(){var q=gpsNear(car.x,car.y,80),pts=[],k,s;
 function stTrail(R){var dx=wd(car.x,ST.trail.x),dy=wd(car.y,ST.trail.y),d=Math.hypot(dx,dy);if(d<18)return;var lp=R.pts[R.pts.length-1];R.pts.push([lp[0]+wd(car.x,lp[0]),lp[1]+wd(car.y,lp[1])]);R.cum.push(R.cum[R.cum.length-1]+Math.hypot(wd(car.x,lp[0]),wd(car.y,lp[1])));R.L=R.cum[R.cum.length-1];ST.trail={x:car.x,y:car.y};
  if(R.pi>160){var n=120,off=R.cum[n];R.pts.splice(0,n);R.cum.splice(0,n);for(var i=0;i<R.cum.length;i++)R.cum[i]-=off;R.L-=off;R.P-=off;R.pi-=n}}
 function stStopLines(m,k){var sl=m.stopLines&&m.stopLines[k];return typeof sl==='function'?sl({hits:ST.hits}):sl}
-function stTarget(){var P=stPlaces(),m=ST.act,c=stCur();if(!ST.mode)return null;if(!m)return c?P[c.at]:null;if(ST.ride)return P[m.ride];if(m.type==='deliv')return P[m.stops[ST.stop]];if(m.type==='drift')return P[m.dc||m.at];return null}
+function stTarget(){var P=stPlaces(),m=ST.act,c=stCur();if(!ST.mode)return null;if(!m)return c?P[c.at]:null;if(ST.ride)return P[m.ride];if(m.type==='deliv')return P[m.stops[ST.stop]];if(m.type==='drift')return P[m.dc||m.at];if(m.type==='save'&&ST.out)return P[m.at];return null}
 function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.ride=false;ST.arr=false;AICAP.g=62;AICAP.e=12;ST.lastOk=ok;rivClear();
  if(!ok){ST.routed='';WP=null;var ft=L('Не вышло')+(why?': '+L(why):'');if(m.fail&&m.fail.length)dlgOpen(m.fail,function(){toast(ft)});else toast(ft);return}
  var rw=m.reward||0,idx=S.story.m|0;if(m.fragile)rw=Math.max(0,Math.round(rw*(1-.25*ST.hits)));if(idx<(S.story.hi|0))rw=0;
@@ -3991,7 +4001,7 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
   if(gd<55&&car.sp<90&&!ZS&&!ZFADE&&!nearC&&typeof stGarPrompt==='function'){stGarPrompt();return}if(ST.prompt==='garage')stPromptHide();
   if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
   if(c.auto&&!ZS&&!ZFADE&&ST.autoT!==c.id){ST.autoT=c.id;setTimeout(function(){if(!ST.act&&stCur()===c&&mode==='game'&&!DLG)stStart(c)},1200)}
-  if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;stRoute(p.x,p.y)}
+  if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;var gp=p.g||p;stRoute(gp.x,gp.y)}
   if(d<320)stTraffic(p,6);else if(AICAP.g!==62){AICAP.g=62;AICAP.e=12}
   if((d<70||(!c.ride&&stInZone(c)))&&!ZS&&!ZFADE)stPromptShow(c);else stPromptHide();return}
  if(ST.ride){var rp=P[m.ride],rd=Math.hypot(wd(rp.x,car.x),wd(rp.y,car.y));stTraffic(rp,0);
@@ -4012,7 +4022,7 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
  rivUpdate(dt)}
 // lesson 2, tandem, race, chase
 function stKinds(m,dt){
- if(m.type==='save'){var z=stZone(m.zone),inn=z&&Math.hypot(wd(z.x,car.x),wd(z.y,car.y))<z.r+40&&car.l===0,ang=Math.abs(angd(Math.atan2(car.vy,car.vx),car.a)),sp=car.sp;
+ if(m.type==='save'){var z=stZone(m.zone),inn=stOnPad(m);ST.out=!inn;if(!inn){ST.t-=dt;var pp=stPlace(m.at),gq=pp.g||pp;if(!WP&&TIME-(ST.rt||0)>3&&Math.hypot(wd(gq.x,car.x),wd(gq.y,car.y))>120)stRoute(gq.x,gq.y)}else if(WP&&WP.st)WP=null;var ang=Math.abs(angd(Math.atan2(car.vy,car.vx),car.a)),sp=car.sp;
   if(inn&&sp>70&&ang>.95&&ang<2.3){if(!ST.sv)ST.sv={t:0};ST.sv.t=0}
   else if(ST.sv){ST.sv.t+=dt;if(ang>=2.3||sp<20){ST.sv=null;flash(L('развернуло'),1)}else if(ang<.32&&sp>45){ST.sv=null;ST.prog++;popup(L('Поймал!')+' '+ST.prog+'/'+m.need,'big');if(S.snd)try{auBell()}catch(e){}if(ST.prog>=m.need){stDone(true);return true}}else if(ST.sv.t>2.6)ST.sv=null}
   if(ST.t>m.limit){stDone(false,'время вышло');return true}return false}
@@ -4027,6 +4037,7 @@ function stKinds(m,dt){
   ST.esc=(dd>520||lag>900)?ST.esc+dt:0;if(ST.esc>3){popup(L('Оторвался!'),'big');stDone(true);return true}
   if(ST.t>m.limit){stDone(false,'Рин не отстала');return true}return false}
  return false}
+function stOnPad(m){var z=stZone(m.zone);if(!z||car.l)return false;var sp=z.spec;if(sp){var dx=wd(car.x,sp.x+sp.w/2),dy=wd(car.y,sp.y+sp.h/2);return Math.abs(dx)<sp.w/2-4&&Math.abs(dy)<sp.h/2-4}return Math.hypot(wd(z.x,car.x),wd(z.y,car.y))<z.r+40}
 function stInZone(c){return stInZoneId(c.zone)}
 function stInZoneId(id){if(!id)return false;var z=stZone(id);if(!z||z.l!==car.l)return false;var d=Math.hypot(wd(z.x,car.x),wd(z.y,car.y));return d<(z.k==='course'?z.r:z.r+30)}
 function stAbort(){if(!ST.act)return;ST.act=null;ST.ride=false;ST.arr=false;rivClear();AICAP.g=62;AICAP.e=12;ST.routed='';stPromptHide();toast(L('Миссия прервана'))}
@@ -4052,7 +4063,7 @@ function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='
  else if(m.type==='deliv'){var s=P[m.stops[ST.stop]],d=Math.round(Math.hypot(wd(s.x,car.x),wd(s.y,car.y))/4);t=LT(s.name)+' · '+d+' '+L('м')+(m.stops.length>1?' · '+(ST.stop+1)+'/'+m.stops.length:'');
   if(m.limit&&ST.stop<(m.limitN||m.stops.length)){var left=Math.max(0,Math.ceil(m.limit-ST.t));t+=' · '+Math.floor(left/60)+':'+(left%60<10?'0':'')+left%60}if(m.fragile&&ST.stop>=(m.fragileFrom==null?1:m.fragileFrom))t+=' · '+L('удары')+': '+ST.hits}
  else if(m.type==='drift'){var dp=P[m.dc||m.at],dd=Math.hypot(wd(dp.x,car.x),wd(dp.y,car.y));t=Math.min(m.goalPts,Math.floor(ST.prog+(dd<m.radius?run.pend:0)))+' / '+m.goalPts+(dd>m.radius?' · '+L('вернись к метке'):'');bar=Math.min(1,(ST.prog+(dd<m.radius?run.pend:0))/m.goalPts)}
- else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=L('поймал')+' '+ST.prog+'/'+m.need+' · '+lf+' '+L('с');bar=ST.prog/m.need}
+ else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=ST.out?L('заедь на площадку')+' · '+Math.round(Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y))/4)+' '+L('м'):L('поймал')+' '+ST.prog+'/'+m.need+' · '+lf+' '+L('с');bar=ST.prog/m.need}
  else if(m.type==='tandem'&&RIV[0]){var g2=RIV[0];t=L('Рэйко')+' '+Math.round(Math.hypot(wd(g2.x,car.x),wd(g2.y,car.y))/4)+' '+L('м')+' · '+L('хвост')+' '+Math.round(ST.tot?ST.close/ST.tot*100:0)+'% · '+ST.touch+'/3';bar=ST.tot?ST.close/ST.tot:0}
  else if(m.type==='race'&&ZS){var pos=1;RIV.forEach(function(R){if(stRoadS(R)>ZS.s)pos++});t=L('место')+' '+pos+'/3 · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
  else if(m.type==='chase'&&RIV[0]){var R3=RIV[0];t=L('Рин')+' '+Math.round(Math.hypot(wd(R3.x,car.x),wd(R3.y,car.y))/4)+' '+L('м')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(ST.esc/3,0,1)}
