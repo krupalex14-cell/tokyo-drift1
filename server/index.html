@@ -143,6 +143,7 @@ input[type=range]::-moz-range-track{height:8px;background:#0e0a1a;border:2px sol
 #duo .go{margin-top:12px}
 .zacc{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px;color:var(--muted)}.zacc i{flex:1;height:6px;background:#0e0a1a}.zacc i b{display:block;height:100%}.zacc em{font-style:normal;font-size:11px;min-width:32px;text-align:right}
 #res .rr small{display:block;font-size:11px;color:#ffd23a;margin-top:2px}
+#res .rt b{font-weight:inherit}#res .rt b.ok{color:#7dff8c}#res .rt b.no{color:#ff6b8b}#res .rg{font-size:16.5px;color:#ffd23a;margin:2px 0 6px}
 
 /* ---- two players ---- */
 #duo .din{max-height:calc(100vh - 40px);overflow-y:auto}
@@ -296,6 +297,9 @@ var EN={
  'долг':'debt',
  'Пропустить':'Skip',
  'Дальше':'Next',
+ 'победа!':'victory!',
+ 'не вышло':'failed',
+ 'Миссия прервана':'Mission aborted',
  'Цель главы':'Chapter goal',
  'Сейчас':'Now',
  'первый взнос':'first payment',
@@ -2442,7 +2446,7 @@ function zLine(z,s,fin){var r=z.road;r.pt(zcs(r,s),TMP);var x=SX(TMP[0]),y=SY(TM
  for(var u=-hw,c=0;u<=hw;u+=3,c++)for(var w=0;w<2;w++){cx.fillStyle=((c+w)&1)?(fin?'#1a1426':'#ff5aa0'):'#f4f4fa';cx.fillRect(Math.round(x+nx*u+tx*w*3)-1,Math.round(y+ny*u+ty*w*3)-1,3,3)}}
 function zBeacon(x,y){if(x<-30||y<-30||x>VW+30||y>VH+30)return;var ph=(TIME*1.2)%1,r=5+ph*14;cx.fillStyle='rgba(255,90,160,'+(1-ph).toFixed(2)+')';for(var k=0;k<16;k++){var a=k/16*TAU;cx.fillRect(Math.round(x+Math.cos(a)*r)-1,Math.round(y+Math.sin(a)*r)-1,2,2)}
  var by=y-10+Math.round(Math.sin(TIME*3)*2);cx.fillStyle='#1a1426';cx.fillRect(x-1,by-9,2,12);cx.fillRect(x+1,by-10,8,7);cx.fillStyle='#ff5aa0';cx.fillRect(x+1,by-9,7,5);cx.fillStyle='#fff';cx.fillRect(x+2,by-8,2,1);cx.fillRect(x+5,by-7,2,1);cx.fillStyle='#e8e8f0';cx.fillRect(x,by-9,1,11)}
-function zHud(){var zb=$('zb');if(!ZS||ZS.ph!=='go'){zb.style.display='none';return}var z=ZS.z,sc=Math.floor(ZS.score+run.pend),st=zStars(z,sc);zb.style.display='block';
+function zHud(){var zb=$('zb');if(!ZS||ZS.ph!=='go'){zb.style.display='none';return}var z=ZS.z,sc=Math.floor(ZS.score+(z.line?0:run.pend)),st=zStars(z,sc);zb.style.display='block';
  zb.innerHTML='<div class="zt"><span>'+L(z.name)+'</span><b>'+Math.max(0,Math.ceil(ZS.t))+L('с')+'</b></div><div class="zs">'+fmtN(sc)+' <i>'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></i></div><div class="zbar"><i style="width:'+Math.min(100,sc/z.tg[2]*100)+'%"></i><em style="left:'+(z.tg[0]/z.tg[2]*100)+'%"></em><em style="left:'+(z.tg[1]/z.tg[2]*100)+'%"></em></div>'+(z.k==='course'?'<div class="zpr"><i style="width:'+clamp((ZS.s-z.s0)/(z.s1-z.s0)*100,0,100)+'%"></i></div>':'')+(ZS.out>0?'<div class="zw">'+L(z.k==='course'?'Вернись на трассу!':'Вернись в зону!')+'</div>':'')}
 
 // ===== IMPACT FX, DRIFT FX, BREAKABLE PROPS =====
@@ -2823,6 +2827,7 @@ function ringScore(dt){var z=ZS.z,RL=ringOf(z);if(!RL)return;
  // only forward (clockwise) progress beyond the furthest point reached earns points
  ZS.acc+=dth;if(ZS.acc>ZS.max){var g=ZS.acc-ZS.max;ZS.max=ZS.acc;ZS.score+=g*ringR(RL,q.th)*f*RING_PTS;var lp=Math.floor(ZS.max/TAU);if(lp>ZS.lap){ZS.lap=lp;flash(L('круг')+' '+lp+'!',1)}}
  ZS.back=ZS.acc<ZS.max-.35}
+var _bkRing=bank;bank=function(){if(ZS&&ZS.z.line&&run.pend>0){var sv=ZS.score;_bkRing();ZS.score=sv}else _bkRing()};
 var _zrRing=zoneRun;zoneRun=function(dt){if(ZS&&ZS.z.line&&ZS.ph==='go')ringScore(dt);_zrRing(dt)};
 // draw the line on the asphalt: dots, with a bright pulse flowing clockwise; near the car the dots light cyan
 function ringDraw(z,act){var L=ringOf(z);if(!L)return;var x0=SX(L.cx),y0=SY(L.cy),R=L.mid+L.A+6;if(x0<-R||y0<-R||x0>VW+R||y0>VH+R)return;
@@ -3451,7 +3456,7 @@ var STORY=[
        D('hana','На Скрамбле. Там толпа и камеры. Покажешь заносы — я сниму, просмотры приведут клиентов в мастерскую.','At the Scramble. Crowds and cameras. Show them your drifts — I’ll film, and the views will bring customers to the garage.',PH_H),
        D('hana','И Сакура уже на новых деталях. Приезжай.','And Sakura is on her new parts. Come over.',PH_H)],
   post:[]},
- {id:'k5',title:{ru:'Ёппарай',en:'Yopparai'},at:'scramble',type:'drift',goalPts:600,radius:300,reward:200,
+ {id:'k5',title:{ru:'Ёппарай',en:'Yopparai'},at:'scramble',type:'drift',goalPts:600,radius:420,reward:200,
   goal:{ru:'Набери 600 очков заносом на Скрамбле',en:'Score 600 drift points at the Scramble'},
   why:{ru:'Хана снимает: просмотры — это клиенты, а клиенты — деньги на взнос.',en:'Hana is filming: views mean customers, and customers mean money for the payment.'},
   pre:[D('hana','Скрамбл — главный перекрёсток города. Здесь тебя увидят все.','The Scramble is the city’s main crossing. Everyone will see you here.'),
@@ -3548,20 +3553,20 @@ function storyBegin(){ST.mode=true;
  if(!S.story.started){S.story.started=1;S.story.m=0;save();menuLeave();
   chapterCard(L('Глава 1'),L('Наследство'),L('утро · Токио'),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}
  else{menuLeave();$('game').style.display='none';$('gar').style.display='block';renderGar();window.scrollTo(0,0)}}
-function stStart(m){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amount){stPromptHide();dlgOpen(m.short||[],function(){toast(L('Нужно')+' '+fmtN(m.amount)+' ¥ · '+L('есть')+' '+fmtN(Math.floor(S.coins))+' ¥')});return}ST.act=m;ST.t=0;ST.prog=0;ST.hits=0;ST.stop=0;ST.gen=0;ST.photo=0;ST.end=null;stPromptHide();
- dlgOpen(m.pre,function(){
+function stStart(m,quick){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amount){stPromptHide();dlgOpen(m.short||[],function(){toast(L('Нужно')+' '+fmtN(m.amount)+' ¥ · '+L('есть')+' '+fmtN(Math.floor(S.coins))+' ¥')});return}ST.act=m;ST.t=0;ST.prog=0;ST.hits=0;ST.stop=0;ST.gen=0;ST.photo=0;ST.end=null;stPromptHide();
+ dlgOpen(quick?[]:m.pre,function(){
   if(m.type==='scene'){stDone(true);return}
   if(m.type==='pay'){if(S.coins>=m.amount){S.coins-=m.amount;S.story.debt-=m.amount;save();stDone(true)}else{ST.act=null;toast(L('Нужно')+' '+m.amount+' ¥');return}return}
   if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
   if(m.type==='zone'||m.type==='duel'){var z=stZone(m.zone);if(!z){ST.act=null;return}zonePlace(z);if(m.type==='duel')stSpawnGen(z)}
  })}
 function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;AICAP.g=62;AICAP.e=12;ST.lastOk=ok;rivClear();
- if(!ok){toast(L('Не вышло')+(why?': '+L(why):''));dlgOpen(m.fail||[],null);return}
+ if(!ok){ST.routed='';WP=null;var ft=L('Не вышло')+(why?': '+L(why):'');if(m.fail&&m.fail.length)dlgOpen(m.fail,function(){toast(ft)});else toast(ft);return}
  var rw=m.reward||0,idx=S.story.m|0;if(m.fragile)rw=Math.max(0,Math.round(rw*(1-.25*ST.hits)));if(idx<(S.story.hi|0))rw=0;
  if(rw){S.coins+=rw;popup('+'+rw+' ¥','big')}
  S.story.m=idx+1;S.story.hi=Math.max(S.story.hi|0,idx+1);save();ST.routed='';WP=null;
  var post=typeof m.post==='function'?m.post({hits:ST.hits}):m.post,sl=m.stopLines&&m.stops&&m.stopLines[m.stops[m.stops.length-1]];if(sl)post=sl.concat(post||[]);
- setTimeout(function(){dlgOpen(post,function(){
+ setTimeout(function(){if(m.zone)$('res').style.display='none';dlgOpen(post,function(){
   if(m.chapterEnd){chapterCard(L('Глава 1 пройдена'),L('Наследство'),L('Дальше')+': '+LT(m.next),function(){chapterCard(L('Глава 2'),L('Пьяный стиль'),L('скоро'),null)});return}
   var n=stCur();if(n&&n.auto)stStart(n)})},m.type==='zone'||m.type==='duel'?1400:300)}
 // ---- boss: Gen drifts around the Scramble
@@ -3575,7 +3580,8 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
  if(!m){var c=stCur();if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
   if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;stRoute(p.x,p.y)}
   if(d<320)stTraffic(p,6);else if(AICAP.g!==62){AICAP.g=62;AICAP.e=12}
-  if(d<70&&!ZS)stPromptShow(c);else stPromptHide();return}
+  if((d<70||stInZone(c))&&!ZS&&!ZFADE)stPromptShow(c);else stPromptHide();return}
+ if((m.type==='zone'||m.type==='duel')&&!ZS&&!ZFADE){stAbort();return}
  ST.t+=dt;stTraffic(m.type==='deliv'?P[m.stops[ST.stop]]:(ZS?{x:ZS.z.x,y:ZS.z.y}:P[m.at]),0);
  if(m.type==='deliv'){var s=P[m.stops[ST.stop]],sd=Math.hypot(wd(s.x,car.x),wd(s.y,car.y));if(sd<62){ST.stop++;if(ST.stop>=m.stops.length){stDone(true);return}popup(LT(s.name)+' ✓','mul');var s2=P[m.stops[ST.stop]];stRoute(s2.x,s2.y);var sl=m.stopLines&&m.stopLines[m.stops[ST.stop-1]];if(sl){car.vx*=.15;car.vy*=.15;car.w=0;car.dr=false;dlgOpen(sl,null);return}}
   else if((!WP||!WP.pts)&&sd>80&&TIME-(ST.rt||0)>1.5)stRoute(s.x,s.y);
@@ -3585,6 +3591,8 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
   if(ZS.ph==='go'){var el=ZS.z.T-ZS.t;ST.gen+=dt*(g&&g.d?66:50)*(1+.15*Math.sin(el*.7));
    var ph=Math.floor(el/10);if(ph>ST.photo&&el<44){ST.photo=ph;stFlash();var near=g&&Math.hypot(wd(g.x,car.x),wd(g.y,car.y))<80&&car.l===g.l;if(near){ZS.score+=400;popup(L('кадр с Гэном')+' +400','big')}else flash(L('кадр! ты далеко от Гэна'),1.2)}}}
  rivUpdate(dt)}
+function stInZone(c){if(!c.zone)return false;var z=stZone(c.zone);if(!z||z.l!==car.l)return false;var d=Math.hypot(wd(z.x,car.x),wd(z.y,car.y));return d<(z.k==='course'?z.r:z.r+30)}
+function stAbort(){if(!ST.act)return;ST.act=null;rivClear();AICAP.g=62;AICAP.e=12;ST.routed='';stPromptHide();toast(L('Миссия прервана'))}
 function stFlash(){var f=$('fade');f.style.transition='none';f.style.background='#fff';f.classList.add('on');setTimeout(function(){f.style.transition='';f.classList.remove('on');setTimeout(function(){f.style.background=''},300)},60)}
 // ---- prompt near a mission start
 function stPromptShow(c){if(ST.prompt===c.id)return;ST.prompt=c.id;var e=$('sq');
@@ -3592,13 +3600,14 @@ function stPromptShow(c){if(ST.prompt===c.id)return;ST.prompt=c.id;var e=$('sq')
 function stPromptHide(){if(!ST.prompt)return;ST.prompt=false;$('sq').classList.remove('on')}
 function stEsc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='go'){var c=stCur();if(c)stStart(c)}
+ if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game')stStart(c2,true)}
  if(b.dataset.st==='reset'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent=L('точно?');setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent=L('заново')}},2500);return}
   if(S.story.debt<30000){S.coins+=30000-S.story.debt;S.story.debt=30000}S.story.m=0;S.story.started=1;ST.act=null;ST.routed='';save();
   chapterCard(L('Глава 1'),L('Наследство'),L('утро · Токио'),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}});
 document.addEventListener('pointerdown',function(e){if(!DLG)return;if(e.target.closest('.dskip')){e.preventDefault();dlgNext(true);return}if(e.target.closest('#dlg')){e.preventDefault();dlgNext(false)}});
 // ---- objective HUD
 function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='game'){e.style.display='none';return}var P=stPlaces(),t='',bar=-1;
- if(!m){var c=stCur(),p=c&&P[c.at];if(!c||!p||ST.prompt){e.style.display='none';return}e.style.display='block';
+ if(!m){var c=stCur(),p=c&&P[c.at];if(!c||!p||ST.prompt||ZS){e.style.display='none';return}e.style.display='block';
   if(FRAME%15&&e.dataset.k===c.id)return;e.dataset.k=c.id;var dn=Math.round(Math.hypot(wd(p.x,car.x),wd(p.y,car.y))/4);
   e.className='idle';e.innerHTML='<b>'+L('Дальше')+' · '+stEsc(LT(c.title))+'</b><span>'+stEsc(LT(p.name))+' · '+dn+' '+L('м')+'</span>'+(c.why?'<em>'+stEsc(LT(c.why))+'</em>':'');return}
  e.style.display='block';e.className='';e.dataset.k='';
@@ -3609,11 +3618,16 @@ function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='
  else if(m.type==='zone'){t=m.course?L('доедь до финиша'):L('цель')+': '+fmtN(m.goalPts)}
  e.innerHTML='<b>'+stEsc(LT(m.title))+'</b><span>'+stEsc(t)+'</span>'+(bar>=0?'<i><u style="width:'+Math.round(bar*100)+'%"></u></i>':'')}
 // ---- hooks
-var _zuSt=zonesUpdate;zonesUpdate=function(dt){stUpdate(dt);if(ST.mode&&ST.act&&!ZS){if(ZP){ZP=null;zPrompt(null)}return}_zuSt(dt)};
-var _zeSt=zoneEnd;zoneEnd=function(why){var z=ZS&&ZS.z,sc=ZS?Math.floor(ZS.score):0;_zeSt(why);var m=ST.act;if(!m||!z||m.zone!==z.id)return;
- if(m.type==='duel'){var g=Math.floor(ST.gen);stDone(why!=='out'&&sc>g,why==='out'?'выехал из зоны':'Гэн набрал больше')}
- else if(m.course)stDone(why==='fin',why==='fin'?'':'не успел к финишу');
- else stDone(why!=='out'&&sc>=m.goalPts,why==='out'?'выехал из зоны':'мало очков')};
+var _zuSt=zonesUpdate;zonesUpdate=function(dt){stUpdate(dt);if(ST.mode&&ST.act&&!ZS){if(ZP){ZP=null;zPrompt(null)}return}_zuSt(dt);
+ if(ST.mode&&!ST.act&&!ZS){var hide=false,c=stCur();if(ZP&&c){var p=stPlaces()[c.at];hide=c.zone===ZP.id||(p&&Math.hypot(wd(p.x,car.x),wd(p.y,car.y))<380)}ST.zh=hide?ZP.id:null;if(ZP){var e=$('zp');if(e.classList.contains('on')===hide)e.classList.toggle('on',!hide)}}else ST.zh=null};
+var _zeSt=zoneEnd;zoneEnd=function(why){var z=ZS&&ZS.z;if(ZS)bank();var sc=ZS?Math.floor(ZS.score):0;_zeSt(why);var m=ST.act;if(!m||!z||m.zone!==z.id)return;var ok,rs,ln;
+ if(m.type==='duel'){var g=Math.floor(ST.gen);ok=why!=='out'&&sc>g;rs=why==='out'?'выехал из зоны':'Гэн набрал больше';ln=L('Гэн')+' '+fmtN(g)+'  ·  '+L('ты')+' '+fmtN(sc)}
+ else if(m.course){ok=why==='fin';rs=why==='off'?'сошёл с трассы':'не успел к финишу';ln=ok?L('финиш!'):L(rs)}
+ else{ok=why!=='out'&&sc>=m.goalPts;rs=why==='out'?'выехал из зоны':'мало очков';ln=fmtN(sc)+' / '+fmtN(m.goalPts)}
+ $('zb').style.display='none';stResult(m,ok,ln);stDone(ok,ok?'':rs)};
+function stResult(m,ok,ln){var r=$('res');clearTimeout(r._t);var t=r.querySelector('.rt');if(t)t.innerHTML=stEsc(LT(m.title))+' · <b class="'+(ok?'ok':'no')+'">'+L(ok?'победа!':'не вышло')+'</b>';
+ var s=r.querySelector('.rs');if(s)s.insertAdjacentHTML('afterend','<div class="rg">'+stEsc(ln)+'</div>');
+ var b=r.querySelector('.rb');if(b)b.innerHTML=ok?'<button data-z="ok">OK</button>':'<button data-st="retry">'+L('Ещё раз')+'</button><button data-z="ok">OK</button>';r.dataset.z=''}
 var _bkSt=bank;bank=function(){var p=run&&run.pend>0?Math.floor(run.pend):0;_bkSt();var m=ST.act;if(p&&m&&m.type==='drift'){var P=stPlaces()[m.at];if(Math.hypot(wd(P.x,car.x),wd(P.y,car.y))<m.radius)ST.prog+=p}};
 var _loSt=lose;lose=function(m){if(m==='Бам!'&&ST.act&&ST.act.fragile&&ST.stop>0)ST.hits++;_loSt(m)};
 var _huSt=hud;hud=function(dt){_huSt(dt);stHud()};
@@ -3635,7 +3649,27 @@ var _rgSt=renderGar;renderGar=function(){_rgSt();if(!ST.mode)return;var c=stCur(
   '<div class="sr"><div class="sm"><span>'+L('первый взнос')+'</span><b>'+(paid?L('внесён')+' ✓':fmtN(Math.min(have,2000))+' / 2 000 ¥')+'</b>'+(paid?'':'<i><u style="width:'+Math.round(Math.min(1,have/2000)*100)+'%"></u></i>')+'</div>'+
   ((S.story.m|0)>0?'<button class="srs" data-st="reset">'+L('заново')+'</button>':'')+'</div>';
  var top=$('gar').querySelector('.top');if(top)top.insertAdjacentElement('afterend',e)};
+var _hoSt=home;home=function(){var m=ST.act;_hoSt();if(m&&(m.type==='zone'||m.type==='duel'))stAbort()};
 var _moSt=menuOpen;menuOpen=function(){ST.mode=false;AICAP.g=62;AICAP.e=12;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
+
+// ===== Android "back" + the app going to the background =====
+function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
+// called by the Android app on the system back gesture; true = handled, false = let the app go to the background
+window.tdBack=function(){try{
+ if(DLG){dlgNext(false);return true}
+ if(_vis('chap')){$('chap').click();return true}
+ if($('map').style.display==='flex'){toggleMap();return true}
+ if(_vis('set')){closeSet();return true}
+ if(_vis('res')){$('res').style.display='none';return true}
+ if(_vis('duo')){$('duo').style.display='none';return true}
+ if(mode==='edit'){var b=document.querySelector('#ed [data-e=back]');if(b){b.click();return true}}
+ if(mode==='game'){home();return true}
+ if(_vis('gar')){save();menuOpen();return true}
+ return false}catch(e){return false}};
+// minimised mid-race: save, silence the engine, pause behind the settings screen (not in a 2-player game)
+document.addEventListener('visibilitychange',function(){
+ if(document.hidden){save();if(AU)try{AU.c.suspend()}catch(e){}if(mode==='game'&&!(NET&&NET.on))openSet()}
+ else{if(AU)try{AU.c.resume()}catch(e){}last=performance.now()}});
 
 boot();
 </script>
