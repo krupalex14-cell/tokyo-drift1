@@ -373,6 +373,9 @@ var EN={
  'взнос главы':'chapter payment',
  'развернуло':'spun out',
  'Поймал!':'Caught it!',
+ 'Лови!':'Catch it!',
+ 'лови — выровняй!':'catch it — straighten up!',
+ 'занос':'slide',
  'касание!':'touch!',
  'Оторвался!':'Got away!',
  'хвост':'tail',
@@ -3846,10 +3849,11 @@ STORY.push(
   post:[D('reiko','Линию ты держишь. Теперь научимся её терять.','You can hold a line. Now let’s learn to lose it.'),
         D('reiko','Второй урок — на пустой площадке в доках Харуми. Там нечего ломать, кроме тебя.','The second lesson is on the empty pad at the Harumi docks. Nothing to break there except you.')]},
  {id:'c3',ch:2,title:{ru:'Урок 2. Поймай',en:'Lesson 2. Catch it'},at:'pad',type:'save',zone:'dock',need:5,limit:80,reward:300,
-  goal:{ru:'Пять раз поймай машину, когда её почти развернуло',en:'Catch the car five times when it’s almost spun out'},
+  goal:{ru:'Пять раз: глубокий занос (ручник и руль до упора), а когда появится «Лови!» — выровняй машину',en:'Five times: a deep slide (handbrake and full lock), and when “Catch it!” shows up, straighten the car'},
   why:{ru:'Второй урок Рэйко: пьяный падает, а ты ловишь.',en:'Reiko’s second lesson: a drunk falls, you catch.'},
-  pre:[D('reiko','Заведи машину так, чтобы её почти развернуло — боком, сильнее, чем обычно.','Throw the car so it almost spins — sideways, harder than usual.'),
-       D('reiko','А потом поймай: руль в занос, газ — и выровняй. Пять раз. Развернёт — не засчитаю.','Then catch it: steer into the slide, throttle, and straighten up. Five times. If you spin, it doesn’t count.')],
+  pre:[D('reiko','Заведи машину в глубокий занос: ручник и руль до упора, чтобы её почти развернуло.','Throw the car into a deep slide: handbrake and full lock, so it almost spins.'),
+       D('reiko','Как увидишь «Лови!» — лови: отпусти ручник, руль прямо, газ — и выровняй. Пять раз.','When you see “Catch it!”, catch it: let go of the handbrake, wheel straight, throttle, and level out. Five times.'),
+       D('reiko','Круги нарезать не надо — считаю только пойманные. Остановишься или развернёт — не засчитаю.','Don’t just spin donuts — I only count the catches. Stop or spin out and it doesn’t count.')],
   post:[D('reiko','Вот он, твой стиль. Пьяный падает. Ты — ловишь.','There it is, your style. A drunk falls. You catch.'),
         D('lyokha','То есть я не пьяный?','So I’m not drunk?'),D('reiko','Ты хуже. Ты непредсказуемый.','You’re worse. You’re unpredictable.'),
         D('reiko','Последний урок — хвост. На перевале, за мной. Жду у раменной.','The last lesson is the tail. On the pass, behind me. I’ll wait at the ramen shop.')]},
@@ -3988,6 +3992,7 @@ function stSpawnRin(){var q=gpsNear(car.x,car.y,80),pts=[],k,s;
 function stTrail(R){var dx=wd(car.x,ST.trail.x),dy=wd(car.y,ST.trail.y),d=Math.hypot(dx,dy);if(d<18)return;var lp=R.pts[R.pts.length-1];R.pts.push([lp[0]+wd(car.x,lp[0]),lp[1]+wd(car.y,lp[1])]);R.cum.push(R.cum[R.cum.length-1]+Math.hypot(wd(car.x,lp[0]),wd(car.y,lp[1])));R.L=R.cum[R.cum.length-1];ST.trail={x:car.x,y:car.y};
  if(R.pi>160){var n=120,off=R.cum[n];R.pts.splice(0,n);R.cum.splice(0,n);for(var i=0;i<R.cum.length;i++)R.cum[i]-=off;R.L-=off;R.P-=off;R.pi-=n}}
 function stStopLines(m,k){var sl=m.stopLines&&m.stopLines[k];return typeof sl==='function'?sl({hits:ST.hits}):sl}
+var SAVE_DEEP=.56;
 function stTarget(){var P=stPlaces(),m=ST.act,c=stCur();if(!ST.mode)return null;if(!m)return c?P[c.at]:null;if(ST.ride)return P[m.ride];if(m.type==='deliv')return P[m.stops[ST.stop]];if(m.type==='drift')return P[m.dc||m.at];if(m.type==='save'&&ST.out)return P[m.at];return null}
 function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.ride=false;ST.arr=false;AICAP.g=62;AICAP.e=12;ST.lastOk=ok;rivClear();
  if(!ok){ST.routed='';WP=null;var ft=L('Не вышло')+(why?': '+L(why):'');if(m.fail&&m.fail.length)dlgOpen(m.fail,function(){toast(ft)});else toast(ft);return}
@@ -4032,8 +4037,9 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
 // lesson 2, tandem, race, chase
 function stKinds(m,dt){
  if(m.type==='save'){var z=stZone(m.zone),inn=stOnPad(m);ST.out=!inn;if(!inn){ST.t-=dt;var pp=stPlace(m.at),gq=pp.g||pp;if(!WP&&TIME-(ST.rt||0)>3&&Math.hypot(wd(gq.x,car.x),wd(gq.y,car.y))>120)stRoute(gq.x,gq.y)}else if(WP&&WP.st)WP=null;var ang=Math.abs(angd(Math.atan2(car.vy,car.vx),car.a)),sp=car.sp;
-  if(inn&&sp>70&&ang>.95&&ang<2.3){if(!ST.sv)ST.sv={t:0};ST.sv.t=0}
-  else if(ST.sv){ST.sv.t+=dt;if(ang>=2.3||sp<20){ST.sv=null;flash(L('развернуло'),1)}else if(ang<.32&&sp>45){ST.sv=null;ST.prog++;popup(L('Поймал!')+' '+ST.prog+'/'+m.need,'big');if(S.snd)try{auBell()}catch(e){}if(ST.prog>=m.need){stDone(true);return true}}else if(ST.sv.t>2.6)ST.sv=null}
+  // 'almost spun': a deep slide of 32°+ (the drift model tops out near 45° on full lock); then straighten up within 2.6 s
+  if(inn&&sp>60&&ang>SAVE_DEEP&&ang<2.3){if(!ST.sv){ST.sv={t:0};flash(L('Лови!'),.9)}ST.sv.t=0}
+  else if(ST.sv){ST.sv.t+=dt;if(ang>=2.3||sp<20){ST.sv=null;flash(L('развернуло'),1)}else if(ang<.3&&sp>45){ST.sv=null;ST.prog++;popup(L('Поймал!')+' '+ST.prog+'/'+m.need,'big');if(S.snd)try{auBell()}catch(e){}if(ST.prog>=m.need){stDone(true);return true}}else if(ST.sv.t>2.6)ST.sv=null}
   if(ST.t>m.limit){stDone(false,'время вышло');return true}return false}
  if(m.type==='tandem'&&ZS&&ZS.z.id===m.zone){var g=RIV[0];if(!g)return false;g.wait=ZS.ph!=='go';if(ZS.ph!=='go')return false;
   var d=Math.hypot(wd(g.x,car.x),wd(g.y,car.y)),ps=ZS.s,gs=stRoadS(g);ST.tot+=dt;if(d<140&&ps<gs+15)ST.close+=dt;
@@ -4072,7 +4078,7 @@ function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='
  else if(m.type==='deliv'){var s=P[m.stops[ST.stop]],d=Math.round(Math.hypot(wd(s.x,car.x),wd(s.y,car.y))/4);t=LT(s.name)+' · '+d+' '+L('м')+(m.stops.length>1?' · '+(ST.stop+1)+'/'+m.stops.length:'');
   if(m.limit&&ST.stop<(m.limitN||m.stops.length)){var left=Math.max(0,Math.ceil(m.limit-ST.t));t+=' · '+Math.floor(left/60)+':'+(left%60<10?'0':'')+left%60}if(m.fragile&&ST.stop>=(m.fragileFrom==null?1:m.fragileFrom))t+=' · '+L('удары')+': '+ST.hits}
  else if(m.type==='drift'){var dp=P[m.dc||m.at],dd=Math.hypot(wd(dp.x,car.x),wd(dp.y,car.y));t=Math.min(m.goalPts,Math.floor(ST.prog+(dd<m.radius?run.pend:0)))+' / '+m.goalPts+(dd>m.radius?' · '+L('вернись к метке'):'');bar=Math.min(1,(ST.prog+(dd<m.radius?run.pend:0))/m.goalPts)}
- else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=ST.out?L('заедь на площадку')+' · '+Math.round(Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y))/4)+' '+L('м'):L('поймал')+' '+ST.prog+'/'+m.need+' · '+lf+' '+L('с');bar=ST.prog/m.need}
+ else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=ST.out?L('заедь на площадку')+' · '+Math.round(Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y))/4)+' '+L('м'):L('поймал')+' '+ST.prog+'/'+m.need+' · '+(ST.sv?L('лови — выровняй!'):L('занос')+' '+(car.sp>30&&car.fw>0?Math.round(Math.abs(angd(Math.atan2(car.vy,car.vx),car.a))*57.3):0)+'°/'+Math.round(SAVE_DEEP*57.3)+'°')+' · '+lf+' '+L('с');bar=ST.prog/m.need}
  else if(m.type==='tandem'&&RIV[0]){var g2=RIV[0];t=L('Рэйко')+' '+Math.round(Math.hypot(wd(g2.x,car.x),wd(g2.y,car.y))/4)+' '+L('м')+' · '+L('хвост')+' '+Math.round(ST.tot?ST.close/ST.tot*100:0)+'% · '+ST.touch+'/3';bar=ST.tot?ST.close/ST.tot:0}
  else if(m.type==='race'&&ZS){var pos=1;RIV.forEach(function(R){if(stRoadS(R)>ZS.s)pos++});t=L('место')+' '+pos+'/3 · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
  else if(m.type==='chase'&&RIV[0]){var R3=RIV[0];t=L('Рин')+' '+Math.round(Math.hypot(wd(R3.x,car.x),wd(R3.y,car.y))/4)+' '+L('м')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(ST.esc/3,0,1)}
