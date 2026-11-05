@@ -225,6 +225,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 .mb{padding:11px 8px;font-size:16.5px}.mb1{padding:13px 8px;font-size:22px}.mb3{padding:10px 4px;font-size:11px}
 }
 
+#set .ver{text-align:center;opacity:.45;font-size:11px;margin:10px 0 2px}
 </style>
 </head>
 <body>
@@ -256,6 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
+var GAME_BUILD='06.11 02:41';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -374,6 +376,7 @@ var EN={
  'развернуло':'spun out',
  'Поймал!':'Caught it!',
  'Лови!':'Catch it!',
+ 'сборка':'build',
  'лови — выровняй!':'catch it — straighten up!',
  'занос':'slide',
  'касание!':'touch!',
@@ -2009,12 +2012,15 @@ function circHit(c,dx,dy,r,e,mu){
  return impulse(c,px,py,nx,ny,e,mu)||.01;
 }
 function solidAt(x,y){var t=typeAt(x,y);return t===5||t===6}
-// normal of a wall at p: a thin rail gives its perpendicular (towards the car), a thick wall its gradient
-function wallNormal(px,py,cxr,cyr){var sx=0,sy=0,gx=0,gy=0,n=0,k,t,ox,oy,nx,ny;
- for(k=0;k<16;k++){t=k/16*TAU;ox=Math.cos(t)*4;oy=Math.sin(t)*4;if(solidAt(px+ox,py+oy)){n++;sx+=Math.cos(2*t);sy+=Math.sin(2*t);gx-=ox;gy-=oy}}
- if(n>=2&&Math.hypot(sx,sy)>n*.6){var la=Math.atan2(sy,sx)/2;nx=-Math.sin(la);ny=Math.cos(la)}
- else{var gl=Math.hypot(gx,gy);if(gl<.01){gx=cxr;gy=cyr;gl=Math.hypot(gx,gy)||1}nx=gx/gl;ny=gy/gl}
- if(nx*cxr+ny*cyr<0){nx=-nx;ny=-ny}return[nx,ny]}
+// normal of a wall at p from the shape of the solid pixels around it (principal axis of the solid samples):
+// a thin rail gives its own direction, a thick wall its edge; it then faces away from the solid mass, or towards the car for a thin rail.
+// (one ring of 16 samples often caught only one side of a 2 px rail, and the 'normal' came out along the rail: dead stops when scraping)
+function wallNormal(px,py,cxr,cyr){var n=1,mx=0,my=0,sxx=0,syy=0,sxy=0,k,t,r,ox,oy;
+ for(r=2;r<=5.5;r+=1.5)for(k=0;k<16;k++){t=(k+(r===3.5?.5:0))/16*TAU;ox=Math.cos(t)*r;oy=Math.sin(t)*r;if(solidAt(px+ox,py+oy)){n++;mx+=ox;my+=oy;sxx+=ox*ox;syy+=oy*oy;sxy+=ox*oy}}
+ mx/=n;my/=n;sxx=sxx/n-mx*mx;syy=syy/n-my*my;sxy=sxy/n-mx*my;
+ var nx,ny;if(n>=3){var th=.5*Math.atan2(2*sxy,sxx-syy);nx=-Math.sin(th);ny=Math.cos(th)}else{var cl=Math.hypot(cxr,cyr)||1;nx=cxr/cl;ny=cyr/cl}
+ var ml=Math.hypot(mx,my);if(ml>.9){if(nx*mx+ny*my>0){nx=-nx;ny=-ny}}else if(nx*cxr+ny*cyr<0){nx=-nx;ny=-ny}
+ return[nx,ny]}
 function rasterHit(c){
  var ca=Math.cos(c.a),sa=Math.sin(c.a),pts=[],k;
  var UV=[[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0],[.5,1],[.5,-1],[-.5,1],[-.5,-1]];for(k=0;k<12;k++){var u=UV[k][0]*c.hx,v=UV[k][1]*c.hy;pts.push([ca*u-sa*v,sa*u+ca*v])}
@@ -2690,7 +2696,16 @@ var BKH=null,BKL=[],BRKD=[],CONEL=[],FX3=[],PIECES=[],GEYS=[],FLASH=[],BSPR={},P
 // ---- sprite helpers
 function mkSpr(w,h,fn){var c=mkCanvas(w,h),g=c.getContext('2d');fn(function(x,y,a,b,col){g.fillStyle=col;g.fillRect(x,y,a,b)},g);return c}
 function ringPx(R,cx0,cy0,r,col,fill){for(var y=-r-1;y<=r+1;y++)for(var x=-r-1;x<=r+1;x++){var d=Math.hypot(x,y);if(fill?d<=r+.3:Math.abs(d-r)<.6)R(cx0+x,cy0+y,1,1,col)}}
-function buildBrk(){
+// signs on the mountain passes stood right on the guard-rail line, so scraping the rail meant hitting a post every few metres.
+// After generation (no RNG involved) they are moved behind the rail, where the car can't reach them.
+function hashRmNear(H,o,x,y,m){var a=Math.floor((x-m)/HC),b=Math.floor((x+m)/HC),c=Math.floor((y-m)/HC),d=Math.floor((y+m)/HC);for(var yy=c;yy<=d;yy++)for(var xx=a;xx<=b;xx++){var l=H.c[(((yy%HN)+HN)%HN)*HN+(((xx%HN)+HN)%HN)];if(!l)continue;var j=l.indexOf(o);if(j>=0)l.splice(j,1)}}
+function tgSignsOut(){var U=37;ARTS.forEach(function(r){if(r.k!=='touge')return;var u0=r.hw+3;
+ function mv(s,sg){r.pt(s,TMP);var x=wrap(TMP[0]-TMP[3]*u0*sg),y=wrap(TMP[1]+TMP[2]*u0*sg),x2=wrap(TMP[0]-TMP[3]*U*sg),y2=wrap(TMP[1]+TMP[2]*U*sg),f=null;
+  PH.q(x-1,y-1,x+1,y+1,function(q){if(q.t===P_RSIGN&&Math.abs(wd(q.x,x))<.6&&Math.abs(wd(q.y,y))<.6)f=q});if(!f)return;
+  var m=Math.max(f.r,12);hashRmNear(PH,f,x,y,m);f.x=x2;f.y=y2;PH.add(f,x2-m,y2-m,x2+m,y2+m)}
+ for(var s=r.za+150;s<r.len-r.zb-100;s+=420)for(var sg=-1;sg<=1;sg+=2)mv(s,sg);
+ var last=-999;for(var s2=r.za+80;s2<r.len-r.zb-80;s2+=30){r.pt(s2-40,TMP);var a0=Math.atan2(TMP[3],TMP[2]);r.pt(s2+40,TMP2);var a1=Math.atan2(TMP2[3],TMP2[2]),da=angd(a1,a0);if(Math.abs(da)>.75&&s2-last>170){last=s2;mv(s2-90,da>0?-1:1)}}})}
+function buildBrk(){tgSignsOut();
  BSPR.mail=mkSpr(7,7,function(R){R(1,0,5,7,'#4a0e14');R(0,1,7,5,'#4a0e14');R(1,1,5,5,'#e0303c');R(1,1,3,1,'#ff858a');R(1,2,1,2,'#ff858a');R(2,3,3,1,'#5a1018');R(5,4,1,2,'#a01e28');R(3,5,1,1,'#fff')});
  BSPR.mailD=mkSpr(11,7,function(R){R(0,1,11,5,'#4a0e14');R(1,0,9,7,'#4a0e14');R(1,1,9,5,'#e0303c');R(1,1,9,1,'#ff858a');R(3,2,3,1,'#2a0a0e');R(3,4,3,1,'#2a0a0e');R(7,2,2,3,'#f4f4f8');R(9,1,1,5,'#8a8e9e')});
  ['#3a6ad0','#3aa060','#8a8e9e','#e0a030'].forEach(function(c,i){BSPR['bin'+i]=mkSpr(5,5,function(R){R(0,0,5,5,'#16161e');R(1,1,3,3,c);R(1,1,3,1,shadeHex(c,1.35));R(2,2,1,1,'#0c0c14')});BSPR['binD'+i]=mkSpr(5,7,function(R){R(0,0,5,7,'#16161e');R(1,1,3,5,c);R(1,1,1,5,shadeHex(c,1.3));R(1,5,3,1,'#0c0c14')})});
@@ -3230,7 +3245,7 @@ function renderSet(){var c=S.ctl|0,q='<div class="in"><div class="sh"><h2>'+GEAR
  if(navigator.vibrate)q+='<div class="sl2">'+L('Вибрация при ударах')+'</div>'+seg('vib',['выкл','вкл'],S.vib?1:0);
  q+='<div class="sl2">'+L('Код')+'</div><div class="code"><input id="devc" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="······" aria-label="'+L('Код')+'"><button data-s="code">OK</button></div>';
  if(S.dev&&typeof devPanel==='function')q+=devPanel();
- q+='<button class="go" data-s="close">'+L('Готово')+'</button></div>';var el=$('set'),st=el.scrollTop;el.innerHTML=q;el.scrollTop=st}
+ q+='<button class="go" data-s="close">'+L('Готово')+'</button><div class="ver">'+L('сборка')+' '+(typeof GAME_BUILD==='string'?GAME_BUILD:'')+'</div></div>';var el=$('set'),st=el.scrollTop;el.innerHTML=q;el.scrollTop=st}
 function openSet(){setFrom=mode;if(mode==='game'){mode='set';K.l=K.r=K.t=K.b=K.h=0;SL.on=false;SL.id=null;SL.v=0;slHide();auStop();var d=document.querySelectorAll('.pb.dn');for(var i=0;i<d.length;i++)d[i].classList.remove('dn')}renderSet();$('set').style.display='block';$('set').scrollTop=0}
 function closeSet(){$('set').style.display='none';if(mode==='set'){mode='game';applyCtl();resize();MMCX=null;if(S.snd)auStart();last=performance.now();if((S.ctl|0)===3)tiltCheck();if(S.tut!==(S.ctl|0)+1){$('tut').innerHTML=L(TUTS[S.ctl|0]);tutT=8;S.tut=(S.ctl|0)+1;save()}requestAnimationFrame(loop)}else if(mode===''){renderGar()}}
 function setAction(a,i){if(a==='close'){closeSet();return}
@@ -3992,7 +4007,7 @@ function stSpawnRin(){var q=gpsNear(car.x,car.y,80),pts=[],k,s;
 function stTrail(R){var dx=wd(car.x,ST.trail.x),dy=wd(car.y,ST.trail.y),d=Math.hypot(dx,dy);if(d<18)return;var lp=R.pts[R.pts.length-1];R.pts.push([lp[0]+wd(car.x,lp[0]),lp[1]+wd(car.y,lp[1])]);R.cum.push(R.cum[R.cum.length-1]+Math.hypot(wd(car.x,lp[0]),wd(car.y,lp[1])));R.L=R.cum[R.cum.length-1];ST.trail={x:car.x,y:car.y};
  if(R.pi>160){var n=120,off=R.cum[n];R.pts.splice(0,n);R.cum.splice(0,n);for(var i=0;i<R.cum.length;i++)R.cum[i]-=off;R.L-=off;R.P-=off;R.pi-=n}}
 function stStopLines(m,k){var sl=m.stopLines&&m.stopLines[k];return typeof sl==='function'?sl({hits:ST.hits}):sl}
-var SAVE_DEEP=.56;
+var SAVE_DEEP=.47;
 function stTarget(){var P=stPlaces(),m=ST.act,c=stCur();if(!ST.mode)return null;if(!m)return c?P[c.at]:null;if(ST.ride)return P[m.ride];if(m.type==='deliv')return P[m.stops[ST.stop]];if(m.type==='drift')return P[m.dc||m.at];if(m.type==='save'&&ST.out)return P[m.at];return null}
 function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.ride=false;ST.arr=false;AICAP.g=62;AICAP.e=12;ST.lastOk=ok;rivClear();
  if(!ok){ST.routed='';WP=null;var ft=L('Не вышло')+(why?': '+L(why):'');if(m.fail&&m.fail.length)dlgOpen(m.fail,function(){toast(ft)});else toast(ft);return}
