@@ -1,0 +1,6 @@
+node_modules/
+/android/
+/ios/
+*.apk
+ci.log
+.DS_Store

@@ -1,0 +1,7 @@
+{
+  "appId": "com.tokyodrift.game",
+  "appName": "Tokyo Drift",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "ios": { "contentInset": "never" }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "tokyo-drift",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Занос Токио / Tokyo Drift — pixel drift game with local two-player mode",
+  "scripts": {
+    "android": "npx cap add android && bash scripts/patch-android.sh && npx cap sync android",
+    "ios": "npx cap add ios && bash scripts/patch-ios.sh && npx cap sync ios",
+    "sync": "npx cap sync",
+    "server": "node server/server.js server/index.html 8080"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
