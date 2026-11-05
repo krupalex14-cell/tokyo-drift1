@@ -33,6 +33,8 @@ h1 span{display:block;font-size:16.5px;letter-spacing:.5em;color:var(--cy);text-
 .cok{flex:1;color:var(--cy);font-size:11px}
 .buy.lk{background:#3a3050;color:#8a7ea8;box-shadow:none}
 #tdb{display:none;position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 150px);transform:translateX(-50%);z-index:6;align-items:center;gap:8px;background:rgba(42,32,8,.94);padding:6px 8px 6px 12px;box-shadow:0 -3px 0 0 #ffd23a,0 3px 0 0 #ffd23a,-3px 0 0 0 #ffd23a,3px 0 0 0 #ffd23a;white-space:nowrap}#tdb span{color:#ffd23a;font-size:11px}#tdb em{display:none}#tdb button{border:0;background:#ffd23a;color:#2a2008;font-size:11px;padding:6px 10px}
+.code{display:flex;gap:8px}.code input{flex:1;min-width:0;background:#0e0a1a;border:3px solid var(--line);color:#fbeff6;font:inherit;font-size:16.5px;padding:8px 10px;letter-spacing:.2em}.code button{border:0;background:var(--cy);color:#06202a;padding:0 16px;font-weight:900}
+.dev{background:#1a2a20;border:3px solid #7dff8c;padding:10px 12px;margin-top:6px}.dev h3{margin:0 0 6px;color:#7dff8c;font-size:16.5px;font-weight:inherit}.dev .dch{color:#b8f0c0;font-size:11px;margin:10px 0 4px;letter-spacing:.1em}.dev .dms{display:grid;grid-template-columns:1fr 1fr;gap:5px}.dev .dms button{border:0;background:#24402c;color:#e8ffe8;font-size:11px;padding:7px 6px;text-align:left}.dev .dms button.on{background:#7dff8c;color:#0e2a14}.dev .dbt2{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.dev .dbt2 button{flex:1;border:0;background:#7dff8c;color:#0e2a14;font-size:11px;padding:8px 6px;font-weight:900}.dev .dbt2 button.off{background:#3a2c58;color:#fbeff6}
 .lkn{margin-top:10px;background:#2a2008;border:3px solid #ffd23a;padding:9px 12px;font-size:11px;color:#ffe9a8;line-height:1.45}.lkn .buy{display:block;width:100%;margin-top:8px;background:#ffd23a;color:#2a2008;box-shadow:3px 3px 0 #9a7a10}
 .part{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:3px solid var(--line);padding:10px 12px;margin-bottom:8px}
 .part small{color:var(--muted);font-weight:400;font-size:11px}
@@ -230,7 +232,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="gar"></div>
 <div id="game"><canvas id="c"></canvas>
  <div id="hud">
-  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="rad"><button class="rb" data-r="p" aria-label="Предыдущая станция" data-ta="Предыдущая станция">◀</button><button class="rb" id="radt" data-r="t" aria-label="Радио" data-ta="Радио"><svg viewBox="0 0 12 10" width="21" height="17" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h1v1h1v1h1v1H5V2H4V1H3zM0 3h12v7H0z"/><path fill="#14101e" d="M1 4h5v5H1zM7 4h4v1H7zM7 6h4v1H7zM7 8h4v1H7z"/><path fill="currentColor" d="M2 5h1v1H2zM4 5h1v1H4zM3 6h1v1H3zM2 7h1v1H2zM4 7h1v1H4z"/></svg></button><button class="rb" data-r="n" aria-label="Следующая станция" data-ta="Следующая станция">▶</button></div><div id="radn"></div><div id="nsc"></div><div id="sobj"></div></div>
+  <div id="tl"><div id="sc">0</div><div class="lbl" data-t="очки">очки</div><canvas id="mm"></canvas><div id="rad"><button class="rb" data-rad="p" aria-label="Предыдущая станция" data-ta="Предыдущая станция">◀</button><button class="rb" id="radt" data-rad="t" aria-label="Радио" data-ta="Радио"><svg viewBox="0 0 12 10" width="21" height="17" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h1v1h1v1h1v1H5V2H4V1H3zM0 3h12v7H0z"/><path fill="#14101e" d="M1 4h5v5H1zM7 4h4v1H7zM7 6h4v1H7zM7 8h4v1H7z"/><path fill="currentColor" d="M2 5h1v1H2zM4 5h1v1H4zM3 6h1v1H3zM2 7h1v1H2zM4 7h1v1H4z"/></svg></button><button class="rb" data-rad="n" aria-label="Следующая станция" data-ta="Следующая станция">▶</button></div><div id="radn"></div><div id="nsc"></div><div id="sobj"></div></div>
   <div id="tc"><div id="cm"></div><div class="angw"><i id="ang"></i></div></div>
   <div id="tr"><div id="sp">0</div><div class="lbl" data-t="км/ч">км/ч</div><div class="trb"><button id="bset" class="ib" aria-label="Настройки" data-ta="Настройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.2-1.5 2.4 2.4-1.5 2.2c.4.6.7 1.2.9 1.9l2.6.5v3.4l-2.6.5c-.2.7-.5 1.3-.9 1.9l1.5 2.2-2.4 2.4-2.2-1.5c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.2 1.5-2.4-2.4 1.5-2.2c-.4-.6-.7-1.2-.9-1.9L2 13.7v-3.4l2.6-.5c.2-.7.5-1.3.9-1.9L4 5.7l2.4-2.4 2.2 1.5c.6-.4 1.2-.7 1.9-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"/></svg></button><button id="bmap" data-t="карта">карта</button><button id="bgar" data-t="гараж">гараж</button></div><div id="zp"></div><div id="sq"></div><div id="zb"></div></div>
   <div id="tut"></div>
@@ -307,6 +309,18 @@ var EN={
  'долг':'debt',
  'Пропустить':'Skip',
  'Дальше':'Next',
+ 'Громкость радио':'Radio volume',
+ 'кнопка радио — под мини-картой':'the radio button is under the minimap',
+ 'Код':'Code',
+ 'Режим разработчика включён':'Developer mode on',
+ 'Неверный код':'Wrong code',
+ 'Режим разработчика':'Developer mode',
+ 'Нажми на миссию — сюжет перейдёт к ней. За пропущенные миссии деньги не дают.':'Tap a mission to jump the story to it. Skipped missions pay nothing.',
+ 'Всё пройдено':'All done',
+ 'Засчитать текущую':'Complete current',
+ 'К старту миссии':'To mission start',
+ 'Выключить':'Turn off',
+ 'Миссия':'Mission',
  'Предыдущая станция':'Previous station',
  'Следующая станция':'Next station',
  'Радио':'Radio',
@@ -2051,11 +2065,11 @@ function satPair(c,o,e,mu){
 var AI=[],TIME=0,VMASS=[.7,1,.9,1,1.1,1.4,.9,2.6,3.6,1.3];
 function lightState(n,g){var t=(TIME+n.ph)%(n.t==='scr'?26:18);if(g===0)return t<7?0:t<8.5?1:2;return(t>=9&&t<16)?0:(t>=16&&t<17.5)?1:2}
 function laneU(r,dir,k){return -dir*(r.m+(k+.5)*(r.lw||20))}
-function aiEdgeEnd(a){var r=a.r;if(r.k==='exp')return null;return a.dir>0?r.len-r.zb-1:r.za+1}
+function aiEdgeEnd(a){var r=a.r;if(r.k==='exp')return null;return a.dir>0?r.len-(r.zb||0)-1:(r.za||0)+1}
 function aiPick(){var s=0,i;for(i=0;i<VTY.length;i++)s+=VTY[i].w;var q=Math.random()*s;for(i=0;i<VTY.length;i++){q-=VTY[i].w;if(q<=0)return i}return 1}
-function aiMake(r,s,dir,k,l){var vt=aiPick();if(l&&(vt===6||vt===8))vt=1;var V=VTY[vt];var a={vt:vt,c:Math.floor(Math.random()*V.cols.length),hx:V.hx,hy:V.hy,L:V.L,r:r,s:s,dir:dir,k:k,l:l,md:0,v:0,vm:V.v*(.88+Math.random()*.24)*(l?1.45:1),hold:0,stk:0,gh:0,x:0,y:0,a:0,m:VMASS[vt],vx:0,vy:0,w:0,phy:false,rest:0,dmg:0,bk:0};aiPlace(a);a.v=a.vm*.6;return a}
+function aiMake(r,s,dir,k,l){var vt=aiPick();if(l&&(vt===6||vt===8))vt=1;var V=VTY[vt];var a={vt:vt,c:Math.floor(Math.random()*V.cols.length),hx:V.hx,hy:V.hy,L:V.L,r:r,s:s,dir:dir,k:k,kc:k,ov:0,l:l,md:0,v:0,vm:V.v*(.88+Math.random()*.24)*(l?1.45:1),hold:0,stk:0,gh:0,x:0,y:0,a:0,m:VMASS[vt],vx:0,vy:0,w:0,phy:false,rest:0,dmg:0,bk:0};aiPlace(a);a.v=a.vm*.6;return a}
 function aiPlace(a){
- if(a.md===0){var r=a.r,s=a.s;if(r.closed||r.per){s=((s%r.len)+r.len)%r.len;a.s=s}r.pt(s,TMP);var u=laneU(r,a.dir,a.k);a.x=wrap(TMP[0]-TMP[3]*u);a.y=wrap(TMP[1]+TMP[2]*u);a.a=Math.atan2(TMP[3]*a.dir,TMP[2]*a.dir)}
+ if(a.md===0){var r=a.r,s=a.s;if(r.closed||r.per){s=((s%r.len)+r.len)%r.len;a.s=s}r.pt(s,TMP);var u=laneU(r,a.dir,a.kc!=null?a.kc:a.k);a.x=wrap(TMP[0]-TMP[3]*u);a.y=wrap(TMP[1]+TMP[2]*u);var lat=a.lv||0;a.a=Math.atan2(TMP[3]*a.dir*Math.max(a.v,30)+TMP[2]*lat,TMP[2]*a.dir*Math.max(a.v,30)-TMP[3]*lat)}
  else{var p=a.p,c=p.c,i=a.pi;while(i<c.length-2&&c[i+1]<a.ps)i++;a.pi=i;var t=(a.ps-c[i])/((c[i+1]-c[i])||1);t=clamp(t,0,1);var dx=p.x[i+1]-p.x[i],dy=p.y[i+1]-p.y[i];a.x=wrap(p.ox+p.x[i]+dx*t);a.y=wrap(p.oy+p.y[i]+dy*t);if(dx||dy)a.a=Math.atan2(dy,dx)}
 }
 function aiPickExit(a,N){var arrE=a.dir>0?1:0,r=a.r;var opts=N.ed.filter(function(e){return!(e.r===r&&e.e===arrE)});if(!opts.length)opts=N.ed.slice();var tw=0,ws=opts.map(function(e){var w=.6+1.6*Math.max(0,Math.cos(angd(e.an,a.a)));tw+=w;return w}),q=Math.random()*tw;for(var i=0;i<opts.length;i++){q-=ws[i];if(q<=0)return opts[i]}return opts[0]}
@@ -2087,21 +2101,34 @@ function aiUpdate(dt,car){
     if(stopAt===null&&dEnd<80&&!canEnter(a,N))stopAt=N.t==='round'?dEnd-3:(dEnd-24-a.hx>-1?dEnd-24-a.hx:dEnd-3);
     if(stopAt!==null&&stopAt>-2){vT=Math.min(vT,Math.sqrt(Math.max(0,stopAt)*380)*.95);if(stopAt<3)vT=0;a.red=1}
     if(N.t==='round'&&dEnd<70)vT=Math.min(vT,a.vm*.6)}}
-  if(a.gh>0)a.gh-=dt;else{
+  var blk=null;a.gp=1e9;if(a.gh>0)a.gh-=dt;else{
    var ca=Math.cos(a.a),sa=Math.sin(a.a);
-   for(j=0;j<n+1;j++){var o=j<n?AI[j]:car;if(o===a||!o||(o.l|0)!==(a.l|0))continue;if(o.phy&&o.rest>4&&j<n&&a.stk>3)continue;var rx=wd(o.x,a.x),ry=wd(o.y,a.y);if(rx>110||rx<-110||ry>110||ry<-110)continue;var f=rx*ca+ry*sa,lt=-rx*sa+ry*ca;if(f<=0||f>90+a.hx)continue;if(Math.abs(lt)>a.hy+o.hy+(a.md?4:1))continue;var gap=f-a.hx-o.hx;vT=Math.min(vT,Math.max(0,(gap-6)*2.6))}
+   for(j=0;j<n+1;j++){var o=j<n?AI[j]:car;if(o===a||!o||(o.l|0)!==(a.l|0))continue;var rx=wd(o.x,a.x),ry=wd(o.y,a.y);if(rx>110||rx<-110||ry>110||ry<-110)continue;var f=rx*ca+ry*sa,lt=-rx*sa+ry*ca;if(f<=0||f>90+a.hx)continue;if(Math.abs(lt)>a.hy+o.hy+(a.md?4:1))continue;var gap=f-a.hx-o.hx,vb=Math.max(0,(gap-6)*2.6);if(gap<a.gp)a.gp=gap;if(vb<vT){vT=vb;blk=o}}
   }
   if(a.gh<=0){var myK=a.md===1?a.jk:a.r.id+'_'+a.dir,dE=a.md===0&&a.r.k!=='exp'?(a.dir>0?aiEdgeEnd(a)-a.s:a.s-aiEdgeEnd(a)):1e9;
    for(j=0;j<n;j++){var b=AI[j];if(b===a||b.md!==1||b.jk!==myK||b.k!==a.k)continue;var g2;if(a.md===1){if(b.jn!==a.jn||b.ps<=a.ps)continue;g2=b.ps-a.ps}else{if(dE>80)continue;var NN=a.dir>0?a.r.b:a.r.a;if(b.jn!==NN)continue;g2=dE+b.ps}vT=Math.min(vT,Math.max(0,(g2-a.hx-b.hx-6)*2.6))}}
   if(PEDX.length){var cq=Math.cos(a.a),sq=Math.sin(a.a);for(j=0;j<PEDX.length;j++){var q=PEDX[j],qx=wd(q.x,a.x),qy=wd(q.y,a.y);if(qx>100||qx<-100||qy>100||qy<-100)continue;var qf=qx*cq+qy*sq,ql=-qx*sq+qy*cq;if(qf<=0||qf>62+a.hx||Math.abs(ql)>a.hy+8)continue;vT=Math.min(vT,Math.max(0,(qf-a.hx-9)*2.6))}}
+  a.wq=!!(blk&&blk!==car&&!blk.phy&&(blk.red||blk.wq));
+  // sliding to another lane: creep forward while the gap allows it
+  var kt=a.ov?a.ko:a.k;if(a.md===0&&a.kc!==kt&&a.gp>7)vT=Math.max(vT,Math.min(45,(a.gp-7)*3));
   if(a.hold>0){a.hold-=dt;vT=0}
   a.v+=clamp(vT-a.v,-260*dt,90*dt);if(a.v<0)a.v=0;
-  if(a.v<2&&!a.red){a.stk+=dt;if(a.stk>8){a.gh=2.5;a.stk=0}}else a.stk=0;
+  if(a.v<2&&!a.red&&!a.wq){a.stk+=dt;if(a.stk>5&&a.md===0&&!a.ov&&a.stk-(a.bp||0)>1.5){a.bp=a.stk;aiBypass(a)}if(a.stk>10){a.gh=2.5;a.stk=0}}else{a.stk=0;a.bp=0}
+  if(a.md===0){var kt2=a.ov?a.ko:a.k,dk=kt2-a.kc;if(dk){var st2=Math.sign(dk)*Math.min(Math.abs(dk),1.3*dt);a.kc+=st2;a.lv=-a.dir*st2/dt*(a.r.lw||20)}else a.lv=0;
+   if(a.ov){a.ovT=(a.ovT||0)+dt;if(a.ovT>1.2&&(aiLaneFree(a,a.k,a.dir,a.hx+26,a.hx+40)||a.ovT>8))a.ov=0}}
   if(a.md===0){a.s+=a.dir*a.v*dt;if(a.r.k!=='exp'){var se2=aiEdgeEnd(a);if((a.dir>0&&a.s>=se2)||(a.dir<0&&a.s<=se2)){if(a.red){a.s=se2-a.dir*.5;a.v=0}else{aiPlace(a);aiJunction(a)}}}}
-  else{a.ps+=a.v*dt;if(a.ps>=a.p.len){var nx=a.nx;a.r=nx.r;a.dir=nx.dir;a.k=nx.k;a.s=nx.s;a.md=0;a.jn=null;a.tn=0}}
+  else{a.ps+=a.v*dt;if(a.ps>=a.p.len){var nx=a.nx;a.r=nx.r;a.dir=nx.dir;a.k=nx.k;a.kc=nx.k;a.ov=0;a.lv=0;a.s=nx.s;a.md=0;a.jn=null;a.tn=0}}
   aiPlace(a);a.vx=Math.cos(a.a)*a.v;a.vy=Math.sin(a.a)*a.v;a.w=0;a.bk=a.v<v0-.5||a.v<3?Math.min(1,a.bk+dt*6):Math.max(0,a.bk-dt*3);
  }
 }
+// stuck behind something that isn't a red light: change lane, or borrow the oncoming lane on a narrow street
+function aiLaneFree(a,k,dir,back,ahead){for(var i=0;i<AI.length;i++){var b=AI[i];if(b===a||b.md!==0||b.r!==a.r||(b.l|0)!==(a.l|0))continue;if(b.dir!==dir)continue;var bk=b.kc!=null?b.kc:b.k;if(Math.abs(bk-k)>.7)continue;var ds=(b.s-a.s)*a.dir;if(ds>-back&&ds<ahead)return false}
+ if(car&&!car.l){a.r.pt(a.s,TMP);var u=laneU(a.r,dir,k);for(var q=0;q<=ahead;q+=30){var ss=a.s+a.dir*q;a.r.pt(ss,TMP);var px=TMP[0]-TMP[3]*u,py=TMP[1]+TMP[2]*u;if(Math.hypot(wd(car.x,px),wd(car.y,py))<a.hy+car.hy+8)return false}}return true}
+function aiOncoming(a,dist){for(var i=0;i<AI.length;i++){var b=AI[i];if(b===a||b.md!==0||b.r!==a.r||b.dir===a.dir||(b.l|0)!==(a.l|0))continue;var ds=(b.s-a.s)*a.dir;if(ds>-30&&ds<dist)return true}
+ if(car&&!car.l){var u=laneU(a.r,-a.dir,0);for(var q=0;q<=dist;q+=30){a.r.pt(a.s+a.dir*q,TMP);if(Math.hypot(wd(car.x,TMP[0]-TMP[3]*u),wd(car.y,TMP[1]+TMP[2]*u))<a.hy+car.hy+10)return true}}return false}
+function aiBypass(a){var r=a.r;if(r.k==='exp')return;var e=aiEdgeEnd(a),left=a.dir>0?e-a.s:a.s-e;if(left<70)return;
+ var ks=[a.k-1,a.k+1];for(var i=0;i<2;i++){var k=ks[i];if(k<0||k>=r.nl)continue;if(aiLaneFree(a,k,a.dir,a.hx*2+24,a.hx*2+80)){a.k=k;a.stk=0;a.bp=0;return}}
+ if(r.nl===1&&(r.m||0)<6&&left>140&&!aiOncoming(a,240)){a.ov=1;a.ko=-1-2*(r.m||0)/(r.lw||20);a.ovT=0;a.stk=0;a.bp=0}}
 function aiPhys(a,dt,idx){
  var sv={max:COLL.max,hit:COLL.hit,px:COLL.px,py:COLL.py};a.v=0;
  var ca=Math.cos(a.a),sa=Math.sin(a.a),f=a.vx*ca+a.vy*sa,l=-a.vx*sa+a.vy*ca;f*=Math.exp(-1.3*dt);l*=Math.exp(-4.5*dt);a.w*=Math.exp(-2.4*dt);a.vx=f*ca-l*sa;a.vy=f*sa+l*ca;
@@ -3186,11 +3213,16 @@ function renderSet(){var c=S.ctl|0,q='<div class="in"><div class="sh"><h2>'+GEAR
  q+='<div class="sl2">'+L('Задержка камеры')+'</div><div class="rg"><div class="rl"><span>'+L('0 — камера жёстко прикручена к машине, больше — плавнее догоняет')+'</span><b id="vclag">'+(S.clag==null?30:S.clag)+'%</b></div><input type="range" min="0" max="100" step="5" value="'+(S.clag==null?30:S.clag)+'" data-r="clag" aria-label="'+L('Задержка камеры')+'"></div>';
  q+='<div class="sl2">'+L('Время суток')+'</div>'+seg('tod',TODN,S.tod|0);
  q+='<div class="sl2">'+L('Звук')+'</div>'+seg('snd',['выкл','вкл'],S.snd?1:0);
+ var rv=S.rvol==null?85:S.rvol;q+='<div class="sl2">'+L('Громкость радио')+'</div><div class="rg"><div class="rl"><span>'+L('кнопка радио — под мини-картой')+'</span><b id="vrvol">'+rv+'%</b></div><input type="range" min="0" max="100" step="5" value="'+rv+'" data-r="rvol" aria-label="'+L('Громкость радио')+'"></div>';
  if(navigator.vibrate)q+='<div class="sl2">'+L('Вибрация при ударах')+'</div>'+seg('vib',['выкл','вкл'],S.vib?1:0);
+ q+='<div class="sl2">'+L('Код')+'</div><div class="code"><input id="devc" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="······" aria-label="'+L('Код')+'"><button data-s="code">OK</button></div>';
+ if(S.dev&&typeof devPanel==='function')q+=devPanel();
  q+='<button class="go" data-s="close">'+L('Готово')+'</button></div>';var el=$('set'),st=el.scrollTop;el.innerHTML=q;el.scrollTop=st}
 function openSet(){setFrom=mode;if(mode==='game'){mode='set';K.l=K.r=K.t=K.b=K.h=0;SL.on=false;SL.id=null;SL.v=0;slHide();auStop();var d=document.querySelectorAll('.pb.dn');for(var i=0;i<d.length;i++)d[i].classList.remove('dn')}renderSet();$('set').style.display='block';$('set').scrollTop=0}
 function closeSet(){$('set').style.display='none';if(mode==='set'){mode='game';applyCtl();resize();MMCX=null;if(S.snd)auStart();last=performance.now();if((S.ctl|0)===3)tiltCheck();if(S.tut!==(S.ctl|0)+1){$('tut').innerHTML=L(TUTS[S.ctl|0]);tutT=8;S.tut=(S.ctl|0)+1;save()}requestAnimationFrame(loop)}else if(mode===''){renderGar()}}
 function setAction(a,i){if(a==='close'){closeSet();return}
+ if(a==='code'){var v=($('devc').value||'').trim();if(v==='543186'){S.dev=1;save();toast(L('Режим разработчика включён'));renderSet()}else toast(L('Неверный код'));return}
+ if(a.indexOf('dev')===0&&typeof devAction==='function'){devAction(a,i);return}
  if(a==='lang'){S.lang=i?'en':'ru';save();applyLang();MAPB=null;var lg=$('mapl');if(lg)lg.innerHTML='';if(ZP)zPrompt(ZP);if($('ed').style.display==='block')edBar();renderSet();return}
  if(a==='ctl'){if(i===3){tiltEnable(function(ok){if(!ok){toast('Нет доступа к датчику наклона');return}S.ctl=3;TILT.g0=null;save();renderSet();applyCtl()});return}S.ctl=i}
  else if(a==='sll')S.sll=i;else if(a==='lh')S.lh=i;else if(a==='bsz')S.bsz=i;else if(a==='ag')S.ag=i;else if(a==='vib')S.vib=i;
@@ -4085,6 +4117,20 @@ var _rgSt=renderGar;renderGar=function(){_rgSt();if(!ST.mode)return;var c=stCur(
  var top=$('gar').querySelector('.top');if(top)top.insertAdjacentElement('afterend',e)};
 var _hoSt=home;home=function(){var m=ST.act,r=ST.ride;_hoSt();if(m&&!r&&(isZR(m)||m.type==='chase'||m.type==='save'))stAbort()};
 var _moSt=menuOpen;menuOpen=function(){ST.mode=false;ST.ride=false;ST.arr=false;AICAP.g=62;AICAP.e=12;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
+// ---- developer mode (code in settings): jump to any mission / chapter
+function stDevJump(i){i=clamp(i|0,0,STORY.length);if(ZS)zoneCancel();rivClear();ST.act=null;ST.ride=false;ST.arr=false;stPromptHide();WP=null;ST.routed='';ST.autoT=null;AICAP.g=62;AICAP.e=12;
+ var debt=30000;for(var k=0;k<i;k++)if(STORY[k].type==='pay')debt-=STORY[k].amount;S.story.started=1;S.story.m=i;S.story.hi=Math.max(S.story.hi|0,i);S.story.debt=debt;save()}
+function devPanel(){var cur=S.story.m|0,q='<div class="dev"><h3>'+L('Режим разработчика')+'</h3><div style="font-size:11px;color:#b8f0c0;line-height:1.4">'+L('Нажми на миссию — сюжет перейдёт к ней. За пропущенные миссии деньги не дают.')+'</div>',ch=0,i0=0;
+ STORY.forEach(function(m,i){if(m.ch!==ch){if(ch)q+='</div>';ch=m.ch;i0=i;q+='<div class="dch">'+stEsc(chLbl(ch).toUpperCase()+' · '+LT(CHAP[ch].t))+'</div><div class="dms">'}
+  q+='<button data-s="devjump" data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+(i-i0+1)+'. '+stEsc(LT(m.title))+'</button>'});
+ q+='</div><div class="dms" style="margin-top:5px"><button data-s="devjump" data-i="'+STORY.length+'" class="'+(cur>=STORY.length?'on':'')+'">'+L('Всё пройдено')+'</button></div>';
+ q+='<div class="dbt2"><button data-s="devdone">'+L('Засчитать текущую')+'</button><button data-s="devtp">'+L('К старту миссии')+'</button><button data-s="devcoin">+5 000 ¥</button><button class="off" data-s="devoff">'+L('Выключить')+'</button></div></div>';return q}
+function devAction(a,i){
+ if(a==='devjump'){stDevJump(i);var c=stCur();toast(c?L('Миссия')+': '+LT(c.title):L('Всё пройдено'));renderSet();return}
+ if(a==='devcoin'){S.coins+=5000;save();toast('+5 000 ¥');renderSet();return}
+ if(a==='devoff'){S.dev=0;save();renderSet();return}
+ if(a==='devdone'){closeSet();setTimeout(function(){if(ST.act){if(ZS)zoneCancel();stDone(true)}else{stDevJump((S.story.m|0)+1);if(mode==='')renderGar();var c=stCur();toast(c?L('Миссия')+': '+LT(c.title):L('Всё пройдено'))}},250);return}
+ if(a==='devtp'){closeSet();setTimeout(function(){if(mode!=='game'||!car)return;var c=stCur(),t=stTarget()||(c&&stPlace(c.at));if(!t)return;car.x=t.x;car.y=t.y;car.vx=car.vy=0;if(t.a!=null)car.a=t.a;car.l=0;cam.x=car.x;cam.y=car.y;preload();WP=null;ST.routed=''},250)}}
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
@@ -4149,7 +4195,7 @@ function radLoad(cb){if(RAD.list&&!RAD.fb){cb();return}RAD.fb=false;
    if(!out.length){tryHost();return}RAD.host=h;RAD.list=out.slice(0,40).concat(RAD_FALLBACK.filter(function(f){return!seen[f.url]}));
    try{localStorage.setItem('tokyo_radio',JSON.stringify({t:Date.now(),list:RAD.list}))}catch(e){}cb()}).catch(tryHost)}
  tryHost()}
-function radAudio(){if(RAD.a)return RAD.a;var a=new Audio();a.preload='none';a.volume=.85;RAD.a=a;
+function radAudio(){if(RAD.a)return RAD.a;var a=new Audio();a.preload='none';a.volume=radVol();RAD.a=a;
  a.addEventListener('playing',function(){RAD.fails=0;RAD.busy=false;radUI()});
  a.addEventListener('error',function(){radFail(RAD.tok)});
  a.addEventListener('stalled',function(){if(RAD.on&&a.paused===false)radUI()});return a}
@@ -4164,8 +4210,10 @@ function radGo(d,auto){var start=function(){if(!RAD.list.length)return;RAD.i=(RA
  if(!RAD.list){RAD.on=true;RAD.busy=true;radUI();radLoad(function(){RAD.i=S.radio|0;start()})}else start()}
 function radUI(){var b=$('radt'),n=$('radn');if(!b)return;b.classList.toggle('on',RAD.on);var s=RAD.list&&RAD.list[RAD.i];
  n.textContent=RAD.on?(RAD.busy?L('ловлю…')+(s?' '+s.name:''):'♪ '+(s?s.name:'')):'';n.style.display=RAD.on?'block':'none'}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;e.preventDefault();var r=b.dataset.r;if(r==='t')radToggle();else radGo(r==='n'?1:-1)});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-rad]');if(!b)return;e.preventDefault();var r=b.dataset.rad;if(r==='t')radToggle();else radGo(r==='n'?1:-1)});
 document.addEventListener('visibilitychange',function(){if(!RAD.a)return;if(document.hidden){RAD.was=RAD.on;if(RAD.on)try{RAD.a.pause()}catch(e){}}else if(RAD.was&&RAD.on){try{RAD.a.play()}catch(e){}}});
+function radVol(){return clamp((S.rvol==null?85:S.rvol)/100,0,1)}
+document.addEventListener('input',function(e){if(e.target.dataset&&e.target.dataset.r==='rvol'&&RAD.a)RAD.a.volume=radVol()});
 
 boot();
 </script>
