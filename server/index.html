@@ -2006,18 +2006,25 @@ function circHit(c,dx,dy,r,e,mu){
  return impulse(c,px,py,nx,ny,e,mu)||.01;
 }
 function solidAt(x,y){var t=typeAt(x,y);return t===5||t===6}
+// normal of a wall at p: a thin rail gives its perpendicular (towards the car), a thick wall its gradient
+function wallNormal(px,py,cxr,cyr){var sx=0,sy=0,gx=0,gy=0,n=0,k,t,ox,oy,nx,ny;
+ for(k=0;k<16;k++){t=k/16*TAU;ox=Math.cos(t)*4;oy=Math.sin(t)*4;if(solidAt(px+ox,py+oy)){n++;sx+=Math.cos(2*t);sy+=Math.sin(2*t);gx-=ox;gy-=oy}}
+ if(n>=2&&Math.hypot(sx,sy)>n*.6){var la=Math.atan2(sy,sx)/2;nx=-Math.sin(la);ny=Math.cos(la)}
+ else{var gl=Math.hypot(gx,gy);if(gl<.01){gx=cxr;gy=cyr;gl=Math.hypot(gx,gy)||1}nx=gx/gl;ny=gy/gl}
+ if(nx*cxr+ny*cyr<0){nx=-nx;ny=-ny}return[nx,ny]}
 function rasterHit(c){
  var ca=Math.cos(c.a),sa=Math.sin(c.a),pts=[],k;
  var UV=[[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0],[.5,1],[.5,-1],[-.5,1],[-.5,-1]];for(k=0;k<12;k++){var u=UV[k][0]*c.hx,v=UV[k][1]*c.hy;pts.push([ca*u-sa*v,sa*u+ca*v])}
  var bp=null,bd=0,bn=null;
  for(k=0;k<pts.length;k++){var px=c.x+pts[k][0],py=c.y+pts[k][1];if(!solidAt(px,py))continue;
-  var gx=0,gy=0;for(var oy=-3;oy<=3;oy+=3)for(var ox=-3;ox<=3;ox+=3){if(solidAt(px+ox,py+oy)){gx-=ox;gy-=oy}}
-  var gl=Math.hypot(gx,gy);if(gl<.01){gx=-pts[k][0];gy=-pts[k][1];gl=Math.hypot(gx,gy)||1}gx/=gl;gy/=gl;
+  var wn=wallNormal(px,py,-pts[k][0],-pts[k][1]),gx=wn[0],gy=wn[1];
   var dpt=0;while(dpt<8&&solidAt(px+gx*dpt,py+gy*dpt))dpt++;
   if(dpt>bd){bd=dpt;bp=pts[k];bn=[gx,gy]}}
  if(!bp)return 0;
  c.x=wrap(c.x+bn[0]*bd);c.y=wrap(c.y+bn[1]*bd);
- return impulse(c,bp[0],bp[1],bn[0],bn[1],.2,.3)||.01;
+ // walls and guard rails: the car slides along them (no bounce, little scrub, hit near the middle so it isn't spun round)
+ var r=impulse(c,bp[0]*.3,bp[1]*.3,bn[0],bn[1],.02,.05)||.01,tx=-bn[1],ty=bn[0];if(c.vx*tx+c.vy*ty<0){tx=-tx;ty=-ty}
+ var da=angd(Math.atan2(ty,tx),c.a);if(Math.abs(da)<1.1&&!c.dr)c.a+=da*.2;c.w*=.7;return r;
 }
 // deck geometry
 function deckInfo(x,y){
@@ -2131,6 +2138,8 @@ function aiBypass(a){var r=a.r;if(r.k==='exp')return;var e=aiEdgeEnd(a),left=a.d
  var ks=[a.k-1,a.k+1];for(var i=0;i<2;i++){var k=ks[i];if(k<0||k>=r.nl)continue;if(aiLaneFree(a,k,a.dir,a.hx*2+24,a.hx*2+80)){a.k=k;a.stk=0;a.bp=0;return}}
  if(r.nl===1&&(r.m||0)<6&&left>140&&!aiOncoming(a,240)){a.ov=1;a.ko=-1-2*(r.m||0)/(r.lw||20);a.ovT=0;a.stk=0;a.bp=0}}
 function aiPhys(a,dt,idx){
+ // a crashed car (hazards on) is cleared away 10 s later so wrecks don't block the road
+ a.pt=(a.pt||0)+dt;if(a.pt>10&&!a.fd)a.fd=1;
  var sv={max:COLL.max,hit:COLL.hit,px:COLL.px,py:COLL.py};a.v=0;
  var ca=Math.cos(a.a),sa=Math.sin(a.a),f=a.vx*ca+a.vy*sa,l=-a.vx*sa+a.vy*ca;f*=Math.exp(-1.3*dt);l*=Math.exp(-4.5*dt);a.w*=Math.exp(-2.4*dt);a.vx=f*ca-l*sa;a.vy=f*sa+l*ca;
  a.x=wrap(a.x+a.vx*dt);a.y=wrap(a.y+a.vy*dt);a.a+=a.w*dt;
@@ -2463,7 +2472,7 @@ function loop(t){
  CONEL.forEach(function(p){if(!p.kn||p.gone)return;p.kt-=dt;p.cx=wrap(p.cx+p.vx*dt);p.cy=wrap(p.cy+p.vy*dt);p.ca+=p.va*dt;p.vx*=Math.max(0,1-dt*2.5);p.vy*=Math.max(0,1-dt*2.5);p.va*=Math.max(0,1-dt*2);if(p.kt<=0){p.gone=1;p.rt=TIME+45}});
  if(FRAME%60===0)CONEL.forEach(function(p){if(p.gone&&TIME>p.rt&&(Math.abs(wd(p.x,cam.x))>VW||Math.abs(wd(p.y,cam.y))>VH)){p.gone=0;p.kn=0;p.cx=p.x;p.cy=p.y;p.ca=0}});
  zonesUpdate(dt);gpsUpdate(dt);fxUpdate(dt);birdsUpdate(dt);boatsUpdate(dt);
- aiUpdate(dt,car);AI.forEach(function(a){if(a.phy&&a.dmg>120&&Math.random()<dt*4)fxPuff(a.x,a.y,a.l|0)});for(var q2=AI.length-1;q2>=0;q2--){var A2=AI[q2];if(A2.fd){A2.fd-=dt*2.2;if(A2.fd<=0)AI.splice(q2,1)}}if(FRAME%3===0)aiManage(car,cam,VW,VH);pedUpdate(dt);
+ aiUpdate(dt,car);AI.forEach(function(a){if(a.phy&&a.dmg>120&&Math.random()<dt*4)fxPuff(a.x,a.y,a.l|0)});for(var q2=AI.length-1;q2>=0;q2--){var A2=AI[q2];if(A2.fd){A2.fd-=dt*(A2.phy?1.2:2.2);if(A2.fd<=0)AI.splice(q2,1)}}if(FRAME%3===0)aiManage(car,cam,VW,VH);pedUpdate(dt);
  // camera
  var cl=(S.clag==null?30:S.clag)/100,la=.3*Math.min(1,.35+cl*1.3),tx=car.x+clamp(car.vx*la,-120,120),ty=car.y+clamp(car.vy*la,-120,120),k=Math.min(1,dt*2.5*Math.pow(8,1-cl));cam.x=wrap(cam.x+wd(tx,cam.x)*k);cam.y=wrap(cam.y+wd(ty,cam.y)*k);
  if(cam.sh>0){cam.sh=Math.max(0,cam.sh-dt*12)}
@@ -3361,7 +3370,7 @@ function demoLoop(t){
  driftFx(dt,I);petals(dt);smokeUpdate(dt);fx3Update(dt);flashUpdate(dt);piecesUpdate(dt);
  CONEL.forEach(function(p){if(!p.kn||p.gone)return;p.kt-=dt;p.cx=wrap(p.cx+p.vx*dt);p.cy=wrap(p.cy+p.vy*dt);p.ca+=p.va*dt;p.vx*=Math.max(0,1-dt*2.5);p.vy*=Math.max(0,1-dt*2.5);p.va*=Math.max(0,1-dt*2);if(p.kt<=0)p.gone=1});
  fxUpdate(dt);birdsUpdate(dt);boatsUpdate(dt);
- aiUpdate(dt,car);for(var q2=AI.length-1;q2>=0;q2--){var A2=AI[q2];if(A2.fd){A2.fd-=dt*2.2;if(A2.fd<=0)AI.splice(q2,1)}}if(FRAME%3===0)aiManage(car,cam,VW,VH);pedUpdate(dt);
+ aiUpdate(dt,car);for(var q2=AI.length-1;q2>=0;q2--){var A2=AI[q2];if(A2.fd){A2.fd-=dt*(A2.phy?1.2:2.2);if(A2.fd<=0)AI.splice(q2,1)}}if(FRAME%3===0)aiManage(car,cam,VW,VH);pedUpdate(dt);
  var tx=car.x+clamp(car.vx*.3,-100,100),ty=car.y+clamp(car.vy*.3,-70,70)+VH*.07,k=Math.min(1,dt*2.2);cam.x=wrap(cam.x+wd(tx,cam.x)*k);cam.y=wrap(cam.y+wd(ty,cam.y)*k);cam.a=car.a;
  var mx=Math.floor((cam.x-VW/2-CH*.6)/CH),Mx=Math.floor((cam.x+VW/2+CH*.6)/CH),my=Math.floor((cam.y-VH/2-CH*.6)/CH),My=Math.floor((cam.y+VH/2+CH*.6)/CH);for(var jj=my;jj<=My;jj++)for(var ii=mx;ii<=Mx;ii++)chunkNeed(ii,jj,false);
  if(!DEMO.next&&DEMO.t>2.5&&DEMO.ph==='play')DEMO.next=demoPick();if(DEMO.next)demoQueue(DEMO.next);
