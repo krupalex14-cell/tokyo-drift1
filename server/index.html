@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='06.11 05:06';
+var GAME_BUILD='06.11 19:29';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -494,7 +494,9 @@ var EN={
  'Перевал Акаги':'Akagi Pass','Перевал Кумо':'Kumo Pass','Перевал':'Mountain pass','Ванган':'Wangan','Эстакада С1':'C1 Expressway','Кольцо С1':'C1 Loop',
  'Центр':'Downtown','Шопинг':'Shopping','Парк':'Park','Порт':'Port','Жилой квартал':'Residential','Старый город':'Old town',
  'Замок':'Castle','Сэнсо-дзи':'Senso-ji','Колесо':'Ferris wheel','Скайтри':'Skytree','Токийская башня':'Tokyo Tower','Неон-тауэр':'Neon Tower','Вокзал':'Station','Сумо':'Sumo',
- 'тории':'torii','пагода':'pagoda','храм':'temple','сад':'garden','онсэн':'onsen','ёкотё':'yokocho','бамбук':'bamboo'
+ 'тории':'torii','пагода':'pagoda','храм':'temple','сад':'garden','онсэн':'onsen','ёкотё':'yokocho','бамбук':'bamboo',
+ "Гэн тебя блокирует!":"Gen is blocking you!","удар!":"hit!","Вон он! Не упусти!":"There it is! Don’t lose it!","номер":"plate","Номер снят!":"Plate filmed!","Вперёд!":"Go!","Кир рядом":"Kir is right there","фургон":"van","полиция":"police","потеряли тебя":"they lost you","старт через":"start in","выбери в карточке":"choose on the card","фургон ушёл в доки":"the van got into the docks","Сэйдзи первый на финише":"Seiji finished first","Гэн первый на финише":"Gen finished first","Тэцу первый на финише":"Tetsu finished first","Ватанабэ толкнул!":"Watanabe rammed you!","Тэцу оглушён!":"Tetsu is stunned!","«Бульдозер» оглушён!":"A Bulldozer is stunned!","Тэцу таранит!":"Tetsu rams you!","Таран!":"Ram!","Хана вышла из машины":"Hana got out of the car","задел":"you touched something","потерял фургон":"lost the van","Ватанабэ тебя прижал":"Watanabe pinned you","полиция не отстала":"the police stayed on you","Кир финишировал без тебя":"Kir finished without you","соперник первым на финише":"a rival finished first","«Бульдозер»":"Bulldozer","«Бульдозер» первый на финише":"a Bulldozer finished first","Кир далеко отстал":"Kir fell far behind","кадр с Рю":"shot with Ryu","кадр! ты далеко от Рю":"photo! you are far from Ryu","коснулся машины Рин":"touched Rin’s car","потерял Рин":"lost Rin","Рю набрал больше":"Ryu scored more","далеко от Рин":"too far from Rin","Кир":"Kir","Рю":"Ryu","Ватанабэ":"Watanabe","Сэйдзи":"Seiji","Тэцу":"Tetsu","Фургон":"Van","Бульдозер":"Bulldozer",
+ "через":"via"
 };
 function L(s){if(typeof S==='undefined'||!S||S.lang==='ru'||!S.lang)return s;if(S.lang==='zh'&&typeof ZH!=='undefined'&&ZH[s]!=null)return ZH[s];return EN[s]!=null?EN[s]:s}
 // a (Russian, English) pair in the current language: Chinese is looked up by the Russian text, English is the fallback
@@ -1157,7 +1159,221 @@ var ZH={
  "Гэн · комментарий":"玄 · 留言",
  "Лёха · про себя":"廖哈 · 心里话",
  "Кир · по телефону":"基尔 · 电话中",
- "Записка Миши":"米沙的笔记"
+ "Записка Миши":"米沙的笔记",
+ "Гэн тебя блокирует!":"玄在挡你的路！",
+ "удар!":"撞了！",
+ "Вон он! Не упусти!":"在那儿！别跟丢了！",
+ "номер":"车牌",
+ "Номер снят!":"车牌拍到了！",
+ "Вперёд!":"冲！",
+ "Кир рядом":"基尔就在旁边",
+ "фургон":"货车",
+ "полиция":"警察",
+ "потеряли тебя":"甩掉你了",
+ "старт через":"起跑倒计时",
+ "выбери в карточке":"在卡片里选择",
+ "фургон ушёл в доки":"货车逃进了码头",
+ "Сэйдзи первый на финише":"诚二先到了终点",
+ "Гэн первый на финише":"玄先到了终点",
+ "Тэцу первый на финише":"铁先到了终点",
+ "Ватанабэ толкнул!":"渡边撞了你！",
+ "Тэцу оглушён!":"铁被撞晕了！",
+ "«Бульдозер» оглушён!":"“推土机”被撞晕了！",
+ "Тэцу таранит!":"铁在撞你！",
+ "Таран!":"撞击！",
+ "Хана вышла из машины":"花下车了",
+ "задел":"碰到了",
+ "потерял фургон":"跟丢了货车",
+ "Ватанабэ тебя прижал":"渡边把你逼停了",
+ "полиция не отстала":"警察没被甩掉",
+ "Кир финишировал без тебя":"基尔没等你就到终点了",
+ "соперник первым на финише":"对手先到了终点",
+ "«Бульдозер»":"“推土机”",
+ "Кир далеко отстал":"基尔落后太远了",
+ "кадр с Рю":"和龙同框",
+ "кадр! ты далеко от Рю":"拍照！你离龙太远了",
+ "коснулся машины Рин":"碰到了凛的车",
+ "потерял Рин":"跟丢了凛",
+ "Рю набрал больше":"龙的分更高",
+ "далеко от Рин":"离凛太远了",
+ "Огни Харуми":"晴海之光",
+ "глубокая ночь · перевал Кумо":"深夜 · 云山道",
+ "Паром из Владика":"海参崴来的渡轮",
+ "Встреть Кира в порту и отвези в мастерскую":"去港口接基尔，把他送到车库",
+ "Фургон":"货车",
+ "Догони фургон и держись рядом 10 секунд — Кир снимет номер":"追上货车，在旁边贴住10秒——基尔会拍下车牌",
+ "Фургон с деталями Ханы уходит к докам.":"装着花的零件的货车正开往码头。",
+ "Без царапин":"一点刮痕都不能有",
+ "Проедь доки до старого крана и ничего не задень":"穿过码头开到旧吊车那里，什么都别碰到",
+ "Двое на Вангане":"湾岸线上的两个人",
+ "Незнакомец":"陌生人",
+ "Набери на Скрамбле больше очков, чем Рю, за 45 секунд":"45秒内在十字路口拿到比龙更高的分",
+ "Анонимный звонок":"匿名电话",
+ "Уйди от полиции: оторвись или скройся у неё из виду":"甩掉警察：拉开距离，或者躲出他们的视线",
+ "Кто-то вызвал полицию прямо на заезд.":"有人把警察直接叫到了比赛现场。",
+ "Ночь фейерверков":"烟花之夜",
+ "Выбери, с кем провести ночь фейерверков":"选择和谁一起度过烟花之夜",
+ "Ты позвал Хану. Не опоздай — и не тряси, она в платье.":"你约了花。别迟到——也别颠，她穿着裙子。",
+ "Тандем под салютом":"烟花下的追走",
+ "Держись за Рин на Вангане под фейерверками":"在湾岸线的烟花下咬住凛",
+ "Рин позвала на ночной тандем. Отказывать ей опасно.":"凛约你夜里追走。拒绝她可是很危险的。",
+ "Записка №2":"第二张字条",
+ "Найди тайник Миши под старым краном в порту":"在港口的旧吊车下找到米沙的藏物处",
+ "Полночь на Вангане":"湾岸线的午夜",
+ "Гонка пятерых: приди первым на Вангане":"五车大赛：在湾岸线上拿第一",
+ "Подпольную гонку собрал Гэн. Призовые — половина взноса.":"玄组织了一场地下比赛。奖金是一半的还款。",
+ "Бульдозер":"推土机",
+ "Третий взнос":"第三笔还款",
+ "Внеси третий взнос — 5 000 ¥":"交第三笔还款——5 000 ¥",
+ "Детали у Ханы, имя предателя известно. Осталось заплатить.":"零件回到了花手里，叛徒的名字也知道了。只剩付钱了。",
+ "Найди машину без фар на перевале Кумо":"在云山道上找到那辆不开灯的车",
+ "Старый кран":"旧吊车",
+ "Дальний склад":"远处的仓库",
+ "Позвать Хану на колесо обозрения":"约花去摩天轮",
+ "Тандем с Рин под салютом":"和凛在烟花下追走",
+ "Сначала мастерская. Покажу тебе Сакуру.":"先去车库。我带你看看“樱花”。",
+ "Та самая из твоих видео? А девушка из видео где?":"就是你视频里那辆？那视频里的女孩呢？",
+ "Хана. Она… просто снимает.":"花。她……只是负责拍。",
+ "Ага. «Просто». Поехали, водитель.":"哦。“只是”。走吧，司机。",
+ "Так вот она какая, Сакура. Ты её прямо любишь, да?":"原来这就是“樱花”。你是真的很爱它吧？",
+ "Добро пожаловать в Токио, да?":"欢迎来到东京，是吧？",
+ "Держись за что-нибудь.":"找个东西抓紧。",
+ "Значит, заедем не просто так.":"那我们就不“随便”开进去。",
+ "Ушёл… Давай ещё раз. Я в этот раз не буду жевать.":"跑了……再来一次。这次我不吃东西了。",
+ "Ты пьяный, что ли? Так въезжать в мои доки.":"你喝醉了吗？这样冲进我的码头。",
+ "Это стиль такой. Где детали Ханы?":"这是一种风格。花的零件在哪儿？",
+ "Ни машину, ни столб, ни ящик. Тронешь — уйдёшь пешком.":"不许碰车，不许碰柱子，不许碰箱子。碰了就走路回家。",
+ "Хм. Ни царапины. Держи половину.":"嗯。一点刮痕都没有。拿走一半吧。",
+ "Кто тебе их заказал?":"是谁让你偷的？",
+ "Одеколон. Отличная улика, Шерлок.":"古龙水。好线索啊，福尔摩斯。",
+ "Задел. Вали. Приходи, когда научишься ездить.":"碰到了。滚吧。等你学会开车再来。",
+ "Ванган. Едем рядом, не отставай.":"湾岸线。并排开，别掉队。",
+ "Это ты не отставай.":"是你别掉队。",
+ "«Тени». Сидзука про них говорила.":"“影子”。静香跟我说过他们。",
+ "Кто-то знает, где ты бываешь, брат. Слишком хорошо знает.":"有人知道你会去哪儿，兄弟。知道得太清楚了。",
+ "Ты меня бросил! Я чуть в отбойник не уехал.":"你把我甩下了！我差点撞上护栏。",
+ "(Почему он стоит так близко к ней?)":"（他为什么站得离她这么近？）",
+ "Брат, это называется ревность.":"兄弟，这叫吃醋。",
+ "Неплохо. Для любителя.":"不错。对业余选手来说。",
+ "Ты сегодня какой-то злой.":"你今天怎么有点凶。",
+ "Я? Нормальный я.":"我？我挺正常的。",
+ "Хана, моё предложение в силе. Подумай.":"花，我的提议依然有效。考虑一下。",
+ "Красивый стиль. Только мимо. Хана, поедем, покажу магазин.":"风格很漂亮。可惜没打中。花，走吧，我带你去看店铺。",
+ "Кто их вызвал?! Мы же только закончили!":"谁叫的警察？！我们才刚跑完！",
+ "Держись крепче.":"抓紧了。",
+ "Белая Сакура… Потерял. Совсем потерял. Какая жалость.":"白色樱花……跟丢了。彻底跟丢了。真可惜。",
+ "Он что, нам сейчас подмигнул?":"他刚才是对我们眨眼了吗？",
+ "(А Хана… после Рю почти не звонит.)":"（而花……自从龙出现后几乎不打电话了。）",
+ "Ну? Кого зовёшь?":"怎么样？你约谁？",
+ "Ты правда меня зовёшь? Не Рю, не камера — просто ты?":"你真的是约我？不是龙，不是镜头——就是你？",
+ "Просто я.":"就是我。",
+ "Смотри, начинается!":"快看，开始了！",
+ "Лёха… Я отказала Рю. Магазин, спонсорство — всё.":"廖哈……我拒绝了龙。店铺、赞助——全都拒绝了。",
+ "Почему?":"为什么？",
+ "Он ни разу не спросил, чего хочу я. А ты спросил.":"他从来没问过我想要什么。而你问了。",
+ "Хана, я…":"花，我……",
+ "Тихо. Салют пропустишь.":"嘘。你会错过烟花的。",
+ "Ай! Всё, я выхожу. Салют посмотрю с берега. Одна.":"哎！够了，我下车。我去岸边看烟花。一个人。",
+ "Пришёл всё-таки. Держись за мной. Ближе.":"你还是来了。跟在我后面。再近一点。",
+ "Ты всегда так зовёшь на свидание?":"你总是这样约人出来吗？",
+ "Это не свидание. Это тандем.":"这不是约会。这是追走。",
+ "А Рю, который крутится возле твоей Ханы, — его сын.":"而那个围着你的花转的龙——是他的儿子。",
+ "Сын Кагэямы…":"影山的儿子……",
+ "Красивый салют, Лёха? Я видела вас на Вангане. Вдвоём.":"烟花好看吗，廖哈？我看见你们在湾岸线上了。两个人。",
+ "Хана, это не то, что…":"花，不是你想的那样……",
+ "Мне всё равно. Правда.":"我无所谓。真的。",
+ "Отстал. Скучно с тобой, ёппарай.":"落后了。跟你一起真无聊，醉鬼。",
+ "Откуда ты знаешь?":"你怎么知道？",
+ "Курода… Ещё одно имя.":"黑田……又一个名字。",
+ "Половина взноса. Совпадение?":"一半的还款。巧合吗？",
+ "В этом городе — нет.":"在这座城市——不是。",
+ "…и гость из «Теней» — Сэйдзи «Линия»!":"……还有来自“影子”车队的嘉宾——“线”诚二！",
+ "Твоя траектория — шум. Я еду по сигналу.":"你的走线是噪音。我按信号开。",
+ "А я еду по тем, кто мешает.":"而我从挡路的人身上开过去。",
+ "Не тормози, ёппарай.":"别踩刹车，醉鬼。",
+ "Ну… поздравляю. Ты опять король.":"嗯……恭喜。你又是王了。",
+ "Гэн, ты всю гонку прикрывал этого из «Теней». Я видел.":"玄，你整场比赛都在掩护那个“影子”的人。我看见了。",
+ "Что? Я… просто ехал своей линией!":"什么？我……只是在走我自己的线！",
+ "Погрешность в расчётах. Пересчитаю.":"计算有误差。我会重新计算。",
+ "Неплохо, ёппарай.":"不错嘛，醉鬼。",
+ "Предсказуемо.":"意料之中。",
+ "Корона снова моя! Ха!":"王冠又是我的了！哈！",
+ "Ты обогнал меня на Вангане. В моих доках так не выйдет.":"你在湾岸线上赢了我。在我的码头可没那么容易。",
+ "Понял.":"明白。",
+ "…Ладно. Ты не боишься. Это я уважаю.":"……好吧。你不怕。这一点我尊重。",
+ "Детали Ханы — все. И имя. Конверт мне передал Гэн.":"花的零件——全部还你。还有名字。信封是玄交给我的。",
+ "Гэн?!":"玄？！",
+ "И ещё. Громилу мою видел? Отдам за полцены. Заходи.":"还有。见过我的“蛮牛”吗？半价卖你。有空来。",
+ "Лёха! Ты цел? Я всё видела.":"廖哈！你没事吧？我全都看到了。",
+ "(целует в щёку) Это за детали. Не придумывай.":"（亲了一下他的脸颊）这是为了零件。别多想。",
+ "Я ничего не видел. Совсем ничего.":"我什么都没看见。完全没看见。",
+ "Это за детали. Спасибо.":"这是为了零件。谢谢你。",
+ "А про Рин мы ещё поговорим.":"凛的事我们以后再说。",
+ "Брат, ты попал.":"兄弟，你惨了。",
+ "В доках правит Бульдозер. Приходи, когда отрастишь броню.":"码头是推土机说了算。等你长出铠甲再来。",
+ "Я всё исправлю. Клянусь короной.":"我会弥补的。我以王冠发誓。",
+ "Корону, Гэн, не продают. Ни за деньги, ни за обещания.":"王冠是不卖的，玄。不管是为了钱，还是为了承诺。",
+ "Пять тысяч. Восхитительно, Алексей-сан. Осталось двадцать.":"五千。太好了，阿列克谢先生。还剩两万。",
+ "Но есть новость. Ваш долг выкуплен. Целиком.":"不过有个消息。您的债务被买下了。全部。",
+ "Кем?":"被谁？",
+ "Господином Кагэямой. Теперь вы должны ему.":"影山先生。现在您欠的是他。",
+ "(тише) Лично я ставлю на вас, Алексей-сан. Не подведите.":"（小声）我个人押您赢，阿列克谢先生。别让我失望。",
+ "Лёха, я починил видик! Кассета «12 лет назад» — смотри.":"廖哈，我修好录像机了！那盘“12年前”的录像带——快看。",
+ "Перевал… ночь… и машина без фар. Совсем без света.":"山道……夜里……还有一辆不开灯的车。一点光都没有。",
+ "Значит, едем на Кумо.":"那就去云山。",
+ "Ватанабэ · по рации":"渡边 · 对讲机",
+ "Рин · по телефону":"凛 · 电话中",
+ "Тэцу · по телефону":"铁 · 电话中",
+ "Сидзука · по телефону":"静香 · 电话中",
+ "Вернуть детали Ханы, узнать, кто сливает тебя «Теням», и внести третий взнос":"拿回花的零件，查出是谁把你的行踪泄露给“影子”，并交上第三笔还款",
+ "Кир приплыл из Владивостока. Лучший друг — и худший штурман.":"基尔从海参崴来了。最好的朋友——最差的领航员。",
+ "Тэцу отдаст половину деталей, если ты проедешь его доки без единой царапины.":"如果你能一点刮痕都没有地穿过铁的码头，他就还你一半零件。",
+ "Проедь Ванган вместе с Киром: финишируйте с разницей не больше 10 секунд":"和基尔一起跑湾岸线：两人到达终点相差不超过10秒",
+ "Тэцу продал Киру старую «восемьдесят шестую». Пора показать ему ночной Токио.":"铁把一辆旧“八六”卖给了基尔。是时候带他看看夜晚的东京了。",
+ "Возле Ханы появился Рю. Красивый, богатый — и всё время рядом с ней.":"花的身边出现了龙。英俊、有钱——而且总在她身边。",
+ "У колеса обозрения фестиваль. Хана молчит с того вечера. А Рин звонит уже третий раз.":"摩天轮那边有庆典。花从那天晚上起就不说话了。而凛已经打了第三次电话。",
+ "Довези Хану до колеса обозрения до главного залпа. Три удара — и она выйдет":"在最后一轮大烟花之前把花送到摩天轮。撞三次——她就下车",
+ "Тэцу вспомнил: двенадцать лет назад Миша что-то прятал под старым краном.":"铁想起来了：十二年前米沙在旧吊车下藏过东西。",
+ "Гонка по докам против Тэцу и трёх «Бульдозеров»: приди первым":"码头赛：对阵铁和三辆“推土机”，拿第一",
+ "Обгонишь Тэцу в его доках — он отдаст все детали и назовёт имя заказчика.":"在铁的码头赢过他——他会还你所有零件，并说出幕后主使的名字。",
+ "Лёха! Восемь часов на пароме, кормили одной рыбой. Обнимашки потом, сначала — где тут нормальная еда?":"廖哈！坐了八个小时渡轮，只给吃鱼。拥抱等会儿，先说——这儿哪有正经吃的？",
+ "Лёха! Мою лавку обокрали! Новый турбо для Сакуры, все детали — всё увезли!":"廖哈！我的店被偷了！给“樱花”的新涡轮、所有零件——全被搬走了！",
+ "Соседи видели белый фургон с бульдозером на борту — он только что свернул на вашу улицу! Перехвати!":"邻居看到一辆车身画着推土机的白色货车——它刚拐进你们那条街！拦住它！",
+ "Вон он! Белый, с бульдозером! Подъедь поближе, я сниму номер.":"在那儿！白色的，画着推土机！靠近点，我来拍车牌。",
+ "Есть номер! Фургон доков Харуми. Хозяин — какой-то Тэцу «Бульдозер».":"拍到车牌了！是晴海码头的货车。车主是一个叫铁“推土机”的人。",
+ "Тэцу?! Его банда держит все доки. Туда просто так не заезжают.":"铁？！他的帮派控制着整个码头。那里可不是随便能开进去的。",
+ "Детали теперь мои. Хочешь половину — проедь до старого крана в порту и ничего не задень.":"零件现在是我的了。想要一半——开到港口的旧吊车那里，什么都别碰到。",
+ "Конверт принёс курьер. Денег много, имени нет. Только пах дорогим одеколоном. Как в Неон-тауэре.":"信封是一个快递员送来的。钱很多，没有名字。只是有股昂贵的古龙水味。就像霓虹塔里那样。",
+ "Тэцу отдал мне свою старую «восемьдесят шестую». Почти без ржавчины!":"铁把他那辆旧“八六”给了我。几乎没生锈！",
+ "Видел чёрную машину сзади? Всю дорогу висела. С эмблемой — тень какая-то.":"看见后面那辆黑车了吗？一路都跟着。车上有个标志——像是某种影子。",
+ "Лёха, знакомься, это Рю. Он хочет спонсировать мой канал. И предлагает магазин в Неон-тауэре…":"廖哈，认识一下，这是龙。他想赞助我的频道。还要在霓虹塔给我一间店铺……",
+ "Наслышан о «пьяном стиле». Хана говорит, ты лучший в городе. Проверим?":"久闻“醉拳风格”大名。花说你是全城最强的。试试看？",
+ "Скрамбл, 45 секунд. Хана снимает нас обоих. Держись рядом — в кадр попадают только близкие.":"十字路口，45秒。花给我们两个拍。跟紧点——只有离我近的人才能入镜。",
+ "Белая Сакура, говорит полиция Токио. Немедленно остановитесь.":"白色樱花，这里是东京警察。立即停车。",
+ "(тише) Звонок был анонимный. Из автомата у Скрамбла. Береги себя, парень.":"（小声）电话是匿名的。从十字路口的公用电话打来的。保重，小子。",
+ "Попался. На первый раз — штраф и лекция о вреде заносов. Езжай домой, гонщик.":"抓到了。初犯——罚款，再听一堂漂移危害讲座。回家吧，车手。",
+ "Сегодня фейерверки у колеса обозрения. Весь город там будет.":"今晚摩天轮那边放烟花。全城的人都会去。",
+ "Ёппарай. Ночной тандем по Вангану под салютом. Дважды не зову.":"醉鬼。夜里在湾岸线的烟花下追走。我只约一次。",
+ "…Ладно. Колесо обозрения, до главного залпа. И не тряси, я в платье.":"……好吧。摩天轮，在最后一轮大烟花之前。还有别颠，我穿着裙子。",
+ "Алексей, это Сидзука. Рю — сын Кагэямы. Подумала, тебе стоит знать.":"阿列克谢，我是静香。龙是影山的儿子。我想你应该知道。",
+ "Сын Кагэямы?.. Так вот зачем ему мой магазин рядом с твоей мастерской.":"影山的儿子？……原来他想把我的店开在你的车库旁边，是为了这个。",
+ "…Ты хорошо держишься. Слушай. Нас с сестрой нанимал Кагэяма. Чтобы выжить Рэйко с перевала.":"……你跟得很好。听着。影山雇过我和姐姐。为了把玲子赶出山道。",
+ "Эй, пьяный. Твой дядя тут гонял лет двенадцать назад. Под старым краном у него был тайник.":"喂，醉鬼。你叔叔大概十二年前在这儿跑过。他在旧吊车下有个藏东西的地方。",
+ "Я тогда был пацаном и подметал доки. Он дал мне сто иен, чтобы я молчал.":"那时我还是个扫码头的小孩。他给了我一百日元让我闭嘴。",
+ "«По Харуми я гонял с Куродой. Он знает, что было на Кумо. Найдёшь его — скажи, что я не злюсь».":"“我在晴海和黑田一起跑过。他知道云山那晚发生了什么。如果你找到他——告诉他我不生气。”",
+ "И ещё одно: Гэн звонил. В полночь гонка на Вангане. Пять машин, призовые — две с половиной тысячи.":"还有一件事：玄打来电话了。午夜湾岸线有比赛。五辆车，奖金两千五。",
+ "Дамы и господа! Полночь, Ванган, пять машин! Король Скрамбла, Рин Мори, Тэцу «Бульдозер»…":"女士们先生们！午夜，湾岸线，五辆车！十字路口之王、森凛、铁“推土机”……",
+ "Лёха, смотри за Гэном. Он сегодня какой-то слишком довольный.":"廖哈，盯着玄。他今晚高兴得有点过头了。",
+ "Я и трое моих «Бульдозеров». Финиш — у старого крана. Обгонишь — отдам всё. И назову имя.":"我和我的三辆“推土机”。终点在旧吊车。赢了我——全部还你。还告诉你名字。",
+ "Заманивай их в стены и контейнеры. Тэцу тяжёлый — после удара секунды три в себя приходит.":"把他们引到墙和集装箱上。铁很重——撞一下要缓三秒左右。",
+ "Рю пообещал вернуть ему корону Скрамбла. И деньги. Твой король продал тебя, пьяный.":"龙答应把十字路口的王冠还给他。还有钱。你的王把你卖了，醉鬼。",
+ "Пять тысяч, Алексей-сан. Не хватает? Я подожду. Но теперь ждёт не только банк.":"五千，阿列克谢先生。不够？我可以等。但现在等着的不只是银行了。",
+ "Лёха, подожди! Да, это был я. Рю обещал вернуть мне Скрамбл. Я… завидовал.":"廖哈，等等！是的，是我。龙答应把十字路口还给我。我……嫉妒你。",
+ "Это Кумо. Местные говорят, там до сих пор кто-то ездит в темноте.":"这是云山。当地人说，那里至今还有人在黑暗中开车。",
+ "«Бульдозер» первый на финише":"一辆“推土机”先到了终点",
+ "через":"途经",
+ "Склад у площадки":"场地旁的仓库",
+ "Южный склад":"南仓库"
 };
 
 // ===== QR code encoder (byte mode, ECC level L, versions 1-5, single RS block) =====
@@ -4303,10 +4519,11 @@ function rivAI(r,dt){var c=r.c,I={s:0,t:1,b:0,h:0},P=r.pts;if(!P)return I;var n=
 function rivUpdate(dt){if(!RIV.length)return;
  for(var i=0;i<RIV.length;i++){var r=RIV[i],c=r.c;if(r.wait){r.x=c.x;r.y=c.y;r.a=c.a;continue}
   var I=rivAI(r,dt),sv={pend:run.pend,score:run.score,msg:run.msg,mt:run.mt,coins:S.coins,cm:COLL.max,ch:COLL.hit,cx:COLL.px,cy:COLL.py,ah:AIHIT};
-  for(var n=0;n<3;n++){physStep(c,I,dt/3);layerUpdate(c);collide(c)}
+  var hm=0;for(var n=0;n<3;n++){physStep(c,I,dt/3);layerUpdate(c);collide(c);if(COLL.max>hm)hm=COLL.max}r.hm=hm;
   run.pend=sv.pend;run.score=sv.score;run.msg=sv.msg;run.mt=sv.mt;S.coins=sv.coins;COLL.max=sv.cm;COLL.hit=sv.ch;COLL.px=sv.cx;COLL.py=sv.cy;AIHIT=sv.ah;
   r.stuck=c.sp<25?(r.stuck||0)+dt:0;
-  r.x=c.x;r.y=c.y;r.a=c.a;r.vx=c.vx;r.vy=c.vy;r.l=c.l|0;r.d=c.dr?1:0;r.b=I.b>.2?1:0;r.sl=c.slip;r.sp=c.sp;remFx(r,dt)}}
+  r.x=c.x;r.y=c.y;r.a=c.a;r.vx=c.vx;r.vy=c.vy;r.l=c.l|0;r.d=c.dr?1:0;r.b=I.b>.2?1:0;r.sl=c.slip;r.sp=c.sp;remFx(r,dt)}
+ for(var a=0;a<RIV.length;a++)for(var b=a+1;b<RIV.length;b++){var A=RIV[a].c,B=RIV[b].c;if((A.l|0)!==(B.l|0)||RIV[a].wait||RIV[b].wait)continue;var ddx=wd(B.x,A.x),ddy=wd(B.y,A.y);if(ddx*ddx+ddy*ddy<1600)satPair(A,B,.25,.38)}}
 function rivDraw(z){for(var i=0;i<RIV.length;i++){var r=RIV[i];if((r.l|0)!==z)continue;var sp=r.spr,x=SX(r.x),y=SY(r.y),w=sp.width,h=sp.height;if(x<-70||y<-70||x>VW+70||y>VH+70)continue;
  var ra=Math.round(r.a/(Math.PI/32))*(Math.PI/32);cx.save();cx.translate(x+2,y+3);cx.rotate(ra);cx.fillStyle='rgba(12,8,40,.4)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();
  cx.save();cx.translate(x,y);cx.rotate(ra);cx.drawImage(sp,-w/2,-h/2);vehLights({bk:r.b,x:r.x,phy:0,tn:0,vt:-1},sp,false);cx.restore()}}
@@ -4652,6 +4869,9 @@ if(!S.story||typeof S.story!=='object')S.story={m:0,started:0,debt:30000,v:2,hi:
  if(m>=STORY_OLD.length)mi=STORY_OLD.length;o.m=mi;o.hi=Math.max(o.hi|0,mi);o.v=2})();
 var ST={mode:false,act:null,ride:false,arr:false,t:0,prog:0,hits:0,stop:0,routed:'',lastOk:false,gen:0,photo:0,prompt:false,end:null};
 function stCur(){return STORY[S.story.m|0]||null}
+// story branches: missions marked only:'x' are played only when that choice was made
+function stNextIdx(i){while(STORY[i]&&STORY[i].only&&STORY[i].only!==S.story.pick)i++;return i}
+function stRivName(m){return m&&m.rival==='ryu'?'Рю':'Гэн'}
 function chLbl(n){return S.lang==='en'?'Chapter '+n:S.lang==='zh'?'第'+n+'章':'Глава '+n}
 function chDone(n){return S.lang==='en'?'Chapter '+n+' complete':S.lang==='zh'?'第'+n+'章完成':'Глава '+n+' пройдена'}
 function stCh(){var c=stCur();return c?c.ch:STORY[STORY.length-1].ch}
@@ -4719,9 +4939,9 @@ function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.ride=false;ST.a
  if(!ok){ST.routed='';WP=null;var ft=L('Не вышло')+(why?': '+L(why):'');if(m.fail&&m.fail.length)dlgOpen(m.fail,function(){toast(ft)});else toast(ft);return}
  var rw=m.reward||0,idx=S.story.m|0;if(m.fragile)rw=Math.max(0,Math.round(rw*(1-.25*ST.hits)));if(idx<(S.story.hi|0))rw=0;
  if(rw){S.coins+=rw;popup('+'+rw+' ¥','big')}
- S.story.m=idx+1;S.story.hi=Math.max(S.story.hi|0,idx+1);save();ST.routed='';WP=null;
+ var nxi=stNextIdx(idx+1);S.story.m=nxi;S.story.hi=Math.max(S.story.hi|0,nxi);save();ST.routed='';WP=null;
  var post=typeof m.post==='function'?m.post({hits:ST.hits}):m.post,sl=m.stops&&stStopLines(m,m.stops[m.stops.length-1]);if(sl)post=sl.concat(post||[]);if(m.work){car.vx=car.vy=car.w=0;car.dr=false}
- setTimeout(function(){if(m.zone)$('res').style.display='none';var talk=function(){dlgOpen(post,function(){
+ ST.talk=1;setTimeout(function(){ST.talk=0;if(m.zone)$('res').style.display='none';var talk=function(){dlgOpen(post,function(){
   if(m.chapterEnd){var ce=m.chapterEnd,n2=CHAP[ce+1];chapterCard(chDone(ce),LT(CHAP[ce].t),L('Дальше')+': '+LT(m.next),function(){var nx=stCur();chapterCard(chLbl(ce+1),LT(n2.t),nx?LT(n2.tod):L('скоро'),function(){if(nx&&nx.auto&&!ST.act)stStart(nx)})});return}
   var n=stCur();if(n&&n.auto)stStart(n)})};if(m.work)chapterCard(L('Мастерская'),LT(m.work),'',talk);else talk()},m.type==='zone'||m.type==='duel'?1400:300)}
 // ---- boss: Gen drifts around the Scramble
@@ -4735,7 +4955,7 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
  if(!m){var c=stCur(),gq=P.garage,gd=Math.hypot(wd(gq.x,car.x),wd(gq.y,car.y)),cp=c&&P[c.at],nearC=cp&&Math.hypot(wd(cp.x,car.x),wd(cp.y,car.y))<70;
   if(gd<55&&car.sp<90&&!ZS&&!ZFADE&&!nearC&&typeof stGarPrompt==='function'){stGarPrompt();return}if(ST.prompt==='garage')stPromptHide();
   if(!c)return;var p=P[c.at];if(!p)return;var d=Math.hypot(wd(p.x,car.x),wd(p.y,car.y));
-  if(c.auto&&!ZS&&!ZFADE&&ST.autoT!==c.id){ST.autoT=c.id;setTimeout(function(){if(!ST.act&&stCur()===c&&mode==='game'&&!DLG)stStart(c)},1200)}
+  if(c.auto&&!ZS&&!ZFADE&&!ST.talk&&!DLG&&ST.autoT!==c.id){ST.autoT=c.id;setTimeout(function(){if(!ST.act&&stCur()===c&&mode==='game'&&!DLG&&!ST.talk)stStart(c);else ST.autoT=null},1200)}
   if(ST.routed!==c.id&&!WP&&d>120){ST.routed=c.id;var gp=p.g||p;stRoute(gp.x,gp.y)}
   if(d<320)stTraffic(p,6);else if(AICAP.g!==62){AICAP.g=62;AICAP.e=12}
   if((d<70||(!c.ride&&stInZone(c)))&&!ZS&&!ZFADE)stPromptShow(c);else stPromptHide();return}
@@ -4756,8 +4976,8 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
  if(m.type==='drift'&&ST.prog>=m.goalPts)stDone(true);
  if(stKinds(m,dt))return;
  if(m.type==='duel'&&ZS&&ZS.z.id===m.zone){var g=RIV[0];if(g){g.wait=ZS.ph!=='go'}
-  if(ZS.ph==='go'){var el=ZS.z.T-ZS.t;ST.gen+=dt*(g&&g.d?66:50)*(1+.15*Math.sin(el*.7));
-   var ph=Math.floor(el/10);if(ph>ST.photo&&el<44){ST.photo=ph;stFlash();var near=g&&Math.hypot(wd(g.x,car.x),wd(g.y,car.y))<80&&car.l===g.l;if(near){ZS.score+=400;popup(L('кадр с Гэном')+' +400','big')}else flash(L('кадр! ты далеко от Гэна'),1.2)}}}
+  if(ZS.ph==='go'){var el=ZS.z.T-ZS.t;ST.gen+=dt*(g&&g.d?66:50)*(1+.15*Math.sin(el*.7))*(m.rate||1);
+   var ph=Math.floor(el/10);if(ph>ST.photo&&el<44){ST.photo=ph;stFlash();var near=g&&Math.hypot(wd(g.x,car.x),wd(g.y,car.y))<80&&car.l===g.l;if(near){ZS.score+=400;popup(L(m.rival==='ryu'?'кадр с Рю':'кадр с Гэном')+' +400','big')}else flash(L(m.rival==='ryu'?'кадр! ты далеко от Рю':'кадр! ты далеко от Гэна'),1.2)}}}
  rivUpdate(dt)}
 // lesson 2, tandem, race, chase
 function stKinds(m,dt){
@@ -4769,8 +4989,8 @@ function stKinds(m,dt){
  if(m.type==='tandem'&&ZS&&ZS.z.id===m.zone){var g=RIV[0];if(!g)return false;g.wait=ZS.ph!=='go';if(ZS.ph!=='go')return false;
   var d=Math.hypot(wd(g.x,car.x),wd(g.y,car.y)),ps=ZS.s,gs=stRoadS(g);ST.tot+=dt;if(d<140&&ps<gs+15)ST.close+=dt;
   g.sk=g.sk0*clamp(1-(d-85)/240,.3,1.2);g.vmax=d>420?30:d>300?110:400;
-  ST.tcd-=dt;if(d<(car.hx+g.c.hx)*.85&&car.l===g.l&&ST.tcd<=0){ST.touch++;ST.tcd=.9;flash(L('касание!')+' '+ST.touch+'/3',1);if(ST.touch>=3){ST.fail='коснулся машины Рэйко';zoneEnd('time');return true}}
-  ST.far=d>900?ST.far+dt:0;if(ST.far>6){ST.fail='потерял Рэйко';zoneEnd('time');return true}return false}
+  ST.tcd-=dt;if(d<(car.hx+g.c.hx)*.85&&car.l===g.l&&ST.tcd<=0){ST.touch++;ST.tcd=.9;flash(L('касание!')+' '+ST.touch+'/3',1);if(ST.touch>=3){ST.fail=m.leader==='rin'?'коснулся машины Рин':'коснулся машины Рэйко';zoneEnd('time');return true}}
+  ST.far=d>900?ST.far+dt:0;if(ST.far>6){ST.fail=m.leader==='rin'?'потерял Рин':'потерял Рэйко';zoneEnd('time');return true}return false}
  if(m.type==='race'&&ZS&&ZS.z.id===m.zone){var ps2=ZS.s;for(var i=0;i<RIV.length;i++){var R=RIV[i];R.wait=ZS.ph!=='go';if(ZS.ph!=='go')continue;var lead=stRoadS(R)-ps2;
    R.sk=R.sk0*clamp(1-(lead-100)/1000,.6,1.2);if(stRoadS(R)>=ZS.z.s1){ST.fail=(R.id==='rin'?'Рин':'Сидзука')+' первая на финише';zoneEnd('time');return true}}return false}
  if(m.type==='chase'){var R2=RIV[0];if(!R2)return false;var dd=stRinUpdate(R2,dt);
@@ -4808,19 +5028,19 @@ function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='
   if(m.limit&&ST.stop<(m.limitN||m.stops.length)){var left=Math.max(0,Math.ceil(m.limit-ST.t));t+=' · '+Math.floor(left/60)+':'+(left%60<10?'0':'')+left%60}if(m.fragile&&ST.stop>=(m.fragileFrom==null?1:m.fragileFrom))t+=' · '+L('удары')+': '+ST.hits}
  else if(m.type==='drift'){var dp=P[m.dc||m.at],dd=Math.hypot(wd(dp.x,car.x),wd(dp.y,car.y));t=Math.min(m.goalPts,Math.floor(ST.prog+(dd<m.radius?run.pend:0)))+' / '+m.goalPts+(dd>m.radius?' · '+L('вернись к метке'):'');bar=Math.min(1,(ST.prog+(dd<m.radius?run.pend:0))/m.goalPts)}
  else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=ST.out?L('заедь на площадку')+' · '+Math.round(Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y))/4)+' '+L('м'):L('поймал')+' '+ST.prog+'/'+m.need+' · '+(ST.sv?L('лови — выровняй!'):L('занос')+' '+(car.sp>30&&car.fw>0?Math.round(Math.abs(angd(Math.atan2(car.vy,car.vx),car.a))*57.3):0)+'°/'+Math.round(SAVE_DEEP*57.3)+'°')+' · '+lf+' '+L('с');bar=ST.prog/m.need}
- else if(m.type==='tandem'&&RIV[0]){var g2=RIV[0];t=L('Рэйко')+' '+Math.round(Math.hypot(wd(g2.x,car.x),wd(g2.y,car.y))/4)+' '+L('м')+' · '+L('хвост')+' '+Math.round(ST.tot?ST.close/ST.tot*100:0)+'% · '+ST.touch+'/3';bar=ST.tot?ST.close/ST.tot:0}
+ else if(m.type==='tandem'&&RIV[0]){var g2=RIV[0];t=L(m.leader==='rin'?'Рин':'Рэйко')+' '+Math.round(Math.hypot(wd(g2.x,car.x),wd(g2.y,car.y))/4)+' '+L('м')+' · '+L('хвост')+' '+Math.round(ST.tot?ST.close/ST.tot*100:0)+'% · '+ST.touch+'/3';bar=ST.tot?ST.close/ST.tot:0}
  else if(m.type==='race'&&ZS){var pos=1;RIV.forEach(function(R){if(stRoadS(R)>ZS.s)pos++});t=L('место')+' '+pos+'/3 · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
  else if(m.type==='chase'&&RIV[0]){var R3=RIV[0];t=L('Рин')+' '+Math.round(Math.hypot(wd(R3.x,car.x),wd(R3.y,car.y))/4)+' '+L('м')+(ST.hid>0?' · '+L('потеряла тебя'):R3.atk?' · '+L('идёт на таран!'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(Math.max(ST.esc/3,(ST.hid||0)/5),0,1)}
  else if(m.type==='tt'&&ZS){t=L('ты')+' '+(ZS.z.T-ZS.t).toFixed(1)+' · '+L('Сидзука')+' '+(m.rec||0).toFixed(1)+' '+L('с')}
- else if(m.type==='duel'){t=L('Гэн')+': '+fmtN(ST.gen)+'  ·  '+L('ты')+': '+fmtN(ZS?ZS.score+run.pend:0)}
+ else if(m.type==='duel'){t=L(stRivName(m))+': '+fmtN(ST.gen)+'  ·  '+L('ты')+': '+fmtN(ZS?ZS.score+run.pend:0)}
  else if(m.type==='zone'&&ZS){t=m.course?L('доедь до финиша'):L('цель')+': '+fmtN(m.goalPts)}
  e.innerHTML='<b>'+stEsc(LT(m.title))+'</b><span>'+stEsc(t)+'</span>'+(bar>=0?'<i><u style="width:'+Math.round(bar*100)+'%"></u></i>':'')}
 // ---- hooks
 var _zuSt=zonesUpdate;zonesUpdate=function(dt){stUpdate(dt);if(ST.mode&&ST.act&&!ZS){if(ZP){ZP=null;zPrompt(null)}return}_zuSt(dt);
  if(ST.mode&&!ST.act&&!ZS){var hide=false,c=stCur();if(ZP&&c){var p=stPlaces()[c.at];hide=(!c.ride&&c.zone===ZP.id)||(p&&Math.hypot(wd(p.x,car.x),wd(p.y,car.y))<380)}ST.zh=hide?ZP.id:null;if(ZP){var e=$('zp');if(e.classList.contains('on')===hide)e.classList.toggle('on',!hide)}}else ST.zh=null};
 var _zeSt=zoneEnd;zoneEnd=function(why){var z=ZS&&ZS.z;if(ZS)bank();var sc=ZS?Math.floor(ZS.score):0,el=ZS?z.T-ZS.t:0;_zeSt(why);var m=ST.act;if(!m||!z||m.zone!==z.id)return;var ok,rs,ln;
- if(m.type==='duel'){var g=Math.floor(ST.gen);ok=why!=='out'&&sc>g;rs=why==='out'?'выехал из зоны':'Гэн набрал больше';ln=L('Гэн')+' '+fmtN(g)+'  ·  '+L('ты')+' '+fmtN(sc)}
- else if(m.type==='tandem'){var pc=ST.tot>0?ST.close/ST.tot:0;ok=why==='fin'&&!ST.fail&&pc>=.5;rs=ST.fail||(why==='off'?'сошёл с трассы':why!=='fin'?'не успел к финишу':'далеко от Рэйко');ln=L('хвост')+' '+Math.round(pc*100)+'% · '+L('касания')+' '+ST.touch+'/3'}
+ if(m.type==='duel'){var g=Math.floor(ST.gen);ok=why!=='out'&&sc>g;rs=why==='out'?'выехал из зоны':(m.rival==='ryu'?'Рю набрал больше':'Гэн набрал больше');ln=L(stRivName(m))+' '+fmtN(g)+'  ·  '+L('ты')+' '+fmtN(sc)}
+ else if(m.type==='tandem'){var pc=ST.tot>0?ST.close/ST.tot:0;ok=why==='fin'&&!ST.fail&&pc>=.5;rs=ST.fail||(why==='off'?'сошёл с трассы':why!=='fin'?'не успел к финишу':(m.leader==='rin'?'далеко от Рин':'далеко от Рэйко'));ln=L('хвост')+' '+Math.round(pc*100)+'% · '+L('касания')+' '+ST.touch+'/3'}
  else if(m.type==='race'){ok=why==='fin'&&!ST.fail;rs=ST.fail||(why==='off'?'сошёл с трассы':'не успел к финишу');ln=ok?L('первый на финише!'):L(rs)}
  else if(m.type==='tt'){ok=why==='fin'&&el<=m.rec;rs=why!=='fin'?(why==='off'?'сошёл с трассы':'не успел к финишу'):'рекорд Сидзуки устоял';ln=L('ты')+' '+el.toFixed(1)+' '+L('с')+'  ·  '+L('Сидзука')+' '+m.rec.toFixed(1)+' '+L('с')}
  else if(m.course){ok=why==='fin';rs=why==='off'?'сошёл с трассы':'не успел к финишу';ln=ok?L('финиш!'):L(rs)}
@@ -4863,14 +5083,14 @@ var _omSt=openMap;openMap=function(){_omSt();if(!ST.mode)return;var m=ST.act,c=s
  var cvs=$('mapc'),g=cvs.getContext('2d'),k=cvs.width/WS,Dp=DPR,X=wrap(t.x)*k,Y=wrap(t.y)*k;g.fillStyle='#1a1426';g.fillRect(X-8*Dp,Y-8*Dp,16*Dp,16*Dp);g.fillStyle='#ffd23a';g.fillRect(X-7*Dp,Y-7*Dp,14*Dp,14*Dp);g.fillStyle='#1a1426';g.fillRect(X-1.5*Dp,Y-5*Dp,3*Dp,6*Dp);g.fillRect(X-1.5*Dp,Y+3*Dp,3*Dp,2*Dp);
  g.font=Math.round(11*Dp)+'px TokyoPx,monospace';g.fillStyle='#ffd23a';g.fillText(LT((m||c).title),X+10*Dp,Y+4*Dp)};
 var _rgSt=renderGar;renderGar=function(){_rgSt();if(!ST.mode)return;var c=stCur(),ch=stCh(),C=CHAP[ch],e=document.createElement('div');e.className='stbar';
- var inCh=STORY.filter(function(q){return q.ch===ch}),i0=STORY.indexOf(inCh[0]),n=c?(S.story.m|0)-i0+1:inCh.length,pm=inCh.filter(function(q){return q.type==='pay'})[0],paid=pm&&STORY.indexOf(pm)<(S.story.m|0),amt=C.pay||0,have=Math.floor(S.coins);
+ var inCh=STORY.filter(function(q){return q.ch===ch&&(!q.only||q.only===(S.story.pick||'hana'))}),i0=STORY.indexOf(inCh[0]),n=c?(S.story.m|0)-i0+1:inCh.length,pm=inCh.filter(function(q){return q.type==='pay'})[0],paid=pm&&STORY.indexOf(pm)<(S.story.m|0),amt=C.pay||0,have=Math.floor(S.coins);
  e.innerHTML='<div class="sr"><div><span>'+L('СЮЖЕТ')+' · '+chLbl(ch)+' · '+stEsc(LT(C.t))+'</span><b>'+(c?stEsc(LT(c.title))+' · '+n+'/'+inCh.length:L('глава пройдена'))+'</b></div><div class="dbt"><span>'+L('долг')+'</span><b>'+fmtN(S.story.debt)+' ¥</b></div></div>'+
   '<p class="sg"><span>'+L('Цель главы')+'</span>'+stEsc(LT(C.goal))+'</p>'+
   (c&&c.why?'<p class="sg"><span>'+L('Сейчас')+'</span>'+stEsc(LT(c.why))+'</p>':(!c?'<p class="sg"><span>'+L('Дальше')+'</span>'+stEsc(LT(STORY[STORY.length-1].next))+' · '+chLbl(ch+1)+' — '+L('скоро')+'</p>':''))+
   '<div class="sr"><div class="sm"><span>'+L('взнос главы')+'</span><b>'+(paid?L('внесён')+' ✓':fmtN(Math.min(have,amt))+' / '+fmtN(amt)+' ¥')+'</b>'+(paid?'':'<i><u style="width:'+Math.round(Math.min(1,have/Math.max(1,amt))*100)+'%"></u></i>')+'</div>'+
   ((S.story.m|0)>0?'<button class="srs" data-st="reset">'+L('заново')+'</button>':'')+'</div>';
  var top=$('gar').querySelector('.top');if(top)top.insertAdjacentElement('afterend',e)};
-var _hoSt=home;home=function(){var m=ST.act,r=ST.ride;_hoSt();if(m&&!r&&(isZR(m)||m.type==='chase'||m.type==='save'))stAbort()};
+var _hoSt=home;home=function(){var m=ST.act,r=ST.ride;_hoSt();if(m&&!r&&(isZR(m)||m.type==='chase'||m.type==='save'||m.type==='pursuit'||m.type==='police'||m.type==='srace'||m.clean))stAbort()};
 var _moSt=menuOpen;menuOpen=function(){ST.mode=false;ST.ride=false;ST.arr=false;AICAP.g=62;AICAP.e=12;if(ST.act){if(ZS)zoneCancel();ST.act=null}rivClear();stPromptHide();_moSt()};
 // ---- developer mode (code in settings): jump to any mission / chapter
 function stDevJump(i){i=clamp(i|0,0,STORY.length);if(ZS)zoneCancel();rivClear();ST.act=null;ST.ride=false;ST.arr=false;stPromptHide();WP=null;ST.routed='';ST.autoT=null;AICAP.g=62;AICAP.e=12;
@@ -5020,7 +5240,7 @@ function stRinUpdate(R,dt){var c=R.c,dd=Math.hypot(wd(car.x,c.x),wd(car.y,c.y));
  // pace: matched to your car, a little quicker when she is far behind, easing off right after a hit
  var pv=car.P.vmax;R.vmax=R.back>0?pv*.75:dd>420?pv*1.08:dd>200?pv*1.02:pv;R.sk=R.back>0?.85:1;
  // contact = a ram attempt
- if(dd<c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(c.vx-car.vx,c.vy-car.vy);if(rel>35){R.cd=2.4;R.back=2;ST.rams=(ST.rams||0)+1;flash(L('Рин толкнула!'),.9);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}
+ if(dd<c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(c.vx-car.vx,c.vy-car.vy);if(rel>35){R.cd=2.4;R.back=2;ST.rams=(ST.rams||0)+1;flash(L(R.ramMsg||'Рин толкнула!'),.9);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}
  return dd}
 
 // ===== weather: clear / overcast / rain with puddles / wind =====
@@ -5135,6 +5355,355 @@ var _brT=brkRespawn;brkRespawn=function(){var tr=FRAME%60?null:BRKD.filter(funct
 var _edT=emisDraw;emisDraw=function(a){_edT(a);for(var i=0;i<PIECES.length;i++){var q=PIECES[i];if(!q.tlt||q.t>2.6)continue;var on=q.t<.5||((q.t*11)|0)%3!==0;if(!on)continue;var L=17*q.fall*q.fall,x=SX(q.x+Math.cos(q.a)*L),y=SY(q.y+Math.sin(q.a)*L);if(x<-40||y<-40||x>VW+40||y>VH+40)continue;var c=[[61,240,176],[255,210,58],[255,58,58]][q.st|0];gl(x,y,10,10,c,.6+a*.4)}
  for(i=0;i<PIECES.length;i++){var r=PIECES[i];if(!r.tlt||r.t>3.2||Math.random()>.45)continue;var bx=SX(r.bx),by=SY(r.by);if(bx<-30||by<-30||bx>VW+30||by>VH+30)continue;
   gl(bx,by-3,9,9,[150,220,255],.7);cx.globalAlpha=1;cx.fillStyle='#d8f4ff';var px=bx,py=by-1;for(var s=0;s<5;s++){var nx=px+Math.round((Math.random()-.5)*5),ny=py-1-Math.round(Math.random()*2);var dx=nx-px,dy=ny-py,L2=Math.max(Math.abs(dx),Math.abs(dy))||1;for(var k=0;k<=L2;k++)cx.fillRect(Math.round(px+dx*k/L2),Math.round(py+dy*k/L2),1,1);px=nx;py=ny}}};
+
+// ===== chapter 3 «Огни Харуми»: Kir arrives, Hana's parts are stolen, Ryu courts Hana, someone leaks every move to the Shadows =====
+CHAP[3]={t:{ru:'Огни Харуми',en:'Harumi Lights'},tod:{ru:'ночь · порт',en:'night · the port'},goal:{ru:'Вернуть детали Ханы, узнать, кто сливает тебя «Теням», и внести третий взнос',en:'Get Hana’s parts back, find out who leaks your moves to the Shadows, and make the third payment'},pay:5000};
+CHAP[4]={t:{ru:'Призрак',en:'The Ghost'},tod:{ru:'глубокая ночь · перевал Кумо',en:'deep night · Kumo pass'}};
+var PH_W=['Ватанабэ · по рации','Watanabe · on the radio'],PH_R=['Рин · по телефону','Rin · on the phone'],PH_T3=['Тэцу · по телефону','Tetsu · on the phone'],PH_S=['Сидзука · по телефону','Shizuka · on the phone'];
+STORY.push(
+ {id:'d1',ch:3,title:{ru:'Паром из Владика',en:'The ferry from Vladik'},at:'port',type:'deliv',stops:['garage'],reward:200,
+  goal:{ru:'Встреть Кира в порту и отвези в мастерскую',en:'Meet Kir at the port and take him to the garage'},
+  why:{ru:'Кир приплыл из Владивостока. Лучший друг — и худший штурман.',en:'Kir came over from Vladivostok. Best friend, worst navigator.'},
+  pre:[D('kir','Лёха! Восемь часов на пароме, кормили одной рыбой. Обнимашки потом, сначала — где тут нормальная еда?','Lyokha! Eight hours on a ferry and nothing but fish. Hugs later — where’s some real food around here?'),
+       D('lyokha','Сначала мастерская. Покажу тебе Сакуру.','Garage first. I’ll show you Sakura.'),
+       D('kir','Та самая из твоих видео? А девушка из видео где?','The one from your videos? And where’s the girl from the videos?'),
+       D('lyokha','Хана. Она… просто снимает.','Hana. She… just films.'),
+       D('kir','Ага. «Просто». Поехали, водитель.','Sure. “Just”. Let’s go, driver.')],
+  post:[D('kir','Так вот она какая, Сакура. Ты её прямо любишь, да?','So this is Sakura. You really love her, huh?'),
+        D('hana','Лёха! Мою лавку обокрали! Новый турбо для Сакуры, все детали — всё увезли!','Lyokha! My shop was robbed! The new turbo for Sakura, all the parts — gone!',PH_H),
+        D('hana','Соседи видели белый фургон с бульдозером на борту — он только что свернул на вашу улицу! Перехвати!','The neighbours saw a white van with a bulldozer on the side — it just turned onto your street! Cut it off!',PH_H),
+        D('kir','Добро пожаловать в Токио, да?','Welcome to Tokyo, huh?')]},
+ {id:'d2',ch:3,title:{ru:'Фургон',en:'The van'},at:'garage',auto:true,type:'pursuit',via:['hana'],dest:'pad',loop:['port','yd2','yd1','pad'],need:10,limit:80,reward:400,
+  goal:{ru:'Догони фургон и держись рядом 10 секунд — Кир снимет номер',en:'Catch the van and stay close for 10 seconds — Kir will film the plate'},
+  why:{ru:'Фургон с деталями Ханы уходит к докам.',en:'The van with Hana’s parts is heading for the docks.'},
+  pre:[D('kir','Вон он! Белый, с бульдозером! Подъедь поближе, я сниму номер.','There it is! White, with a bulldozer! Get closer, I’ll film the plate.'),
+       D('lyokha','Держись за что-нибудь.','Hold on to something.')],
+  post:[D('kir','Есть номер! Фургон доков Харуми. Хозяин — какой-то Тэцу «Бульдозер».','Got the plate! A Harumi docks van. The owner is some Tetsu “Bulldozer”.'),
+        D('hana','Тэцу?! Его банда держит все доки. Туда просто так не заезжают.','Tetsu?! His gang runs all the docks. Nobody just drives in there.',PH_H),
+        D('lyokha','Значит, заедем не просто так.','Then we won’t “just” drive in.')],
+  fail:[D('kir','Ушёл… Давай ещё раз. Я в этот раз не буду жевать.','It got away… Let’s go again. I won’t be chewing this time.')],timeout:'фургон ушёл в доки'},
+ {id:'d3',ch:3,title:{ru:'Без царапин',en:'Not a scratch'},at:'pad',type:'deliv',stops:['crane'],clean:1,limit:70,reward:450,
+  goal:{ru:'Проедь доки до старого крана и ничего не задень',en:'Drive through the docks to the old crane without touching anything'},
+  why:{ru:'Тэцу отдаст половину деталей, если ты проедешь его доки без единой царапины.',en:'Tetsu will give back half the parts if you get through his docks without a scratch.'},
+  pre:[D('tetsu','Ты пьяный, что ли? Так въезжать в мои доки.','Are you drunk? Driving into my docks like that.'),
+       D('lyokha','Это стиль такой. Где детали Ханы?','It’s a style. Where are Hana’s parts?'),
+       D('tetsu','Детали теперь мои. Хочешь половину — проедь до старого крана в порту и ничего не задень.','The parts are mine now. Want half? Drive to the old crane at the port and don’t touch a thing.'),
+       D('tetsu','Ни машину, ни столб, ни ящик. Тронешь — уйдёшь пешком.','Not a car, not a pole, not a crate. Touch anything and you walk home.')],
+  post:[D('tetsu','Хм. Ни царапины. Держи половину.','Hm. Not a scratch. Here’s half.'),
+        D('lyokha','Кто тебе их заказал?','Who ordered them?'),
+        D('tetsu','Конверт принёс курьер. Денег много, имени нет. Только пах дорогим одеколоном. Как в Неон-тауэре.','A courier brought an envelope. Lots of money, no name. It just smelled of expensive cologne. Like in Neon Tower.'),
+        D('kir','Одеколон. Отличная улика, Шерлок.','Cologne. Great clue, Sherlock.')],
+  fail:[D('tetsu','Задел. Вали. Приходи, когда научишься ездить.','You touched it. Get lost. Come back when you can drive.')]},
+ {id:'d4',ch:3,title:{ru:'Двое на Вангане',en:'Two on the Wangan'},at:'wgs',type:'coop',zone:'wg',reward:450,
+  goal:{ru:'Проедь Ванган вместе с Киром: финишируйте с разницей не больше 10 секунд',en:'Drive the Wangan with Kir: finish no more than 10 seconds apart'},
+  why:{ru:'Тэцу продал Киру старую «восемьдесят шестую». Пора показать ему ночной Токио.',en:'Tetsu sold Kir an old “eighty-six”. Time to show him Tokyo at night.'},
+  pre:[D('kir','Тэцу отдал мне свою старую «восемьдесят шестую». Почти без ржавчины!','Tetsu let me have his old “eighty-six”. Hardly any rust!'),
+       D('lyokha','Ванган. Едем рядом, не отставай.','The Wangan. We ride together, keep up.'),
+       D('kir','Это ты не отставай.','You keep up.')],
+  post:[D('kir','Видел чёрную машину сзади? Всю дорогу висела. С эмблемой — тень какая-то.','Did you see the black car behind us? It hung there the whole way. With a logo — some kind of shadow.'),
+        D('lyokha','«Тени». Сидзука про них говорила.','The Shadows. Shizuka told me about them.'),
+        D('kir','Кто-то знает, где ты бываешь, брат. Слишком хорошо знает.','Someone knows where you go, bro. Knows it too well.')],
+  fail:[D('kir','Ты меня бросил! Я чуть в отбойник не уехал.','You ditched me! I nearly went into the barrier.')]},
+ {id:'d5',ch:3,title:{ru:'Незнакомец',en:'The stranger'},at:'scramble',type:'duel',zone:'scr',rival:'ryu',rate:1.15,reward:500,
+  goal:{ru:'Набери на Скрамбле больше очков, чем Рю, за 45 секунд',en:'Outscore Ryu at the Scramble in 45 seconds'},
+  why:{ru:'Возле Ханы появился Рю. Красивый, богатый — и всё время рядом с ней.',en:'Ryu has turned up next to Hana. Handsome, rich — and always close to her.'},
+  pre:[D('hana','Лёха, знакомься, это Рю. Он хочет спонсировать мой канал. И предлагает магазин в Неон-тауэре…','Lyokha, meet Ryu. He wants to sponsor my channel. And he’s offering me a shop in Neon Tower…'),
+       D('ryu','Наслышан о «пьяном стиле». Хана говорит, ты лучший в городе. Проверим?','I’ve heard about the “drunken style”. Hana says you’re the best in town. Shall we check?'),
+       D('lyokha','(Почему он стоит так близко к ней?)','(Why is he standing so close to her?)',LYO_T),
+       D('kir','Брат, это называется ревность.','Bro, that’s called jealousy.'),
+       D('ryu','Скрамбл, 45 секунд. Хана снимает нас обоих. Держись рядом — в кадр попадают только близкие.','The Scramble, 45 seconds. Hana films us both. Stay close — only those near me get in the shot.')],
+  post:[D('ryu','Неплохо. Для любителя.','Not bad. For an amateur.'),
+        D('hana','Ты сегодня какой-то злой.','You’re kind of angry today.'),
+        D('lyokha','Я? Нормальный я.','Me? I’m fine.'),
+        D('ryu','Хана, моё предложение в силе. Подумай.','Hana, my offer stands. Think about it.')],
+  fail:[D('ryu','Красивый стиль. Только мимо. Хана, поедем, покажу магазин.','A pretty style. Just off target. Hana, come on, I’ll show you the shop.')]},
+ {id:'d6',ch:3,title:{ru:'Анонимный звонок',en:'An anonymous call'},at:'scramble',auto:true,type:'police',limit:60,reward:400,
+  goal:{ru:'Уйди от полиции: оторвись или скройся у неё из виду',en:'Lose the police: get away or get out of their sight'},
+  why:{ru:'Кто-то вызвал полицию прямо на заезд.',en:'Someone called the police right onto the run.'},
+  pre:[D('watanabe','Белая Сакура, говорит полиция Токио. Немедленно остановитесь.','White Sakura, this is the Tokyo police. Stop immediately.',PH_W),
+       D('kir','Кто их вызвал?! Мы же только закончили!','Who called them?! We just finished!'),
+       D('lyokha','Держись крепче.','Hold on tight.')],
+  post:[D('watanabe','Белая Сакура… Потерял. Совсем потерял. Какая жалость.','White Sakura… Lost him. Completely lost him. What a pity.',PH_W),
+        D('watanabe','(тише) Звонок был анонимный. Из автомата у Скрамбла. Береги себя, парень.','(quieter) The call was anonymous. From a payphone at the Scramble. Take care, kid.',PH_W),
+        D('kir','Он что, нам сейчас подмигнул?','Did he just wink at us?')],
+  fail:[D('watanabe','Попался. На первый раз — штраф и лекция о вреде заносов. Езжай домой, гонщик.','Gotcha. First time: a fine and a lecture on the dangers of drifting. Go home, racer.')]},
+ {id:'d7',ch:3,title:{ru:'Ночь фейерверков',en:'Fireworks night'},at:'garage',type:'choice',reward:0,
+  goal:{ru:'Выбери, с кем провести ночь фейерверков',en:'Choose who to spend fireworks night with'},
+  why:{ru:'У колеса обозрения фестиваль. Хана молчит с того вечера. А Рин звонит уже третий раз.',en:'There’s a festival at the Ferris wheel. Hana has been quiet since that evening. And Rin has called three times.'},
+  pre:[D('kir','Сегодня фейерверки у колеса обозрения. Весь город там будет.','Fireworks at the Ferris wheel tonight. The whole city will be there.'),
+       D('rin','Ёппарай. Ночной тандем по Вангану под салютом. Дважды не зову.','Yopparai. A night tandem on the Wangan under the fireworks. I don’t ask twice.',PH_R),
+       D('lyokha','(А Хана… после Рю почти не звонит.)','(And Hana… she’s barely called since Ryu.)',LYO_T),
+       D('kir','Ну? Кого зовёшь?','So? Who are you asking?')],
+  choices:[{v:'hana',ru:'Позвать Хану на колесо обозрения',en:'Take Hana to the Ferris wheel'},{v:'rin',ru:'Тандем с Рин под салютом',en:'Tandem with Rin under the fireworks'}],post:[]},
+ {id:'d7h',ch:3,only:'hana',title:{ru:'Колесо обозрения',en:'The Ferris wheel'},at:'hana',type:'deliv',stops:['wheel'],clean:3,limit:60,fw:1,reward:300,
+  goal:{ru:'Довези Хану до колеса обозрения до главного залпа. Три удара — и она выйдет',en:'Get Hana to the Ferris wheel before the big finale. Three hits and she gets out'},
+  why:{ru:'Ты позвал Хану. Не опоздай — и не тряси, она в платье.',en:'You asked Hana. Don’t be late — and no shaking, she’s in a dress.'},
+  pre:[D('hana','Ты правда меня зовёшь? Не Рю, не камера — просто ты?','You’re really asking me? Not Ryu, not the camera — just you?'),
+       D('lyokha','Просто я.','Just me.'),
+       D('hana','…Ладно. Колесо обозрения, до главного залпа. И не тряси, я в платье.','…Fine. The Ferris wheel, before the big finale. And no shaking, I’m in a dress.')],
+  post:[D('hana','Смотри, начинается!','Look, it’s starting!'),
+        D('hana','Лёха… Я отказала Рю. Магазин, спонсорство — всё.','Lyokha… I turned Ryu down. The shop, the sponsorship — all of it.'),
+        D('lyokha','Почему?','Why?'),
+        D('hana','Он ни разу не спросил, чего хочу я. А ты спросил.','He never once asked what I want. You did.'),
+        D('lyokha','Хана, я…','Hana, I…'),
+        D('hana','Тихо. Салют пропустишь.','Shh. You’ll miss the fireworks.'),
+        D('shizuka','Алексей, это Сидзука. Рю — сын Кагэямы. Подумала, тебе стоит знать.','Alexei, it’s Shizuka. Ryu is Kageyama’s son. I thought you should know.',PH_S),
+        D('hana','Сын Кагэямы?.. Так вот зачем ему мой магазин рядом с твоей мастерской.','Kageyama’s son?.. So that’s why he wanted my shop next to your garage.')],
+  fail:[D('hana','Ай! Всё, я выхожу. Салют посмотрю с берега. Одна.','Ow! That’s it, I’m getting out. I’ll watch the fireworks from the shore. Alone.')]},
+ {id:'d7r',ch:3,only:'rin',title:{ru:'Тандем под салютом',en:'Tandem under the fireworks'},at:'wgs',type:'tandem',zone:'wg',leader:'rin',fw:1,reward:300,
+  goal:{ru:'Держись за Рин на Вангане под фейерверками',en:'Stay on Rin’s tail on the Wangan under the fireworks'},
+  why:{ru:'Рин позвала на ночной тандем. Отказывать ей опасно.',en:'Rin asked you to a night tandem. Saying no to her is dangerous.'},
+  pre:[D('rin','Пришёл всё-таки. Держись за мной. Ближе.','You came after all. Stay behind me. Closer.'),
+       D('lyokha','Ты всегда так зовёшь на свидание?','Is this how you always ask someone out?'),
+       D('rin','Это не свидание. Это тандем.','It’s not a date. It’s a tandem.')],
+  post:[D('rin','…Ты хорошо держишься. Слушай. Нас с сестрой нанимал Кагэяма. Чтобы выжить Рэйко с перевала.','…You hold on well. Listen. Kageyama hired my sister and me. To push Reiko off the pass.'),
+        D('rin','А Рю, который крутится возле твоей Ханы, — его сын.','And Ryu, the one hanging around your Hana, is his son.'),
+        D('lyokha','Сын Кагэямы…','Kageyama’s son…'),
+        D('hana','Красивый салют, Лёха? Я видела вас на Вангане. Вдвоём.','Pretty fireworks, Lyokha? I saw you two on the Wangan. Together.',PH_H),
+        D('lyokha','Хана, это не то, что…','Hana, it’s not what…'),
+        D('hana','Мне всё равно. Правда.','I don’t care. Really.',PH_H)],
+  fail:[D('rin','Отстал. Скучно с тобой, ёппарай.','You fell behind. You’re boring, yopparai.')]},
+ {id:'d8',ch:3,title:{ru:'Записка №2',en:'Note #2'},at:'port',type:'deliv',stops:['crane'],reward:0,
+  goal:{ru:'Найди тайник Миши под старым краном в порту',en:'Find Misha’s stash under the old crane at the port'},
+  why:{ru:'Тэцу вспомнил: двенадцать лет назад Миша что-то прятал под старым краном.',en:'Tetsu remembered: twelve years ago Misha hid something under the old crane.'},
+  pre:[D('tetsu','Эй, пьяный. Твой дядя тут гонял лет двенадцать назад. Под старым краном у него был тайник.','Hey, drunk. Your uncle raced here about twelve years ago. He had a stash under the old crane.',PH_T3),
+       D('lyokha','Откуда ты знаешь?','How do you know?'),D('tetsu','Я тогда был пацаном и подметал доки. Он дал мне сто иен, чтобы я молчал.','I was a kid sweeping the docks back then. He gave me a hundred yen to keep quiet.',PH_T3)],
+  post:[D('misha','«По Харуми я гонял с Куродой. Он знает, что было на Кумо. Найдёшь его — скажи, что я не злюсь».','“I raced Harumi with Kuroda. He knows what happened on Kumo. If you find him, tell him I’m not angry.”',NOTE),
+        D('lyokha','Курода… Ещё одно имя.','Kuroda… Another name.'),
+        D('kir','И ещё одно: Гэн звонил. В полночь гонка на Вангане. Пять машин, призовые — две с половиной тысячи.','And another one: Gen called. A race on the Wangan at midnight. Five cars, the prize is two and a half thousand.'),
+        D('lyokha','Половина взноса. Совпадение?','Half the payment. A coincidence?'),
+        D('kir','В этом городе — нет.','Not in this city.')]},
+ {id:'d9',ch:3,title:{ru:'Полночь на Вангане',en:'Midnight on the Wangan'},at:'wgs',type:'race5',zone:'wg',reward:2500,
+  goal:{ru:'Гонка пятерых: приди первым на Вангане',en:'A five-car race: finish first on the Wangan'},
+  why:{ru:'Подпольную гонку собрал Гэн. Призовые — половина взноса.',en:'Gen put together an underground race. The prize is half the payment.'},
+  pre:[D('gen','Дамы и господа! Полночь, Ванган, пять машин! Король Скрамбла, Рин Мори, Тэцу «Бульдозер»…','Ladies and gentlemen! Midnight, the Wangan, five cars! The Scramble King, Rin Mori, Tetsu “Bulldozer”…'),
+       D('gen','…и гость из «Теней» — Сэйдзи «Линия»!','…and a guest from the Shadows — Seiji “The Line”!'),
+       D('seiji','Твоя траектория — шум. Я еду по сигналу.','Your line is noise. I drive by the signal.'),
+       D('tetsu','А я еду по тем, кто мешает.','And I drive over whoever gets in the way.'),
+       D('rin','Не тормози, ёппарай.','Don’t brake, yopparai.'),
+       D('kir','Лёха, смотри за Гэном. Он сегодня какой-то слишком довольный.','Lyokha, watch Gen. He’s way too pleased with himself tonight.',PH_K)],
+  post:[D('gen','Ну… поздравляю. Ты опять король.','Well… congratulations. You’re king again.'),
+        D('tetsu','Гэн, ты всю гонку прикрывал этого из «Теней». Я видел.','Gen, you covered for that Shadows guy the whole race. I saw it.'),
+        D('gen','Что? Я… просто ехал своей линией!','What? I… was just driving my line!'),
+        D('seiji','Погрешность в расчётах. Пересчитаю.','An error in the calculations. I’ll recalculate.'),
+        D('rin','Неплохо, ёппарай.','Not bad, yopparai.')],
+  fail:[D('seiji','Предсказуемо.','Predictable.'),D('gen','Корона снова моя! Ха!','The crown is mine again! Ha!')]},
+ {id:'d10',ch:3,title:{ru:'Бульдозер',en:'The Bulldozer'},at:'pad',type:'srace',route:['pad','yd1','yd2','crane'],limit:90,reward:3000,boss:'tetsu',
+  goal:{ru:'Гонка по докам против Тэцу и трёх «Бульдозеров»: приди первым',en:'A race through the docks against Tetsu and three Bulldozers: finish first'},
+  why:{ru:'Обгонишь Тэцу в его доках — он отдаст все детали и назовёт имя заказчика.',en:'Beat Tetsu in his own docks and he gives back all the parts and names whoever paid him.'},
+  pre:[D('tetsu','Ты обогнал меня на Вангане. В моих доках так не выйдет.','You beat me on the Wangan. It won’t work in my docks.'),
+       D('tetsu','Я и трое моих «Бульдозеров». Финиш — у старого крана. Обгонишь — отдам всё. И назову имя.','Me and three of my Bulldozers. The finish is at the old crane. Beat me and I give everything back. And name the name.'),
+       D('kir','Заманивай их в стены и контейнеры. Тэцу тяжёлый — после удара секунды три в себя приходит.','Lure them into walls and containers. Tetsu is heavy — after a crash he needs about three seconds to come round.',PH_K),
+       D('lyokha','Понял.','Got it.')],
+  post:function(){var h=S.story.pick!=='rin';return [D('tetsu','…Ладно. Ты не боишься. Это я уважаю.','…Fine. You’re not afraid. I respect that.'),
+        D('tetsu','Детали Ханы — все. И имя. Конверт мне передал Гэн.','All of Hana’s parts. And the name. Gen gave me the envelope.'),
+        D('lyokha','Гэн?!','Gen?!'),
+        D('tetsu','Рю пообещал вернуть ему корону Скрамбла. И деньги. Твой король продал тебя, пьяный.','Ryu promised to give him back the Scramble crown. And money. Your king sold you out, drunk.'),
+        D('tetsu','И ещё. Громилу мою видел? Отдам за полцены. Заходи.','One more thing. Seen my Brute? I’ll sell it at half price. Drop by.'),
+        D('hana','Лёха! Ты цел? Я всё видела.','Lyokha! Are you okay? I saw everything.')].concat(h?
+        [D('hana','(целует в щёку) Это за детали. Не придумывай.','(kisses him on the cheek) That’s for the parts. Don’t get ideas.'),D('kir','Я ничего не видел. Совсем ничего.','I saw nothing. Nothing at all.')]:
+        [D('hana','Это за детали. Спасибо.','That’s for the parts. Thank you.'),D('hana','А про Рин мы ещё поговорим.','And we’ll still talk about Rin.'),D('kir','Брат, ты попал.','Bro, you’re in trouble.')])},
+  fail:[D('tetsu','В доках правит Бульдозер. Приходи, когда отрастишь броню.','The Bulldozer rules the docks. Come back when you’ve grown some armour.')]},
+ {id:'d11',ch:3,title:{ru:'Третий взнос',en:'Third payment'},at:'bank',type:'pay',amount:5000,reward:0,
+  goal:{ru:'Внеси третий взнос — 5 000 ¥',en:'Make the third payment — 5,000 ¥'},
+  why:{ru:'Детали у Ханы, имя предателя известно. Осталось заплатить.',en:'Hana has her parts, you know the traitor’s name. Now pay.'},
+  short:[D('okada','Пять тысяч, Алексей-сан. Не хватает? Я подожду. Но теперь ждёт не только банк.','Five thousand, Alexei-san. Not enough? I’ll wait. But it’s not only the bank waiting now.'),
+         D('lyokha','Подкалымлю на заездах и вернусь.','I’ll earn a bit on the runs and come back.',LYO_T)],
+  pre:[D('gen','Лёха, подожди! Да, это был я. Рю обещал вернуть мне Скрамбл. Я… завидовал.','Lyokha, wait! Yes, it was me. Ryu promised to give me back the Scramble. I… was jealous.'),
+       D('gen','Я всё исправлю. Клянусь короной.','I’ll make it right. I swear on the crown.'),
+       D('lyokha','Корону, Гэн, не продают. Ни за деньги, ни за обещания.','A crown isn’t for sale, Gen. Not for money, not for promises.'),
+       D('okada','Пять тысяч. Восхитительно, Алексей-сан. Осталось двадцать.','Five thousand. Delightful, Alexei-san. Twenty left.'),
+       D('okada','Но есть новость. Ваш долг выкуплен. Целиком.','But there’s news. Your debt has been bought. All of it.'),
+       D('lyokha','Кем?','By whom?'),
+       D('okada','Господином Кагэямой. Теперь вы должны ему.','By Mr. Kageyama. Now you owe him.'),
+       D('okada','(тише) Лично я ставлю на вас, Алексей-сан. Не подведите.','(quieter) Personally, I’m betting on you, Alexei-san. Don’t let me down.'),
+       D('kir','Лёха, я починил видик! Кассета «12 лет назад» — смотри.','Lyokha, I fixed the VCR! The “12 years ago” tape — look.',PH_K),
+       D('lyokha','Перевал… ночь… и машина без фар. Совсем без света.','A pass… night… and a car with no lights. No light at all.',LYO_T),
+       D('kir','Это Кумо. Местные говорят, там до сих пор кто-то ездит в темноте.','That’s Kumo. Locals say someone still drives there in the dark.',PH_K),
+       D('lyokha','Значит, едем на Кумо.','Then we’re going to Kumo.')],
+  post:[],chapterEnd:3,next:{ru:'Найди машину без фар на перевале Кумо',en:'Find the car with no lights on the Kumo pass'}}
+);
+// ---- places for chapter 3
+var _spC3=stPlaces;stPlaces=function(){var P=_spC3();if(P.crane)return P;
+ var Y=SPEC.filter(function(s){return s.k==='yard'}),pt=P.port,pd=P.pad.g||P.pad;function c(s){return{x:s.x+s.w/2,y:s.y+s.h/2}}
+ Y.sort(function(a,b){var A=c(a),B=c(b);return Math.hypot(wd(A.x,pt.x),wd(A.y,pt.y))-Math.hypot(wd(B.x,pt.x),wd(B.y,pt.y))});
+ var y0=Y[0],cr=null;if(y0){[[.85,.2],[.15,.2],[.85,.8],[.15,.8]].some(function(f){var q=stSnapNear(y0,{f:{x:y0.x+y0.w*f[0],y:y0.y+y0.h*f[1]}});if(q&&Math.hypot(wd(q.x,pt.x),wd(q.y,pt.y))>220){cr=q;return true}return false})}
+ P.crane=cr||stSnapWide({x:pt.x+260,y:pt.y});
+ // the far yard (a detour for the docks race), the Wangan start
+ var far=null,fd=0;Y.forEach(function(s){var q=c(s),d=Math.hypot(wd(q.x,pd.x),wd(q.y,pd.y));if(d>fd&&d<4200){fd=d;far=s}});P.yardfar=far?(stSnapNear(far,{f:c(far)})||stSnapWide(c(far))):P.port;
+ // the two yards nearest the pad: the docks race loops through them
+ var byPad=Y.slice().sort(function(a,b){var A=c(a),B=c(b);return Math.hypot(wd(A.x,pd.x),wd(A.y,pd.y))-Math.hypot(wd(B.x,pd.x),wd(B.y,pd.y))});
+ function yd(s){return s?(stSnapNear(s,{f:c(s)})||stSnapWide(c(s))):{x:P.port.x,y:P.port.y}}P.yd1=yd(byPad[0]);P.yd2=yd(byPad[1]);
+ var wz=stZone('wg');P.wgs={x:wz.x,y:wz.y};
+ P.crane.name={ru:'Старый кран',en:'The old crane'};P.yardfar.name={ru:'Дальний склад',en:'The far yard'};P.yd1.name={ru:'Склад у площадки',en:'The pad-side yard'};P.yd2.name={ru:'Южный склад',en:'The south yard'};P.wgs.name={ru:'Ванган',en:'The Wangan'};return P};
+// ---- the choice (fireworks night)
+function stChoice(m){ST.prompt='choice';var e=$('sq'),q='<div class="zk">'+L('СЮЖЕТ')+' · '+chLbl(m.ch)+'</div><div class="zn">'+stEsc(LT(m.title))+'</div><div class="zi">'+stEsc(LT(m.goal))+'</div><div class="zch">';
+ m.choices.forEach(function(o){q+='<button data-st="pick" data-v="'+o.v+'">'+stEsc(LT(o))+'</button>'});e.innerHTML=q+'</div>';e.classList.add('on')}
+(function(){var st=document.createElement('style');st.textContent='#sq .zch{display:flex;flex-direction:column;gap:6px;margin-top:8px}#sq .zch button{border:0;padding:8px 7px;font-size:13px;line-height:1.2;font-weight:900;text-align:left;background:var(--pk);color:#2a0d1c;box-shadow:3px 3px 0 var(--pk2)}#sq .zch button+button{background:#ff4d6d;box-shadow:3px 3px 0 #8a1c34}';document.head.appendChild(st)})();
+document.addEventListener('click',function(e){var b=e.target.closest('[data-st=pick]');if(!b)return;var m=ST.act;if(!m||m.type!=='choice')return;S.story.pick=b.dataset.v;save();ST.prompt=false;$('sq').classList.remove('on');stDone(true)});
+// ---- spawners
+function c3Riv(o){var R=rivMake(o);R.sk=R.sk0=o.sk||.8;if(o.l){R.c.l=o.l;R.l=o.l}return R}
+function c3Lane(z,k,dir){return laneU(z.road,dir==null?1:dir,k)}
+function c3CourseRiv(z,o){var R=stRivCourse(z,o);R.c.l=z.l|0;R.l=z.l|0;return R}
+var C3R={gen:{id:'gen',name:'Гэн',tag:'#ffd23a',car:2,col:6,str:0,glow:1},rin:{id:'rin',name:'Рин',tag:'#ff4d6d',car:1,col:1,str:1,glow:1},tetsu:{id:'tetsu',name:'Тэцу',tag:'#ff8a3d',car:1,col:7,str:1,glow:0},
+ seiji:{id:'seiji',name:'Сэйдзи',tag:'#35e0ff',car:9,col:6,str:4,glow:4},kir:{id:'kir',name:'Кир',tag:'#b8f0c0',car:4,col:0,str:1,glow:0},shadow:{id:'shadow',name:'???',tag:'#8a90a4',car:9,col:6,str:4,glow:4},
+ ryu:{id:'ryu',name:'Рю',tag:'#e8ecf4',car:12,col:6,str:2,glow:2},cop:{id:'cop',name:'Ватанабэ',tag:'#6ab0ff',car:0,col:0,str:1,glow:0},van:{id:'van',name:'Фургон',tag:'#f4f4f4',car:6,col:0,str:1,glow:0}};
+// rival pace = a share q of YOUR car (top speed and power, any car, any upgrades); the rubber band then scales the rival's engine
+function c3Pace(R,q,sk){var Q=car.P,P=R.c.P;R.V0=Q.vmax*q;P.vmax=R.V0;P.pw=Q.pw*q;P.grip=Math.max(P.grip,Q.grip);P.turn=Math.max(P.turn,Q.turn);P.dturn=Math.max(P.dturn,Q.dturn);R.V=R.V0;R.sk=R.sk0=sk||1.3;R.vmax=Q.vmax*1.25;return R}
+function c3Band(R,f){R.c.P.vmax=R.V0*f}
+// where a rival is along its path (the ram attack skips the autopilot, which normally keeps this up to date)
+function c3Proj(r){var c=r.c,P=r.pts,n=P.length,best=1e18,bi=r.pi,bt=0;for(var k=-3;k<60;k++){var i=r.pi+k;if(i<0||i>=n-1)continue;var p0=P[i],p1=P[i+1],ex=wd(p1[0],p0[0]),ey=wd(p1[1],p0[1]),l2=ex*ex+ey*ey||1,dx=wd(c.x,p0[0]),dy=wd(c.y,p0[1]),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=qx*qx+qy*qy;if(d<best){best=d;bi=i;bt=t}}r.pi=bi;r.P=r.cum[bi]+(r.cum[bi+1]-r.cum[bi])*bt}
+var C3P={race5:{seiji:.96,gen:.92,rin:.95,tetsu:.945},coop:{kir:.98,shadow:.98},srace:{tetsu:.96,b1:.93,b2:.92,b3:.91}};
+var C3FIN={seiji:'Сэйдзи первый на финише',gen:'Гэн первый на финише',rin:'Рин первая на финише',tetsu:'Тэцу первый на финише'};
+function c3o(k,x){var o={},b=C3R[k];for(var q in b)o[q]=b[q];for(q in x)o[q]=x[q];return o}
+function c3Spawn(m){var z=m.zone&&stZone(m.zone);
+ var pc=C3P[m.type]||{};
+ if(m.type==='coop'){var u0=c3Lane(z,0),u1=c3Lane(z,1);c3Pace(c3CourseRiv(z,c3o('kir',{s:z.s0,u:u1,vmax:430})),pc.kir);var S0=c3Pace(c3CourseRiv(z,c3o('shadow',{s:Math.max(z.s0-300,(z.road.za||0)+20),u:u0,vmax:430,drift:0})),pc.shadow);S0.follow=1;ST.kirFin=0;return}
+ if(m.type==='tandem'&&m.leader==='rin'){var R=c3CourseRiv(z,c3o('rin',{s:z.s0+95,u:c3Lane(z,0),vmax:400,sk:.9}));R.sk0=.9;return}
+ if(m.type==='race5'){var a=c3Lane(z,0),b=c3Lane(z,1),s0=z.s0;
+  // staggered grid (Seiji on pole, Gen ahead in the other lane, Rin beside you, Tetsu right behind): there is always a lane to go for
+  c3Pace(c3CourseRiv(z,c3o('seiji',{s:s0+130,u:a,vmax:470,drift:0})),pc.seiji);var G=c3Pace(c3CourseRiv(z,c3o('gen',{s:s0+70,u:b,vmax:450})),pc.gen);G.block=1;
+  c3Pace(c3CourseRiv(z,c3o('rin',{s:Math.max(s0-45,(z.road.za||0)+10),u:b,vmax:450})),pc.rin);var T=c3Pace(c3CourseRiv(z,c3o('tetsu',{s:Math.max(s0-70,(z.road.za||0)+10),u:a,vmax:440})),pc.tetsu);T.ram=1;return}
+ if(m.type==='duel'&&m.rival==='ryu'){var Rr=clamp(z.r*.5,55,100),pts=[];for(var i=0;i<36;i++){var an=-i/36*TAU;pts.push([z.x+Math.cos(an)*Rr,z.y+Math.sin(an)*Rr])}
+  rivMake(c3o('ryu',{x:z.x+Rr,y:z.y,a:-Math.PI/2,pts:pts,loop:true,vmax:250,wait:true}));ST.gen=0;ST.photo=0;return}}
+// ---- start of each new mission type
+var _smC3=stMain;stMain=function(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;ST.hid=0;ST.pin=0;ST.rams=0;ST.pg=0;ST.ctouch=0;ST.cmax=0;ST.cbrk=0;ST.ccd=0;ST.kirFin=0;ST.rte=null;ST.cd=0;
+ if(m.type==='choice'){ST.t=0;stChoice(m);return}
+ if(m.type==='pursuit'){ST.t=0;ST.prog=0;ST.far=0;var pts=[],fx=car.x,fy=car.y,way=(m.via||[]).concat([m.dest]);for(var w=0;w<way.length;w++){var d=stPlace(way[w]),dq=d.g||d,pp=gpsPathFrom(fx,fy,dq.x,dq.y);if(!pp){ST.act=null;return}if(pts.length)pp=pp.slice(1);pts=pts.concat(pp);fx=dq.x;fy=dq.y}
+  var cum=0,k=1;for(;k<pts.length;k++){cum+=Math.hypot(wd(pts[k][0],pts[k-1][0]),wd(pts[k][1],pts[k-1][1]));if(cum>150)break}
+  var P0=pts[Math.min(k,pts.length-2)],P1=pts[Math.min(k+1,pts.length-1)];var V=rivMake(c3o('van',{x:P0[0],y:P0[1],a:Math.atan2(wd(P1[1],P0[1]),wd(P1[0],P0[0])),pts:pts.slice(k),loop:false,vmax:300,wait:true,drift:0}));V.sk=.88;V.go=0;WP=null;return}
+ if(m.type==='police'){ST.t=0;ST.esc=0;ST.hid=0;ST.pin=0;WP=null;stSpawnRin();var C=RIV[RIV.length-1];var o=C3R.cop;C.id=o.id;C.name=o.name;C.col=o.tag;C.car=o.car;C.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);C.siren=1;C.ramMsg='Ватанабэ толкнул!';return}
+ if(m.type==='srace'){ST.t=0;ST.cd=3.2;ST.cdn=4;ST.fin=0;var pts2=[],ends=[];for(var i=0;i<m.route.length-1;i++){var A=stPlace(m.route[i]),B=stPlace(m.route[i+1]),Aq=A.g||A,Bq=B.g||B,p=gpsPathFrom(Aq.x,Aq.y,Bq.x,Bq.y);if(!p){ST.act=null;return}if(pts2.length)p=p.slice(1);pts2=pts2.concat(p);ends.push(pts2.length-1)}
+  var cm=[0];for(i=1;i<pts2.length;i++)cm.push(cm[i-1]+Math.hypot(wd(pts2[i][0],pts2[i-1][0]),wd(pts2[i][1],pts2[i-1][1])));
+  ST.rte={pts:pts2,cum:cm,L:cm[cm.length-1],i:0,s:0,ci:0,cp:ends.map(function(e,j){return{k:m.route[j+1],i:e,s:cm[e],x:pts2[e][0],y:pts2[e][1]}})};
+  function at(s){var j=0;while(j<cm.length-2&&cm[j+1]<s)j++;var t=(s-cm[j])/((cm[j+1]-cm[j])||1),a=pts2[j],b=pts2[j+1];return[a[0]+wd(b[0],a[0])*t,a[1]+wd(b[1],a[1])*t,Math.atan2(wd(b[1],a[1]),wd(b[0],a[0]))]}
+  // the grid goes on the first straight stretch (not in the gate lane or a turn)
+  var g0=120;for(var sg=120;sg<Math.min(1500,cm[cm.length-1]-400);sg+=10){var h0=at(sg)[2],ok=true;for(var q=20;q<=280&&ok;q+=20)if(Math.abs(angd(at(sg+q)[2],h0))>.3)ok=false;if(ok){g0=sg;break}}
+  var st=at(g0+40);car.x=st[0];car.y=st[1];car.a=st[2];car.vx=car.vy=car.w=0;car.l=0;car.dr=false;cam.x=car.x;cam.y=car.y;cam.a=car.a;ST.sx=car.x;ST.sy=car.y;ST.sa=car.a;preload();
+  // grid: the player starts at the back row with Tetsu; the gang is spread ahead
+  [['tetsu',0,0,1],['b1',90,0,0],['b2',140,0,0],['b3',190,0,0]].forEach(function(q){var g=at(g0+q[1]),nx=-Math.sin(g[2]),ny=Math.cos(g[2]),off=q[2];
+   var o=q[0]==='tetsu'?c3o('tetsu',{}):{id:q[0],name:'Бульдозер',tag:'#ffd23a',car:q[0]==='b1'?10:q[0]==='b2'?6:1,col:3,str:1,glow:0};
+   o.x=g[0]+nx*off;o.y=g[1]+ny*off;o.a=g[2];o.pts=pts2;o.loop=false;o.vmax=430;o.wait=true;o.drift=q[3];var R=c3Pace(c3Riv(o),C3P.srace[q[0]],1.12);R.ram=1;R.s0=0});
+  var c0=ST.rte.cp[0];stRoute(c0.x,c0.y);return}
+ _smC3(m);
+ if(isZR(m)&&ST.act===m)c3Spawn(m)};
+// stMain spawns Reiko for every tandem and Gen for every duel: take them out again for the chapter 3 versions
+var _isZRc3=isZR;isZR=function(m){return _isZRc3(m)||(m&&(m.type==='coop'||m.type==='race5'))};
+var _sRk=stSpawnReiko;stSpawnReiko=function(z){var m=ST.act;if(m&&m.leader&&m.leader!=='reiko')return;_sRk(z)};
+var _sGn=stSpawnGen;stSpawnGen=function(z){var m=ST.act;if(m&&m.rival&&m.rival!=='gen')return;_sGn(z)};
+// ---- rival behaviours: Gen blocks, the rammers go for you and get stunned by walls, the shadow car tails you
+function c3Lat(z,x,y,s){var r=z.road;r.pt(zcs(r,s),TMP);return wd(x,TMP[0])*-TMP[3]+wd(y,TMP[1])*TMP[2]}
+var _rivAIc3=rivAI;rivAI=function(r,dt){
+ if(r.stun>0){r.stun-=dt;return{s:0,t:0,b:.35,h:0}}
+ var I=_rivAIc3(r,dt),m=ST.act;
+ if(r.block&&ZS&&m&&m.zone===ZS.z.id&&ZS.ph==='go'){var z=ZS.z,gs=stRoadS(r),ps=ZS.s,gap=gs-ps;
+  r.bt=(r.bt||0)+(r.bon?dt:0);if(r.bon&&r.bt>2.5){r.bon=0;r.boff=TIME+4}
+  z.road.pt(zcs(z.road,gs),TMP);var rd=Math.atan2(TMP[3],TMP[2]),al=Math.abs(angd(r.c.a,rd))<.3&&!r.c.dr&&r.c.sp>150;
+  if(gap>8&&gap<120&&al&&(car.l|0)===(r.l|0)&&TIME>(r.boff||0)){if(!r.bon){r.bon=1;r.bt=0}var lu=c3Lat(z,car.x,car.y,ps);z.road.pt(zcs(z.road,gs+40+r.c.sp*.2),TMP);var tx=TMP[0]-TMP[3]*lu,ty=TMP[1]+TMP[2]*lu,err=angd(Math.atan2(wd(ty,r.c.y),wd(tx,r.c.x)),r.c.a);I.s=clamp(I.s*.3+err*1.4,-.45,.45);
+   if(!r.bmsg||TIME-r.bmsg>7){r.bmsg=TIME;flash(L('Гэн тебя блокирует!'),1)}}}
+ return I};
+function c3Rammers(dt){for(var i=0;i<RIV.length;i++){var R=RIV[i];if(R.wait)continue;
+ // wedged somewhere for a while (and not in front of you): put back on its line
+ R.jam=R.c.sp<25&&!(R.stun>0)?(R.jam||0)+dt:0;
+ if(R.jam>2.2&&(Math.hypot(wd(R.x,car.x),wd(R.y,car.y))>220||R.jam>5)){R.jam=0;var T=[0,0,0];rivAt(R,R.P+40,T);R.c.x=T[0];R.c.y=T[1];R.c.a=T[2];R.c.vx=R.c.vy=R.c.w=0;R.c.dr=false;R.x=T[0];R.y=T[1];R.stuck=0;R.rev=0;R.P+=40}
+ if(R.hm>85&&!(R.stun>0)&&R.ram){R.stun=3;R.hm=0;if(Math.hypot(wd(R.x,car.x),wd(R.y,car.y))<400)flash(L(R.id==='tetsu'?'Тэцу оглушён!':'«Бульдозер» оглушён!'),1)}
+ if(!R.ram)continue;var dd=Math.hypot(wd(car.x,R.c.x),wd(car.y,R.c.y));R.back=(R.back||0)-dt;R.cd=(R.cd||0)-dt;R.hunt=1;R.atk=dd<120&&R.back<=0&&!(R.stun>0)&&(R.c.l|0)===(car.l|0);if(R.atk)c3Proj(R);
+  if(dd<R.c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(R.c.vx-car.vx,R.c.vy-car.vy);if(rel>35){R.cd=2.2;R.back=1.8;flash(L(R.id==='tetsu'?'Тэцу таранит!':'Таран!'),.8);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}}}
+// ---- per-frame logic of the new types
+var _skC3=stKinds;stKinds=function(m,dt){
+ // knocks count once you are on your way (not while pulling out of the start spot)
+ if(m.clean&&!ST.ride&&!ST.arr){var sp0=stPlace(m.at),grace=ST.t<2||(sp0&&Math.hypot(wd(sp0.x,car.x),wd(sp0.y,car.y))<130);var hit=!grace&&(ST.cmax>28||ST.cbrk);ST.cmax=0;ST.cbrk=0;ST.ccd=(ST.ccd||0)-dt;if(hit&&ST.ccd<=0){ST.ccd=.9;ST.ctouch=(ST.ctouch||0)+1;
+   if(ST.ctouch>=m.clean){stDone(false,m.clean>1?'Хана вышла из машины':'задел');return true}flash(L('удар!')+' '+ST.ctouch+'/'+m.clean,1)}}
+ if(m.type==='choice')return true;
+ if(m.type==='pursuit'){var V=RIV[0];if(!V)return false;var dd=Math.hypot(wd(V.x,car.x),wd(V.y,car.y));
+  // it pulls away once you are close (or after a few seconds), then stays catchable: stuck in traffic when you fall far behind
+  if(!V.go&&(dd<230||ST.t>6)){V.go=1;V.wait=false;flash(L('Вон он! Не упусти!'),1.1)}
+  V.vmax=dd<120?280:dd>700?90:dd>480?150:dd>300?200:250;V.sk=dd<120?.88:dd>480?.6:.8;if((V.c.l|0)===(car.l|0)&&dd<135){ST.prog+=dt;if(!ST.pg||ST.prog-ST.pg>=5){ST.pg=Math.floor(ST.prog/5)*5;if(ST.pg>0)popup(L('номер')+' '+Math.round(ST.prog/m.need*100)+'%','mul')}}
+  if(ST.prog>=m.need){V.wait=true;popup(L('Номер снят!'),'big');stDone(true);return true}
+  ST.far=dd>1400?ST.far+dt:0;if(ST.far>6){stDone(false,'потерял фургон');return true}
+  V.jam=V.c.sp<25&&V.go?(V.jam||0)+dt:0;if(V.jam>2.5&&dd>220){V.jam=0;var TJ=[0,0,0];rivAt(V,V.P+40,TJ);V.c.x=TJ[0];V.c.y=TJ[1];V.c.a=TJ[2];V.c.vx=V.c.vy=V.c.w=0;V.x=TJ[0];V.y=TJ[1]}
+  // it never just parks: at the end of its route it doubles back through the docks
+  if(V.L-V.P<70){var lp=m.loop||['port'];ST.vl=(ST.vl||0)+1;var nq=stPlace(lp[ST.vl%lp.length]),ng=nq.g||nq,np=gpsPathFrom(V.x,V.y,ng.x,ng.y);if(np)rivPath(V,np,false)}
+  if(ST.t>m.limit){stDone(false,m.timeout||'время вышло');return true}return false}
+ if(m.type==='police'){var C=RIV[0];if(!C)return false;var d2=stRinUpdate(C,dt);
+  ST.esc=d2>520?ST.esc+dt:0;ST.hid=(C.nolos>0&&d2>260)?(ST.hid||0)+dt:0;if(ST.esc>3||ST.hid>5){popup(L('Оторвался!'),'big');stDone(true);return true}
+  ST.pin=(d2<58&&car.sp<30)?(ST.pin||0)+dt:Math.max(0,(ST.pin||0)-dt*2);if(ST.pin>3){stDone(false,'Ватанабэ тебя прижал');return true}
+  if(ST.t>m.limit){stDone(false,'полиция не отстала');return true}return false}
+ if(m.type==='coop'&&ZS&&ZS.z.id===m.zone){var K=RIV[0],Sh=RIV[1];if(!K)return false;var go=ZS.ph==='go';K.wait=!go;if(Sh)Sh.wait=!go;if(!go)return false;
+  var lead=stRoadS(K)-ZS.s;c3Band(K,clamp(1-lead/350,.5,1.15));K.vmax=lead>260?170:K.V0*1.3;
+  if(Sh){var gap=ZS.s-stRoadS(Sh);c3Band(Sh,clamp(1+(gap-220)/300,.5,1.15));Sh.vmax=gap<120?150:Sh.V0*1.3}
+  if(!ST.kirFin&&stRoadS(K)>=ZS.z.s1)ST.kirFin=TIME;if(ST.kirFin)K.vmax=140;
+  if(ST.kirFin&&TIME-ST.kirFin>10){ST.fail='Кир финишировал без тебя';zoneEnd('time');return true}return false}
+ if(m.type==='race5'&&ZS&&ZS.z.id===m.zone){var ps=ZS.s;c3Rammers(dt);for(var i=0;i<RIV.length;i++){var R=RIV[i];R.wait=ZS.ph!=='go';if(R.wait)continue;var ld=stRoadS(R)-ps;
+   // ahead of you: a touch slower, so a clean driver can pass; behind you: a touch quicker, so they keep the pressure on
+   c3Band(R,ld>0?clamp(.97-ld/3000,.88,.97):clamp(1-ld/1500,1,1.06));if(stRoadS(R)>=ZS.z.s1){ST.fail=C3FIN[R.id]||'соперник первым на финише';zoneEnd('time');return true}}return false}
+ if(m.type==='srace'){var T=ST.rte;if(!T)return false;
+  if(ST.cd>0){ST.cd-=dt;car.vx=car.vy=0;car.w=0;car.x=ST.sx;car.y=ST.sy;car.a=ST.sa;car.dr=false;var n=Math.ceil(ST.cd);if(n<ST.cdn&&n>0){ST.cdn=n;popup(String(n),'big');if(S.snd)try{auTone(660,.06,.15,'square')}catch(e){}}
+   if(ST.cd<=0){popup(L('Вперёд!'),'big');if(S.snd)try{auTone(990,.07,.3,'square')}catch(e){}RIV.forEach(function(R){R.wait=false})}return false}
+  // your progress along the route
+  // (a near window first; if you left the line, look along the next stretch of the route — no skipping ahead)
+  function prj(k0,k1,lim){var bi=-1,bd=1e18,bs=0;for(var k=Math.max(0,k0);k<Math.min(T.pts.length-1,k1);k++){var p0=T.pts[k],p1=T.pts[k+1],ex=wd(p1[0],p0[0]),ey=wd(p1[1],p0[1]),l2=ex*ex+ey*ey||1,dx=wd(car.x,p0[0]),dy=wd(car.y,p0[1]),tt=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*tt,qy=dy-ey*tt,q2=qx*qx+qy*qy,sk=T.cum[k]+Math.sqrt(l2)*tt;if(sk>lim)break;if(q2<bd){bd=q2;bi=k;bs=sk}}return{i:bi,d:Math.sqrt(bd),s:bs}}
+  var pj=prj(T.i-4,T.i+40,1e9);if(pj.d>70){var p2=prj(T.i,T.pts.length,T.s+700);if(p2.d<pj.d)pj=p2}if(pj.d<90){T.i=pj.i;T.s=Math.max(T.s,pj.s)}
+  var cp=T.cp[T.ci];if(T.ci<T.cp.length-1&&(T.s>=cp.s-60||Math.hypot(wd(cp.x,car.x),wd(cp.y,car.y))<75)){T.ci++;T.s=Math.max(T.s,cp.s);T.i=Math.max(T.i,cp.i);popup(LT(stPlace(cp.k).name)+' ✓','mul');var nc=T.cp[T.ci];stRoute(nc.x,nc.y)}
+  else if((!WP||!WP.pts)&&TIME-(ST.rt||0)>1.5)stRoute(cp.x,cp.y);
+  c3Rammers(dt);
+  for(var j=0;j<RIV.length;j++){var Q=RIV[j],ld2=Q.P-T.s;c3Band(Q,clamp(1-ld2/1200,.85,1.1));if(Q.L-Q.P<40){stDone(false,(Q.id==='tetsu'?'Тэцу':'«Бульдозер»')+' первый на финише');return true}}
+  var f=T.pts[T.pts.length-1];if(T.ci===T.cp.length-1&&(T.L-T.s<60||Math.hypot(wd(f[0],car.x),wd(f[1],car.y))<60)){popup(L('первый на финише!'),'big');stDone(true);return true}
+  if(ST.t>m.limit){stDone(false,'не успел к финишу');return true}return false}
+ return _skC3(m,dt)};
+// a clean run counts every knock: walls, cars, poles, anything you break
+var _coC3=collide;collide=function(c){var n=_coC3(c);if(c===car&&ST.act&&ST.act.clean&&COLL.max>(ST.cmax||0))ST.cmax=COLL.max;return n};
+var _bpC3=breakProp;breakProp=function(p,c,ai){if(!ai&&c===car&&ST.act&&ST.act.clean)ST.cbrk=1;_bpC3(p,c,ai)};
+// ---- zone finish for the zone types of this chapter
+var _zeC3=zoneEnd;zoneEnd=function(why){var m=ST.act,z=ZS&&ZS.z;
+ if(!m||!z||m.zone!==z.id||(m.type!=='coop'&&m.type!=='race5'))return _zeC3(why);
+ if(ZS)bank();_zeSt(why);var ok,rs,ln;
+ if(m.type==='coop'){var K=RIV[0],left=K?Math.max(0,z.s1-stRoadS(K)):9e9,kt=ST.kirFin?TIME-ST.kirFin:-left/Math.max(120,K?K.sp:0);
+  ok=why==='fin'&&!ST.fail&&Math.abs(kt)<=10;rs=ST.fail||(why==='off'?'сошёл с трассы':why!=='fin'?'не успел к финишу':'Кир далеко отстал');ln=ok?L('Кир рядом')+' · '+Math.abs(kt).toFixed(1)+' '+L('с'):L(rs)}
+ else{ok=why==='fin'&&!ST.fail;rs=ST.fail||(why==='off'?'сошёл с трассы':'не успел к финишу');ln=ok?L('первый на финише!'):L(rs)}
+ $('zb').style.display='none';stResult(m,ok,ln);stDone(ok,ok?'':rs)};
+// ---- objective HUD
+var _shC3=stHud;stHud=function(){_shC3();var m=ST.act,e=$('sobj');if(!m||!e||!ST.mode||mode!=='game'||ST.ride)return;var t=null,bar=-1;
+ if(m.type==='pursuit'&&RIV[0]){var V=RIV[0];t=L('фургон')+' '+Math.round(Math.hypot(wd(V.x,car.x),wd(V.y,car.y))/4)+' '+L('м')+' · '+L('номер')+' '+Math.min(100,Math.round(ST.prog/m.need*100))+'% · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=ST.prog/m.need}
+ else if(m.type==='police'&&RIV[0]){var C=RIV[0];t=L('полиция')+' '+Math.round(Math.hypot(wd(C.x,car.x),wd(C.y,car.y))/4)+' '+L('м')+(ST.hid>0?' · '+L('потеряли тебя'):C.atk?' · '+L('идёт на таран!'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(Math.max(ST.esc/3,(ST.hid||0)/5),0,1)}
+ else if(m.type==='coop'&&ZS&&RIV[0]){var K=RIV[0];t=L('Кир')+' '+Math.round((stRoadS(K)-ZS.s)/4)+' '+L('м')+' · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
+ else if(m.type==='race5'&&ZS){var pos=1;RIV.forEach(function(R){if(stRoadS(R)>ZS.s)pos++});t=L('место')+' '+pos+'/5 · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
+ else if(m.type==='srace'&&ST.rte){var T=ST.rte,pos2=1;RIV.forEach(function(R){if(R.P>T.s)pos2++});var cq=T.cp[T.ci];t=ST.cd>0?L('старт через')+' '+Math.ceil(ST.cd):L('место')+' '+pos2+'/5 · '+(T.ci<T.cp.length-1?L('через')+' '+LT(stPlace(cq.k).name)+' · ':'')+L('до финиша')+' '+Math.max(0,Math.round((T.L-T.s)/4))+' '+L('м');bar=clamp(T.s/T.L,0,1)}
+ else if(m.type==='choice')t=L('выбери в карточке');
+ if(m.clean&&!ST.arr){var base=e.querySelector('span');var extra=' · '+L('удары')+' '+(ST.ctouch||0)+'/'+m.clean;if(base&&t===null){base.textContent+=extra;return}if(t!==null)t+=extra}
+ if(t===null)return;e.innerHTML='<b>'+stEsc(LT(m.title))+'</b><span>'+stEsc(t)+'</span>'+(bar>=0?'<i><u style="width:'+Math.round(clamp(bar,0,1)*100)+'%"></u></i>':'')};
+var _stC3=stTarget;stTarget=function(){var m=ST.act;if(ST.mode&&m&&!ST.ride){if(m.type==='pursuit'&&RIV[0])return{x:RIV[0].x,y:RIV[0].y};if(m.type==='srace'&&ST.rte){var cq=ST.rte.cp[ST.rte.ci];return{x:cq.x,y:cq.y}}}return _stC3()};
+// ---- police lights and siren
+var _rdC3=rivDraw;rivDraw=function(z){_rdC3(z);for(var i=0;i<RIV.length;i++){var r=RIV[i];if(!r.siren||(r.l|0)!==z)continue;var x=SX(r.x),y=SY(r.y);if(x<-40||y<-40||x>VW+40||y>VH+40)continue;var ph=Math.floor(TIME*8)%2,ra=Math.round(r.a/(Math.PI/32))*(Math.PI/32),ca=Math.cos(ra),sa=Math.sin(ra);
+ cx.fillStyle=ph?'#ff3a3a':'#3a7aff';cx.fillRect(Math.round(x-sa*3-1),Math.round(y+ca*3-1),2,2);cx.fillStyle=ph?'#3a7aff':'#ff3a3a';cx.fillRect(Math.round(x+sa*3-1),Math.round(y-ca*3-1),2,2)}};
+var _edC3=emisDraw;emisDraw=function(a){_edC3(a);for(var i=0;i<RIV.length;i++){var r=RIV[i];if(!r.siren)continue;var x=SX(r.x),y=SY(r.y);if(x<-60||y<-60||x>VW+60||y>VH+60)continue;var ph=Math.floor(TIME*8)%2;gl(x,y,26,26,ph?[255,58,58]:[58,122,255],.55+.35*a)}fwDraw(a)};
+var SIRT=0;function c3Siren(dt){var m=ST.act;if(!m||m.type!=='police'||!S.snd||mode!=='game')return;SIRT-=dt;if(SIRT<=0){SIRT=.42;var hi=Math.floor(TIME/.42)%2;try{auTone(hi?960:720,.025,.36,'sawtooth')}catch(e){}}}
+// ---- night for chapter 3 (when the time of day is on auto)
+var _todC3=todUpdate;todUpdate=function(dt){if(ST.mode&&(S.tod|0)===0&&mode==='game'){var c=ST.act||stCur();if(c&&c.ch===3){var d=((22.7-TODH+36)%24)-12;TODH=(TODH+clamp(d,-dt*3,dt*3)+24)%24}}_todC3(dt)};
+// ---- fireworks over the festival (fireworks-night missions, and a while after)
+var FW={p:[],t:0,until:0,cx:null,cy:null};
+// shells burst high above the city: kept in view space, sliding slowly against the camera (parallax), so they stay on screen at speed
+function fwOn(){var m=ST.act;return !!(m&&m.fw)||TIME<FW.until}
+function fwUpdate(dt){if(FW.cx==null||!cam){if(cam){FW.cx=cam.x;FW.cy=cam.y}return}var dcx=wd(cam.x,FW.cx),dcy=wd(cam.y,FW.cy);FW.cx=cam.x;FW.cy=cam.y;if(Math.abs(dcx)>200||Math.abs(dcy)>200)dcx=dcy=0;
+ if(!fwOn()&&!FW.p.length)return;FW.t-=dt;
+ if(fwOn()&&FW.t<=0&&mode==='game'){FW.t=.45+Math.random()*1.0;var x=VW*(.12+Math.random()*.76),y=VH*(.1+Math.random()*.45);FW.p.push({k:'r',x:x,y:VH+8,x0:x+(Math.random()-.5)*30,y0:VH+8,tx:x,ty:y,t:0,d:.85+Math.random()*.4,c:[[255,90,160],[255,210,58],[61,240,176],[106,176,255],[255,120,60],[230,230,255]][Math.random()*6|0]})}
+ for(var i=FW.p.length-1;i>=0;i--){var q=FW.p[i];q.t+=dt;q.x-=dcx*.25;q.y-=dcy*.25;if(q.k==='r'){q.tx-=dcx*.25;q.ty-=dcy*.25;q.x0-=dcx*.25;q.y0-=dcy*.25}
+  if(q.k==='r'){var u=Math.min(1,q.t/q.d),e=1-(1-u)*(1-u);q.x=q.x0+(q.tx-q.x0)*e;q.y=q.y0+(q.ty-q.y0)*e;
+   if(q.t>=q.d){FW.p.splice(i,1);var n=56+(Math.random()*30|0),sp=(110+Math.random()*80)*VW/390,two=Math.random()<.35,ring=Math.random()<.3;for(var k=0;k<n;k++){var an=k/n*TAU+Math.random()*.08,v=sp*(ring?.95+Math.random()*.1:.55+Math.random()*.5);FW.p.push({k:'s',x:q.tx,y:q.ty,vx:Math.cos(an)*v,vy:Math.sin(an)*v,t:0,l:1.5+Math.random()*.9,c:two&&k%2?[255,244,220]:q.c})}
+    FW.p.push({k:'f',x:q.tx,y:q.ty,t:0,l:.5,c:q.c});if(S.snd&&mode==='game')try{auNoise(120,.8,.3,.32,'lowpass');auNoise(900,1,.06,.12);setTimeout(function(){if(mode==='game'){auNoise(5200,4,.045,.06);auNoise(3800,3,.035,.05)}},380)}catch(e){}}continue}
+  if(q.t>q.l){FW.p.splice(i,1);continue}if(q.k==='s'){var f=Math.exp(-1.5*dt);q.vx*=f;q.vy=q.vy*f+20*dt;q.x+=q.vx*dt;q.y+=q.vy*dt}}
+ if(FW.p.length>700)FW.p.splice(0,FW.p.length-700)}
+// drawn in the additive light pass: bright in the night, still visible by day
+function fwDraw(a){if(!FW.p.length)return;var bright=.55+.45*Math.min(1,a);
+ for(var i=0;i<FW.p.length;i++){var q=FW.p[i],x=q.x,y=q.y;
+  if(q.k==='r'){cx.globalAlpha=bright;cx.fillStyle='#fff4d0';cx.fillRect(Math.round(x)-1,Math.round(y),2,3);gl(x,y+3,7,9,[255,200,140],.55*bright);continue}
+  if(q.k==='f'){var ff=1-q.t/q.l;gl(x,y,90*ff+20,90*ff+20,q.c,ff*.8*bright);continue}
+  var al=(1-q.t/q.l);al=Math.min(1,al*1.6)*bright;if(al<.02)continue;cx.globalAlpha=al;cx.fillStyle='rgb('+q.c[0]+','+q.c[1]+','+q.c[2]+')';var sz=q.t<.5?3:q.t<1.2?2:1;cx.fillRect(Math.round(x-sz/2),Math.round(y-sz/2),sz,sz);
+  // a short trail behind each spark
+  if(q.t<1){cx.globalAlpha=al*.5;cx.fillRect(Math.round(x-q.vx*.06),Math.round(y-q.vy*.06),2,2);cx.globalAlpha=al*.3;cx.fillRect(Math.round(x-q.vx*.12),Math.round(y-q.vy*.12),1,1)}if(i%2===0)gl(x,y,10,10,q.c,al*.45)}
+ cx.globalAlpha=1}
+var _udC3=stUpdate;stUpdate=function(dt){_udC3(dt);fwUpdate(dt);c3Siren(dt)};
+var _dnC3=stDone;stDone=function(ok,why){var m=ST.act;ST.lastWhy=why||'';if(m&&m.fw&&ok)FW.until=TIME+40;_dnC3(ok,why)};
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
