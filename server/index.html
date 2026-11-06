@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='06.11 19:29';
+var GAME_BUILD='06.11 20:19';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -3743,13 +3743,15 @@ function auScrape(){auNoise(3000+Math.random()*1500,8,.12,.05)}
 function auBell(){auTone(2600,.04,.18,'sine');setTimeout(function(){auTone(2600,.03,.14,'sine')},120)}
 
 // ===== GPS: map markers + road route with arrows =====
-var WP=null,GPSG=null,GPSST=0,GARR=null;
+var WP=null,GPSG=null,GPSST=0,GARR=null,GPSNOEXP=false;
 function gpsKey(x,y){return Math.round(wrap(x))+','+Math.round(wrap(y))}
 function gpsNear(x,y,R,artOnly){var best=null;
  RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='art'&&r.k!=='touge'&&(artOnly||r.k!=='loc'))return;
   if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=clamp(dx*ux+dy*uy,0,r.len),px=x0+ux*t,py=y0+uy*t,d=Math.hypot(wd(x,px),wd(y,py));if(d<R&&(!best||d<best.d))best={r:r,s:t,d:d,x:wrap(px),y:wrap(py)};return}
   for(var k=sp.i;k<=sp.j;k++){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])}}});
  return best}
+function gpsNearUp(x,y,R){var best=null;DH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if((r.k!=='exp'&&r.k!=='ramp')||!r._ch)return;
+  for(var k=sp.i;k<=sp.j;k++){if(r.k==='ramp'&&r.hAt(k*r.ds)<.5)continue;var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k]),up:1}}});return best}
 function gpsEdge(a,b,c,inf){if(a===b)return null;var e1={to:b,c:c,inf:inf,f:1},e2={to:a,c:c,inf:inf,f:0};a.e.push(e1);b.e.push(e2);return[a,e1,b,e2]}
 function gpsBuild(){
  var V={};function vx(k,x,y){var v=V[k];if(!v)v=V[k]={k:k,x:wrap(x),y:wrap(y),e:[]};return v}
@@ -3760,6 +3762,16 @@ function gpsBuild(){
   r._ch=ch;
   [0,1].forEach(function(e){if(!(e?r.mb:r.ma))return;var ex=e?x1:x0,ey=e?y1:y0,q=gpsNear(ex,ey,110,true);if(!q)return;var av=vx('a'+q.r._gi+':'+Math.round(q.s),q.x,q.y);q.r._ch.push({s:q.s,v:av});links.push([e?ch[1].v:ch[0].v,av,q.d+2])})});
  links.forEach(function(l){gpsEdge(l[0],l[1],l[2],{t:'l'})});
+ // expressways and their ramps: the ramp foot joins the main road, the ramp top joins the expressway
+ (EXPS||[]).forEach(function(E){E._ch=[]});
+ (RAMPS||[]).forEach(function(R,ri){var E=R.exp,A=R.art;if(!E||!A||A._gi==null)return;var bk=0,bd=1e9;for(var k=0;k<E.n;k++){var d=Math.hypot(wd(E.xs[k],R.xs[0]),wd(E.ys[k],R.ys[0]));if(d<bd){bd=d;bk=k}}
+  var se=bk*E.ds;E.pt(se,TMP);var ev=vx('x'+ri,TMP[0],TMP[1]);A.pt(R.as,TMP);var av=vx('a'+A._gi+':'+Math.round(R.as),TMP[0],TMP[1]);
+  E._ch.push({s:se,v:ev});A._ch.push({s:R.as,v:av});R._ch=[{s:0,v:ev},{s:R.len,v:av}]});
+ (EXPS||[]).forEach(function(E){var ch=E._ch;if(!ch.length)return;ch.sort(function(a,b){return a.s-b.s});
+  for(var i=0;i<ch.length;i++){var a=ch[i],b=i<ch.length-1?ch[i+1]:{s:ch[0].s+E.len,v:ch[0].v};if(a.v===b.v&&ch.length>1)continue;gpsEdge(a.v,b.v,Math.max(1,(b.s-a.s)*.8),{t:'r',r:E,s0:a.s,s1:b.s})}
+  // for joining mid-way: the chain seen across the seam
+  E._ch=[{s:ch[ch.length-1].s-E.len,v:ch[ch.length-1].v}].concat(ch,[{s:ch[0].s+E.len,v:ch[0].v}])});
+ (RAMPS||[]).forEach(function(R){if(R._ch)gpsEdge(R._ch[0].v,R._ch[1].v,R.len,{t:'r',r:R,s0:0,s1:R.len})});
  ARTS.concat(LOCS).forEach(function(r){var ch=r._ch;ch.sort(function(a,b){return a.s-b.s});var f=r.k==='loc'?1.18:r.k==='touge'?1.1:1;
   for(var i=0;i<ch.length-1;i++){var a=ch[i],b=ch[i+1];if(a.v===b.v)continue;gpsEdge(a.v,b.v,Math.max(1,(b.s-a.s)*f),{t:'r',r:r,s0:a.s,s1:b.s})}});
  GPSG=V}
@@ -3771,32 +3783,36 @@ function gpsAttach(T,q,O,oq,tmp){var r=q.r,ch=r._ch,lo=null,hi=null,f=r.k==='loc
  for(var i=0;i<ch.length;i++){if(ch[i].s<=q.s)lo=ch[i];else{hi=ch[i];break}}
  if(oq&&oq.r===r){if(lo&&oq.s>lo.s&&oq.s<=q.s)lo={s:oq.s,v:O,t:1};if(hi&&oq.s>q.s&&oq.s<hi.s)hi={s:oq.s,v:O,t:1}}
  [lo,hi].forEach(function(n){if(!n)return;if(n.t&&T.k==='G')return;var e=n===lo?gpsEdge(n.v,T,Math.max(1,(q.s-n.s)*f),{t:'r',r:r,s0:n.s,s1:q.s}):gpsEdge(T,n.v,Math.max(1,(n.s-q.s)*f),{t:'r',r:r,s0:q.s,s1:n.s});if(e)tmp.push(e)})}
-function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();
- var a=gpsNear(car.x,car.y,260)||gpsNear(car.x,car.y,800),b=WP.q;WP.rt=TIME;WP.ofT=0;
+function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();if(WP.up&&WP.q&&!WP.q.up){var qu=gpsNearUp(WP.x,WP.y,200);if(qu)WP.q=qu}
+ var a=((car.l|0)===1?gpsNearUp(car.x,car.y,160):null)||gpsNear(car.x,car.y,260)||gpsNear(car.x,car.y,800),b=WP.q;WP.rt=TIME;WP.ofT=0;
  var path=null;
  if(a&&b){var Sv={k:'S',x:a.x,y:a.y,e:[]},Gv={k:'G',x:b.x,y:b.y,e:[]},tmp=[];gpsAttach(Sv,a,Gv,b,tmp);gpsAttach(Gv,b,Sv,a,tmp);
   var st=++GPSST,H=new GHeap();Sv._st=st;Sv._g=0;Sv._p=null;H.push(Sv,0);var it=0;
   while(H.a.length&&it<200000){it++;var v=H.pop();if(v._done===st)continue;v._done=st;if(v===Gv)break;
-   for(var i=0;i<v.e.length;i++){var e=v.e[i],w=e.to,ng=v._g+e.c;if(w._st!==st||ng<w._g){w._st=st;w._g=ng;w._p=v;w._pe=e;H.push(w,ng+Math.hypot(wd(w.x,Gv.x),wd(w.y,Gv.y)))}}}
+   for(var i=0;i<v.e.length;i++){var e=v.e[i],w=e.to,ng=v._g+e.c;if(GPSNOEXP&&e.inf.r&&(e.inf.r.k==='exp'||e.inf.r.k==='ramp'))continue;if(w._st!==st||ng<w._g){w._st=st;w._g=ng;w._p=v;w._pe=e;H.push(w,ng+Math.hypot(wd(w.x,Gv.x),wd(w.y,Gv.y)))}}}
   if(Gv._st===st){path=[];var c=Gv;while(c&&c!==Sv){path.push(c._pe);c=c._p}path.reverse()}
   tmp.forEach(function(t){var i1=t[0].e.indexOf(t[1]);if(i1>=0)t[0].e.splice(i1,1);var i2=t[2].e.indexOf(t[3]);if(i2>=0)t[2].e.splice(i2,1)})}
- var pts=[];function add(x,y){if(!pts.length){pts.push([x,y]);return}var p=pts[pts.length-1],nx=p[0]+wd(x,p[0]),ny=p[1]+wd(y,p[1]);if(Math.abs(nx-p[0])+Math.abs(ny-p[1])<1.5)return;pts.push([nx,ny])}
- add(car.x,car.y);
- if(path)path.forEach(function(e){var inf=e.inf;if(inf.t==='l'){add(e.to.x,e.to.y);return}
+ if(!path){WP.pts=null;WP.arr=null;WP.cum=null;WP.L=0;return}
+ var pts=[],pl=[];function add(x,y,l){if(!pts.length){pts.push([x,y]);pl.push(l|0);return}var p=pts[pts.length-1],nx=p[0]+wd(x,p[0]),ny=p[1]+wd(y,p[1]);if(Math.abs(nx-p[0])+Math.abs(ny-p[1])<1.5)return;pts.push([nx,ny]);pl.push(l|0)}
+ add(car.x,car.y,car.l);
+ if(path)path.forEach(function(e){var inf=e.inf;if(inf.t==='l')return;
   var r=inf.r,s0=e.f?inf.s0:inf.s1,s1=e.f?inf.s1:inf.s0,dir=s1>=s0?1:-1;
   if(r.k==='loc'){var off=r.hw*.42,x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,tx=ux*dir,ty=uy*dir;add(x0+ux*s0+ty*off,y0+uy*s0-tx*off);add(x0+ux*s1+ty*off,y0+uy*s1-tx*off);return}
   var off2=r.m+.5*(r.lw||20),lo=r.za,hi=r.len-r.zb,n=Math.max(1,Math.ceil(Math.abs(s1-s0)/10));
-  for(var i=0;i<=n;i++){var s=s0+(s1-s0)*i/n;if(s<lo||s>hi)continue;r.pt(s,TMP);var tx2=TMP[2]*dir,ty2=TMP[3]*dir;add(TMP[0]+ty2*off2,TMP[1]-tx2*off2)}});
- add(WP.x,WP.y);
+  for(var i=0;i<=n;i++){var s=s0+(s1-s0)*i/n;if(s<lo||s>hi)continue;var sz=zcs(r,s);r.pt(sz,TMP);var tx2=TMP[2]*dir,ty2=TMP[3]*dir;add(TMP[0]+ty2*off2,TMP[1]-tx2*off2,r.k==='exp'?1:r.k==='ramp'?(r.hAt(sz)>.5?1:0):0)}});
+ add(WP.x,WP.y,WP.up?1:0);
  var cum=[0];for(var k=1;k<pts.length;k++)cum.push(cum[k-1]+Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]));
- var arr=[],j=0,L=cum[cum.length-1];for(var d=26;d<L-22;d+=34){while(j<pts.length-2&&cum[j+1]<d)j++;var sl=cum[j+1]-cum[j]||1,t=(d-cum[j])/sl,p0=pts[j],p1=pts[j+1];arr.push({x:wrap(p0[0]+(p1[0]-p0[0])*t),y:wrap(p0[1]+(p1[1]-p0[1])*t),a:Math.atan2(p1[1]-p0[1],p1[0]-p0[0]),d:d})}
- WP.pts=pts;WP.cum=cum;WP.arr=arr;WP.pi=0;WP.P=0;WP.L=L}
+ var arr=[],L=cum[cum.length-1];function at(d){d=clamp(d,0,L);var j=0,lo=0,hi=pts.length-2;while(lo<hi){var m=(lo+hi+1)>>1;if(cum[m]<=d)lo=m;else hi=m-1}j=Math.max(0,lo);var sl=cum[j+1]-cum[j]||1,t=(d-cum[j])/sl,p0=pts[j],p1=pts[j+1]||p0;return[p0[0]+(p1[0]-p0[0])*t,p0[1]+(p1[1]-p0[1])*t,t<.5?pl[j]:(pl[j+1]==null?pl[j]:pl[j+1])]}
+ for(var d=26;d<L-22;d+=34){var P=at(d),Pa=at(d-13),Pb=at(d+13),ok=true;
+  for(var k2=arr.length-1;k2>=0&&k2>=arr.length-4;k2--){var q=arr[k2];if(Math.hypot(P[0]-q.ux,P[1]-q.uy)<24){ok=false;break}}if(!ok)continue;
+  arr.push({x:wrap(P[0]),y:wrap(P[1]),ux:P[0],uy:P[1],a:Math.atan2(Pb[1]-Pa[1],Pb[0]-Pa[0]),d:d,l:P[2]|0})}
+ WP.pts=pts;WP.pl=pl;WP.cum=cum;WP.arr=arr;WP.pi=0;WP.P=0;WP.L=L}
 function gpsSet(x,y){x=wrap(x);y=wrap(y);
  if(WP&&Math.hypot(wd(x,WP.x),wd(y,WP.y))<260){gpsClear();toast('Метка убрана');return}
  var q=gpsNear(x,y,260)||gpsNear(x,y,520);if(!q){toast('Тут нет дороги');return}
  WP={x:q.x,y:q.y,q:q};gpsRoute();if(S.snd)try{auBell()}catch(e){}}
 function gpsClear(){WP=null}
-function gpsUpdate(dt){if(!WP||!WP.pts)return;var pts=WP.pts,n=pts.length,best=1e9,bi=WP.pi,bt=0;
+function gpsUpdate(dt){if(!WP)return;if(!WP.pts){if(TIME-(WP.rt||0)>2)gpsRoute();if(WP&&!WP.pts&&Math.hypot(wd(car.x,WP.x),wd(car.y,WP.y))<46){if(!WP.st){popup('Приехали!','mul');if(S.snd)try{auBell()}catch(e){}}WP=null}return}var pts=WP.pts,n=pts.length,best=1e9,bi=WP.pi,bt=0;
  for(var i=Math.max(0,WP.pi-4);i<Math.min(n-1,WP.pi+60);i++){var p0=pts[i],p1=pts[i+1],ex=p1[0]-p0[0],ey=p1[1]-p0[1],l2=ex*ex+ey*ey||1,dx=wd(car.x,p0[0]),dy=wd(car.y,p0[1]),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=qx*qx+qy*qy;if(d<best){best=d;bi=i;bt=t}}
  best=Math.sqrt(best);WP.pi=bi;var segL=WP.cum[bi+1]-WP.cum[bi];WP.P=WP.cum[bi]+segL*bt;
  if(best>95){WP.ofT=(WP.ofT||0)+dt;if(WP.ofT>1.1&&TIME-WP.rt>1.6)gpsRoute()}else WP.ofT=0;
@@ -3814,8 +3830,8 @@ function gpsSpr(){if(GARR)return GARR;var cols=[[255,61,139],[232,84,170],[196,1
  GARR=out;return out}
 var GPIN=null;function gpsPinSpr(){if(GPIN)return GPIN;var R=['...KKKKK...','..KPPPPPK..','.KPPLLPPPK.','KPPLWWLPPPK','KPPLWWLPPPK','KPPPLLPPPPK','KPPPPPPPPDK','.KPPPPPPDK.','.KPPPPPPDK.','..KPPPPDK..','...KPPDK...','....KPK....','.....K.....'],pal={K:'#2a0d1c',P:'#ff4d9a',L:'#ffb3d6',W:'#ffffff',D:'#c22d6e'},c=mkCanvas(11,13),g=c.getContext('2d');R.forEach(function(r,y){for(var x=0;x<r.length;x++){var p=pal[r[x]];if(p){g.fillStyle=p;g.fillRect(x,y,1,1)}}});GPIN=c;return c}
 // --- world draw (ground, under cars)
-function gpsDraw(){if(!WP||!WP.arr)return;var A=WP.arr,S6=gpsSpr(),P=WP.P;
- for(var i=0;i<A.length;i++){var o=A[i],rel=o.d-P;if(rel<-3)continue;if(rel>2400)break;var x=SX(o.x),y=SY(o.y);if(x<-12||y<-12||x>VW+12||y>VH+12)continue;
+function gpsDraw(lay){if(!WP||!WP.arr)return;var A=WP.arr,S6=gpsSpr(),P=WP.P;lay=lay|0;
+ for(var i=0;i<A.length;i++){var o=A[i],rel=o.d-P;if(rel<-3)continue;if(rel>2400)break;if((o.l|0)!==lay)continue;var x=SX(o.x),y=SY(o.y);if(x<-12||y<-12||x>VW+12||y>VH+12)continue;
   var t=rel<170?1-rel/170:0,idx=Math.round(t*5),ph=(((o.d-TIME*170)%300)+300)%300,sp=(ph<26&&t<.5)?S6[6]:S6[idx];
   var al=rel<10?Math.max(0,(rel+3)/13):rel>1800?Math.max(0,1-(rel-1800)/600):1;if(al<=0)continue;
   var ai=((Math.round(o.a/TAU*32)%32)+32)%32;cx.globalAlpha=al;cx.drawImage(sp[ai],x-9,y-9)}
@@ -5138,7 +5154,7 @@ function ramenPick(){var z=null;for(var i=0;i<ZONES.length;i++)if(ZONES[i].id===
  for(var s=(r.za||0)+110;s<=z.s0+900;s+=6){
   for(var k=0;k<2;k++){var sd=k?-sdl:sdl,R=ramenGeom(r,s,sd);if(!R||R.V0>r.hw+30||!ramenFree(R))continue;var sc=(R.V0-r.hw-9)*1.5+Math.abs(s-(z.s0-60))*.02+(k?4:0);if(!best||sc<best.sc){R.sc=sc;best=R}}}
  return best}
-function ramenBuild(){RAMEN=null;RAILGAP=[];var R=ramenPick();if(!R)return;RAMEN=R;var r=R.r;
+function ramenBuild(){RAMEN=null;RAILGAP=[];try{railMouthGaps()}catch(e){console.error(e)}var R=ramenPick();if(!R)return;RAMEN=R;var r=R.r;
  // clear the forest and roadside props from the car park and driveway
  var b=ramenBox(R,6),rm=[];PH.q(b.x0,b.y0,b.x1,b.y1,function(p){var l=rmLocal(R,p.x,p.y);if(l[0]>-5&&l[0]<RW+5&&l[1]>-5&&l[1]<RD+5)rm.push(p);else if(Math.abs(l[0]-RW/2)<30&&l[1]>=RD-2&&l[1]<RD+R.V0-r.hw+4)rm.push(p)});
  rm.forEach(function(p){var m=p.t===P_CAR?20:Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);p.hid=1;p.gone=1});
@@ -5151,10 +5167,23 @@ function ramenBuild(){RAMEN=null;RAILGAP=[];var R=ramenPick();if(!R)return;RAMEN
   for(var i=i0;i<=i1;i++){var l=rmLocal(R,G.xs[i],G.ys[i]);if(Math.abs(l[0]-RW/2)<=27&&l[1]>RD-6){if(g0<0)g0=i;g1=i}}
   if(g0>=0)RAILGAP.push({r:r,key:key,g0:g0,g1:g1})}
  var bb=ramenBox(R,24);LMI.push({k:'ramen',r:r,bx0:bb.x0,by0:bb.y0-30,bx1:bb.x1,by1:bb.y1})}
+// side streets that meet a mountain pass: the guard rail is open where they join (it used to run straight across the mouth,
+// so the street was a dead end that the navigator still sent you down)
+function railMouthGaps(){var TG=ARTS.filter(function(r){return r.k==='touge'&&r.gl});if(!TG.length)return;
+ LOCS.forEach(function(L){[0,1].forEach(function(e){if(!(e?L.mb:L.ma))return;var ex=L.xs[e],ey=L.ys[e],ox=L.xs[1-e],oy=L.ys[1-e],ll=Math.hypot(wd(ex,ox),wd(ey,oy))||1,ux=wd(ex,ox)/ll,uy=wd(ey,oy)/ll;
+  TG.forEach(function(T){var bk=-1,bd=1e9;for(var k=0;k<T.n;k+=2){var d=Math.hypot(wd(T.xs[k],ex),wd(T.ys[k],ey));if(d<bd){bd=d;bk=k}}if(bd>T.hw+40||bk<10||bk>T.n-11)return;
+   // the side of the pass the street comes from
+   var bx=ex-ux*50,by=ey-uy*50;T.pt(bk*T.ds,TMP);var side=wd(bx,TMP[0])*-TMP[3]+wd(by,TMP[1])*TMP[2],key=side>0?'gl':'gr',G=T[key];if(!G)return;
+   // where the street's centre line crosses the rail; open the rail for the street's width around that point
+   var ci=-1,cb=1e9;for(var i=Math.max(0,bk-60);i<=Math.min(T.n-1,bk+60);i++){var dx=wd(G.xs[i],ex),dy=wd(G.ys[i],ey),along=dx*ux+dy*uy,across=Math.abs(-dx*uy+dy*ux);if(along>-90&&along<30&&across<cb){cb=across;ci=i}}
+   if(ci<0||cb>T.ds*2+2)return;var g0=ci,g1=ci,wdt=L.hw+L.sw*.5+5;while(g0>0&&Math.hypot(wd(G.xs[g0-1],G.xs[ci]),wd(G.ys[g0-1],G.ys[ci]))<wdt)g0--;while(g1<T.n-1&&Math.hypot(wd(G.xs[g1+1],G.xs[ci]),wd(G.ys[g1+1],G.ys[ci]))<wdt)g1++;RAILGAP.push({r:T,key:key,g0:g0,g1:g1});
+   // clear the mouth of signs and trees that stood behind the rail
+   var mx=ex-ux*25,my=ey-uy*25,rm=[];PH.q(mx-70,my-70,mx+70,my+70,function(p){if(p.t===P_CAR||p.hid)return;var dx=wd(p.x,ex),dy=wd(p.y,ey),along=dx*ux+dy*uy,across=Math.abs(-dx*uy+dy*ux);if(across<L.hw+L.sw+(p.r||2)&&along>-80&&along<20)rm.push(p)});
+   rm.forEach(function(p){var m=Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);p.hid=1;p.gone=1})})})})}
 // guard rail strokes with the driveway gap left out (used by the chunk baker)
-function railStroke(s,key,X0,Y0,lo,hi){var r=s.r,sp={r:r[key],i:s.i,j:s.j};
- for(var k=0;k<RAILGAP.length;k++){var q=RAILGAP[k];if(q.r===r&&q.key===key&&q.g1>=lo&&q.g0<=hi){if(q.g0-1>lo)strokeSpan(sp,X0,Y0,2,'#f00',lo,q.g0-1);if(hi>q.g1+1)strokeSpan(sp,X0,Y0,2,'#f00',q.g1+1,hi);return}}
- strokeSpan(sp,X0,Y0,2,'#f00',lo,hi)}
+function railStroke(s,key,X0,Y0,lo,hi){var r=s.r,sp={r:r[key],i:s.i,j:s.j},gs=[];
+ for(var k=0;k<RAILGAP.length;k++){var q=RAILGAP[k];if(q.r===r&&q.key===key&&q.g1>=lo&&q.g0<=hi)gs.push(q)}gs.sort(function(a,b){return a.g0-b.g0});
+ var c=lo;gs.forEach(function(q){if(q.g0-1>c)strokeSpan(sp,X0,Y0,2,'#f00',c,q.g0-1);c=Math.max(c,q.g1+1)});if(hi>c)strokeSpan(sp,X0,Y0,2,'#f00',c,hi)}
 // ---- pixel art (sprite space: x along the road, y from the building (0) to the road (RD))
 var RKANA={'ラ':['.###.','.....','#####','....#','.###.'],'ー':['.....','.....','#####','.....','.....'],'メ':['...#.','#..#.','.##..','.##..','#..##'],'ン':['#....','.#..#','....#','...#.','###..']};
 function ramenSprite(){if(RAMSPR)return RAMSPR;var c=mkCanvas(RW,RD),g=c.getContext('2d');function R(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
@@ -5218,7 +5247,7 @@ var _edR=emisDraw;emisDraw=function(a){_edR(a);var R=RAMEN;if(!R||a<=.02)return;
 // where you are going every second, drives it at a pace matched to your car, and when she has you in sight up
 // close she goes straight for your rear quarter. After a hit she eases off for a moment so you can get away.
 function gpsPathFrom(fx,fy,tx,ty){var q=gpsNear(tx,ty,90)||gpsNear(tx,ty,260)||gpsNear(tx,ty,700);if(!q)return null;var sw=WP,sc=car,pts=null;
- try{WP={x:wrap(tx),y:wrap(ty),q:q};car={x:fx,y:fy};gpsRoute();pts=WP&&WP.pts}catch(e){pts=null}WP=sw;car=sc;return pts&&pts.length>1?pts:null}
+ GPSNOEXP=true;try{WP={x:wrap(tx),y:wrap(ty),q:q};car={x:fx,y:fy};gpsRoute();pts=WP&&WP.pts}catch(e){pts=null}GPSNOEXP=false;WP=sw;car=sc;return pts&&pts.length>1?pts:null}
 function ptInBld(x,y){var h=false;BH.q(x-1,y-1,x+1,y+1,function(b){if(h||b.hid)return;var dx=wd(x,b.x),dy=wd(y,b.y);if(dx>0&&dy>0&&dx<b.w&&dy<b.h)h=true});return h}
 function stLos(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),d=Math.hypot(dx,dy),n=Math.ceil(d/14);for(var i=1;i<n;i++){var t=i/n;if(ptInBld(x0+dx*t,y0+dy*t))return false}return true}
 function rinOffPath(R){if(!R.pts||R.pts.length<2)return 1e9;var T=[0,0,0];rivAt(R,R.P,T);return Math.hypot(wd(R.c.x,T[0]),wd(R.c.y,T[1]))}
@@ -5541,6 +5570,11 @@ function stChoice(m){ST.prompt='choice';var e=$('sq'),q='<div class="zk">'+L('С
  m.choices.forEach(function(o){q+='<button data-st="pick" data-v="'+o.v+'">'+stEsc(LT(o))+'</button>'});e.innerHTML=q+'</div>';e.classList.add('on')}
 (function(){var st=document.createElement('style');st.textContent='#sq .zch{display:flex;flex-direction:column;gap:6px;margin-top:8px}#sq .zch button{border:0;padding:8px 7px;font-size:13px;line-height:1.2;font-weight:900;text-align:left;background:var(--pk);color:#2a0d1c;box-shadow:3px 3px 0 var(--pk2)}#sq .zch button+button{background:#ff4d6d;box-shadow:3px 3px 0 #8a1c34}';document.head.appendChild(st)})();
 document.addEventListener('click',function(e){var b=e.target.closest('[data-st=pick]');if(!b)return;var m=ST.act;if(!m||m.type!=='choice')return;S.story.pick=b.dataset.v;save();ST.prompt=false;$('sq').classList.remove('on');stDone(true)});
+// ---- multi-stop routes: legs resampled and joined so a stop on the way is passed through, not driven into and back out of
+function c3Res(P,st){var o=[P[0].slice()];for(var i=1;i<P.length;i++){var a=o[o.length-1],b=P[i],dx=wd(b[0],a[0]),dy=wd(b[1],a[1]),d=Math.hypot(dx,dy),n=Math.floor(d/st);for(var k=1;k<=n;k++)o.push([a[0]+dx*k/n,a[1]+dy*k/n]);if(d-n*st>1)o.push([a[0]+dx,a[1]+dy])}return o}
+function c3Join(legs){var pts=[],ends=[];legs.forEach(function(L0){var L=c3Res(L0,8);if(!pts.length){pts=L;ends.push(pts.length-1);return}
+  var i=pts.length-1,j=0;while(i>1&&j<L.length-2&&Math.hypot(wd(pts[i-1][0],L[j+1][0]),wd(pts[i-1][1],L[j+1][1]))<26){i--;j++}
+  pts=pts.slice(0,i+1).concat(L.slice(j+1));if(ends.length)ends[ends.length-1]=i;ends.push(pts.length-1)});return{pts:pts,ends:ends}}
 // ---- spawners
 function c3Riv(o){var R=rivMake(o);R.sk=R.sk0=o.sk||.8;if(o.l){R.c.l=o.l;R.l=o.l}return R}
 function c3Lane(z,k,dir){return laneU(z.road,dir==null?1:dir,k)}
@@ -5553,7 +5587,7 @@ function c3Pace(R,q,sk){var Q=car.P,P=R.c.P;R.V0=Q.vmax*q;P.vmax=R.V0;P.pw=Q.pw*
 function c3Band(R,f){R.c.P.vmax=R.V0*f}
 // where a rival is along its path (the ram attack skips the autopilot, which normally keeps this up to date)
 function c3Proj(r){var c=r.c,P=r.pts,n=P.length,best=1e18,bi=r.pi,bt=0;for(var k=-3;k<60;k++){var i=r.pi+k;if(i<0||i>=n-1)continue;var p0=P[i],p1=P[i+1],ex=wd(p1[0],p0[0]),ey=wd(p1[1],p0[1]),l2=ex*ex+ey*ey||1,dx=wd(c.x,p0[0]),dy=wd(c.y,p0[1]),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=qx*qx+qy*qy;if(d<best){best=d;bi=i;bt=t}}r.pi=bi;r.P=r.cum[bi]+(r.cum[bi+1]-r.cum[bi])*bt}
-var C3P={race5:{seiji:.96,gen:.92,rin:.95,tetsu:.945},coop:{kir:.98,shadow:.98},srace:{tetsu:.96,b1:.93,b2:.92,b3:.91}};
+var C3P={race5:{seiji:.96,gen:.92,rin:.95,tetsu:.945},coop:{kir:.98,shadow:.98},srace:{tetsu:.95,b1:.92,b2:.91,b3:.9}};
 var C3FIN={seiji:'Сэйдзи первый на финише',gen:'Гэн первый на финише',rin:'Рин первая на финише',tetsu:'Тэцу первый на финише'};
 function c3o(k,x){var o={},b=C3R[k];for(var q in b)o[q]=b[q];for(q in x)o[q]=x[q];return o}
 function c3Spawn(m){var z=m.zone&&stZone(m.zone);
@@ -5569,11 +5603,12 @@ function c3Spawn(m){var z=m.zone&&stZone(m.zone);
 // ---- start of each new mission type
 var _smC3=stMain;stMain=function(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;ST.hid=0;ST.pin=0;ST.rams=0;ST.pg=0;ST.ctouch=0;ST.cmax=0;ST.cbrk=0;ST.ccd=0;ST.kirFin=0;ST.rte=null;ST.cd=0;
  if(m.type==='choice'){ST.t=0;stChoice(m);return}
- if(m.type==='pursuit'){ST.t=0;ST.prog=0;ST.far=0;var pts=[],fx=car.x,fy=car.y,way=(m.via||[]).concat([m.dest]);for(var w=0;w<way.length;w++){var d=stPlace(way[w]),dq=d.g||d,pp=gpsPathFrom(fx,fy,dq.x,dq.y);if(!pp){ST.act=null;return}if(pts.length)pp=pp.slice(1);pts=pts.concat(pp);fx=dq.x;fy=dq.y}
+ if(m.type==='pursuit'){ST.t=0;ST.prog=0;ST.far=0;var legs=[],fx=car.x,fy=car.y,way=(m.via||[]).concat([m.dest]);for(var w=0;w<way.length;w++){var d=stPlace(way[w]),dq=d.g||d,pp=gpsPathFrom(fx,fy,dq.x,dq.y);if(!pp){ST.act=null;return}legs.push(pp);fx=dq.x;fy=dq.y}var pts=c3Join(legs).pts;
   var cum=0,k=1;for(;k<pts.length;k++){cum+=Math.hypot(wd(pts[k][0],pts[k-1][0]),wd(pts[k][1],pts[k-1][1]));if(cum>150)break}
   var P0=pts[Math.min(k,pts.length-2)],P1=pts[Math.min(k+1,pts.length-1)];var V=rivMake(c3o('van',{x:P0[0],y:P0[1],a:Math.atan2(wd(P1[1],P0[1]),wd(P1[0],P0[0])),pts:pts.slice(k),loop:false,vmax:300,wait:true,drift:0}));V.sk=.88;V.go=0;WP=null;return}
  if(m.type==='police'){ST.t=0;ST.esc=0;ST.hid=0;ST.pin=0;WP=null;stSpawnRin();var C=RIV[RIV.length-1];var o=C3R.cop;C.id=o.id;C.name=o.name;C.col=o.tag;C.car=o.car;C.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);C.siren=1;C.ramMsg='Ватанабэ толкнул!';return}
- if(m.type==='srace'){ST.t=0;ST.cd=3.2;ST.cdn=4;ST.fin=0;var pts2=[],ends=[];for(var i=0;i<m.route.length-1;i++){var A=stPlace(m.route[i]),B=stPlace(m.route[i+1]),Aq=A.g||A,Bq=B.g||B,p=gpsPathFrom(Aq.x,Aq.y,Bq.x,Bq.y);if(!p){ST.act=null;return}if(pts2.length)p=p.slice(1);pts2=pts2.concat(p);ends.push(pts2.length-1)}
+ if(m.type==='srace'){ST.t=0;ST.cd=3.2;ST.cdn=4;ST.fin=0;var legs=[];for(var i=0;i<m.route.length-1;i++){var A=stPlace(m.route[i]),B=stPlace(m.route[i+1]),Aq=A.g||A,Bq=B.g||B,p=gpsPathFrom(Aq.x,Aq.y,Bq.x,Bq.y);if(!p){ST.act=null;return}legs.push(p)}
+  var J=c3Join(legs),pts2=J.pts,ends=J.ends;
   var cm=[0];for(i=1;i<pts2.length;i++)cm.push(cm[i-1]+Math.hypot(wd(pts2[i][0],pts2[i-1][0]),wd(pts2[i][1],pts2[i-1][1])));
   ST.rte={pts:pts2,cum:cm,L:cm[cm.length-1],i:0,s:0,ci:0,cp:ends.map(function(e,j){return{k:m.route[j+1],i:e,s:cm[e],x:pts2[e][0],y:pts2[e][1]}})};
   function at(s){var j=0;while(j<cm.length-2&&cm[j+1]<s)j++;var t=(s-cm[j])/((cm[j+1]-cm[j])||1),a=pts2[j],b=pts2[j+1];return[a[0]+wd(b[0],a[0])*t,a[1]+wd(b[1],a[1])*t,Math.atan2(wd(b[1],a[1]),wd(b[0],a[0]))]}
@@ -5704,6 +5739,105 @@ function fwDraw(a){if(!FW.p.length)return;var bright=.55+.45*Math.min(1,a);
  cx.globalAlpha=1}
 var _udC3=stUpdate;stUpdate=function(dt){_udC3(dt);fwUpdate(dt);c3Siren(dt)};
 var _dnC3=stDone;stDone=function(ok,why){var m=ST.act;ST.lastWhy=why||'';if(m&&m.fw&&ok)FW.until=TIME+40;_dnC3(ok,why)};
+
+// ===== GPS arrows at night and in the rain: they glow (drawn again in the light pass) =====
+function gpsGlow(a){if(!WP||!WP.arr)return;var k=Math.min(1,a+((typeof W!=='undefined'&&W.rain)||0)*.6);if(k<=.03)return;var A=WP.arr,S6=gpsSpr(),P=WP.P;
+ for(var i=0;i<A.length;i++){var o=A[i],rel=o.d-P;if(rel<-3)continue;if(rel>1600)break;var x=SX(o.x),y=SY(o.y);if(x<-14||y<-14||x>VW+14||y>VH+14)continue;
+  var al=rel<10?Math.max(0,(rel+3)/13):rel>1200?Math.max(0,1-(rel-1200)/400):1;if(al<=0)continue;
+  var t=rel<170?1-rel/170:0,idx=Math.round(t*5),ai=((Math.round(o.a/TAU*32)%32)+32)%32;
+  gl(x,y,13,13,[255,77,154],k*.42*al);cx.globalAlpha=Math.min(1,k*.7*al);cx.drawImage(S6[idx][ai],x-9,y-9)}
+ cx.globalAlpha=1}
+var _edGps=emisDraw;emisDraw=function(a){_edGps(a);gpsGlow(a)};
+// arrows on the expressway are drawn with the deck, not under it
+var _dsGps=drawSmoke;drawSmoke=function(z){if(z===1&&mode==='game')gpsDraw(1);_dsGps(z)};
+// story places up on the expressway (the Wangan start, the C1): route to the deck, not to the street below it
+var _spGps=stPlaces;stPlaces=function(){var P=_spGps();if(P.wgs&&P.wgs.l==null){P.wgs.l=1;if(P.c1)P.c1.l=1}return P};
+var _stRq=stRoute;stRoute=function(x,y){var up=false,P=stPlaces();for(var k in P){var p=P[k];if(p&&p.l===1&&Math.abs(wd(p.x,x))<2&&Math.abs(wd(p.y,y))<2)up=true}
+ if(!up)return _stRq(x,y);if(!GPSG)gpsBuild();var q=gpsNearUp(x,y,220)||gpsNear(x,y,600);if(!q)return;WP={x:x,y:y,q:q,st:1,up:q.up?1:0};ST.rt=TIME;gpsRoute()};
+
+// ===== Grandma Toyo's onigiri shop: a small old wooden shop by the pagoda (replaces the street cart) =====
+// Built once after the world is generated (no RNG): on the pavement side of Toyo's road near the old stop, facing the road;
+// the townhouses it overlaps are taken out. Tiled roof, wooden front with a noren, lanterns, a shop window full of onigiri,
+// a bench and a sandwich board on the forecourt, and an upright 'おにぎり' signboard.
+var TOYO=null,TOYSPR=null,TYW=92,TYD=64,TYF=34;
+function tyLocal(R,x,y){var dx=wd(x,R.ox),dy=wd(y,R.oy);return[dx*R.xv[0]+dy*R.xv[1],dx*R.yv[0]+dy*R.yv[1]]}
+function tyWorld(R,px,py){return[wrap(R.ox+R.xv[0]*px+R.yv[0]*py),wrap(R.oy+R.xv[1]*px+R.yv[1]*py)]}
+function tyGeom(r,s,sd){r.pt(zcs(r,s),TMP);var P0=[TMP[0],TMP[1]],A=[TMP[2],TMP[3]],N=[-A[1]*sd,A[0]*sd],V0=-1e9;
+ // the pavement edge along the frontage (the road may bend a little)
+ for(var q=-TYW/2-10;q<=TYW/2+10;q+=4){r.pt(zcs(r,s+q),TMP2);var dx=wd(TMP2[0],P0[0]),dy=wd(TMP2[1],P0[1]),v=dx*N[0]+dy*N[1];V0=Math.max(V0,v+r.hw+r.sw+2)}
+ V0=Math.ceil(V0);var yv=[-N[0],-N[1]],xv=[yv[1],-yv[0]],V1=V0+TYD,ox=P0[0]+N[0]*V1-xv[0]*TYW/2,oy=P0[1]+N[1]*V1-xv[1]*TYW/2;
+ return{r:r,s:s,sd:sd,P0:P0,A:A,N:N,V0:V0,V1:V1,ox:wrap(ox),oy:wrap(oy),xv:xv,yv:yv}}
+function tyBox(R,m){var c=[tyWorld(R,-m,-m),tyWorld(R,TYW+m,-m),tyWorld(R,-m,TYD+m),tyWorld(R,TYW+m,TYD+m)],x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+ c.forEach(function(p){var x=R.ox+wd(p[0],R.ox),y=R.oy+wd(p[1],R.oy);x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)});return{x0:x0,y0:y0,x1:x1,y1:y1}}
+function tyIn(R,x,y,m){var l=tyLocal(R,x,y);return l[0]>-m&&l[0]<TYW+m&&l[1]>-m&&l[1]<TYD+m}
+// a spot is fine if no landmark, other road, river or deck is in the way (ordinary buildings are cleared)
+function tyFree(R){var b=tyBox(R,6),ok=true;
+ SPEC.forEach(function(S2){if(!ok)return;for(var px=0;px<=TYW;px+=6)for(var py=0;py<=TYD;py+=6){var w=tyWorld(R,px,py);if(wd(w[0],S2.x)>-3&&wd(S2.x+S2.w,w[0])>-3&&wd(w[1],S2.y)>-3&&wd(S2.y+S2.h,w[1])>-3){ok=false;return}}});if(!ok)return false;
+ RH.q(b.x0-40,b.y0-40,b.x1+40,b.y1+40,function(sp){if(!ok)return;var r2=sp.r;for(var i=sp.i;i<=sp.j;i++){if(r2===R.r)continue;var m=(r2.hw||12)+(r2.sw||0)+4;if(tyIn(R,r2.xs[i],r2.ys[i],m)){ok=false;return}}});if(!ok)return false;
+ (LJ||[]).forEach(function(j){if(ok&&tyIn(R,j.x,j.y,j.r+j.sw+4))ok=false});if(!ok)return false;
+ for(var px=0;px<=TYW;px+=12)for(var py=0;py<=TYD;py+=12){var w=tyWorld(R,px,py);if(inRiver(w[0],w[1],8)||nearDeck(w[0],w[1],10))return false}
+ return true}
+function toyoBuild(){TOYO=null;var P=stPlaces(),t=P.toyo;if(!t||!t.r||t.r.k==='loc')return;var r=t.r,best=null;
+ for(var q=0;q<=640&&!best;q+=6)[q,-q].forEach(function(dq){if(best)return;var s=t.s+dq;if(s<(r.za||0)+60||s>r.len-(r.zb||0)-60)return;[t.sd||1,-(t.sd||1)].forEach(function(sd,k){if(best||(k&&q<200))return;var R=tyGeom(r,s,sd);if(tyFree(R))best=R})});
+ if(!best)return;var R=best;TOYO=R;
+ // clear the plot: townhouses, trees and posts on it
+ var b=tyBox(R,4);BH.q(b.x0,b.y0,b.x1,b.y1,function(B){if(B.hid)return;for(var px=B.x+2;px<B.x+B.w-1;px+=4)for(var py=B.y+2;py<B.y+B.h-1;py+=4)if(tyIn(R,px,py,2)){B.hid=1;return}});
+ var rm=[];PH.q(b.x0,b.y0,b.x1,b.y1,function(p){if(tyIn(R,p.x,p.y,3))rm.push(p)});rm.forEach(function(p){var m=p.t===P_CAR?20:Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);p.hid=1;p.gone=1});
+ var bc=tyWorld(R,TYW/2,(TYF+14)/2);R.bld={x:bc[0],y:bc[1],hx:TYW/2-5,hy:(TYF+14)/2-2,a:Math.atan2(R.xv[1],R.xv[0])};
+ var bb=tyBox(R,20);LMI.push({k:'toyo',bx0:bb.x0,by0:bb.y0-40,bx1:bb.x1,by1:bb.y1});
+ // the story stop: the kerb lane right in front of the shop
+ r.pt(zcs(r,R.s),TMP);var u=(r.hw-18)*(R.sd);var nm=t.name;P.toyo={x:wrap(TMP[0]-TMP[3]*u),y:wrap(TMP[1]+TMP[2]*u),a:Math.atan2(TMP[3]*R.sd,TMP[2]*R.sd),r:r,s:R.s,sd:R.sd,name:nm,shop:1}}
+var _bbTy=buildBrk;buildBrk=function(){_bbTy();try{toyoBuild()}catch(e){TOYO=null;console.error(e)}};
+// ---- pixel art (sprite space: x along the road, y from the back of the shop (0) to the pavement (TYD))
+var TKANA={'お':['.#..#','####.','.#.#.','.##.#','##.#.'],'に':['#.##.','#....','#....','#.#..','#..##'],'ぎ':['.#.#.','####.','.###.','..#..','.###.'],'り':['#..#.','#..#.','#..#.','...#.','..#..']};
+function toyoSprite(){if(TOYSPR)return TOYSPR;var c=mkCanvas(TYW,TYD),g=c.getContext('2d');function R(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}var i,j,F=TYF;
+ // forecourt: worn stone slabs
+ R(0,0,TYW,TYD,'#9c968a');for(i=0;i<TYW;i+=6)for(j=F+14;j<TYD;j+=5){R(i,j,6,5,hsh(i,j,61)<.5?'#a8a294':'#948e82');R(i,j,6,1,'#7e786e');R(i,j,1,5,'#7e786e')}
+ // soft shadow, the roof: dark blue-grey kawara tiles in rows, a ridge on top, eaves overhanging
+ R(3,3,TYW-4,F+12,'rgba(10,8,24,.5)');R(1,0,TYW-2,F+2,'#232838');
+ for(j=2;j<F;j+=3){R(2,j,TYW-4,2,'#3c465c');for(i=2+(j%6?0:2);i<TYW-2;i+=4)R(i,j+2,1,1,'#2a3042')}
+ for(j=2;j<F;j+=3)for(i=3;i<TYW-3;i+=4)R(i,j,1,1,'#55617c');
+ R(2,1,TYW-4,2,'#6a7690');R(4,1,2,2,'#8a96b0');R(TYW-6,1,2,2,'#8a96b0');R(1,F-1,TYW-2,2,'#1a1e2a');
+ // a little roof over the door, a chimney (the rice cooker inside)
+ R(TYW/2-15,F-4,30,5,'#2e3648');R(TYW/2-15,F-4,30,1,'#6a7690');R(16,7,7,8,'#5a4a3e');R(17,7,5,1,'#8a7a6a');
+ // front wall: dark timber with slats
+ R(1,F+1,TYW-2,14,'#4a2e1c');for(i=2;i<TYW-2;i+=3)R(i,F+2,1,12,'#3a2214');R(1,F+1,TYW-2,1,'#2a180e');
+ // shop window (left): warm light and the onigiri on a counter
+ R(5,F+3,30,9,'#2a180e');R(6,F+4,28,7,'#ffe2a0');R(6,F+9,28,2,'#8a5a34');
+ for(i=0;i<6;i++){var ox=7+i*4.5|0;R(ox+1,F+6,2,1,'#f8f6f0');R(ox,F+7,4,2,'#f8f6f0');R(ox+1,F+8,2,1,'#1c2a1e')}
+ // noren over the door: indigo with a white rice-ball crest, split in three
+ var dx=TYW/2-9;R(dx,F+2,18,11,'#141c40');R(dx+1,F+2,16,8,'#1e2a5a');R(dx+6,F+2,1,8,'#141c40');R(dx+11,F+2,1,8,'#141c40');R(dx+7,F+4,4,1,'#e8ecf4');R(dx+6,F+5,6,2,'#e8ecf4');R(dx+7,F+6,4,1,'#2a3a2e');
+ R(dx+1,F+10,16,3,'#1a1008');
+ // right: a sliding lattice door and the menu board
+ R(TYW-31,F+3,15,10,'#6a4428');for(i=TYW-30;i<TYW-17;i+=3)R(i,F+3,1,10,'#3a2214');for(j=F+5;j<F+13;j+=3)R(TYW-31,j,15,1,'#3a2214');
+ R(TYW-13,F+4,9,8,'#1e2216');R(TYW-12,F+5,7,1,'#e8e0c8');R(TYW-12,F+7,5,1,'#e8e0c8');R(TYW-12,F+9,6,1,'#e8e0c8');
+ // red paper lanterns either side of the door
+ [dx-6,dx+20].forEach(function(lx){R(lx,F+3,4,6,'#ff5a3a');R(lx,F+3,4,1,'#1a1008');R(lx,F+8,4,1,'#1a1008');R(lx+1,F+4,2,4,'#ff8a5a')});
+ // forecourt: two benches, the chalk board, a pot of bamboo; the nobori pole
+ [[8,F+18],[30,F+22]].forEach(function(q){R(q[0],q[1],18,3,'#8a5a34');R(q[0],q[1],18,1,'#b07a48');R(q[0]+1,q[1]+3,2,2,'#4a2e1c');R(q[0]+15,q[1]+3,2,2,'#4a2e1c')});
+ R(TYW/2+16,F+17,7,8,'#2a2a26');R(TYW/2+17,F+18,5,5,'#1e2a1e');R(TYW/2+18,F+19,3,1,'#e8e0c8');R(TYW/2+18,F+21,2,1,'#ffd23a');
+ R(TYW-15,F+16,7,7,'#6a4a3a');R(TYW-14,F+17,5,5,'#3a7a40');R(TYW-13,F+15,1,3,'#5aa04a');R(TYW-11,F+14,1,4,'#5aa04a');
+ R(TYW-4,F+8,1,18,'#2a2a30');
+ TOYSPR=c;return c}
+function toyoGround(g,it,X0,Y0){var R=TOYO;if(!R)return;g.save();g.imageSmoothingEnabled=false;g.translate(wd(R.ox,X0),wd(R.oy,Y0));g.transform(R.xv[0],R.xv[1],R.yv[0],R.yv[1],0,0);g.drawImage(toyoSprite(),0,0);g.restore()}
+function toyoTop(u,it,X0,Y0){var R=TOYO;if(!R)return;
+ // upright wooden signboard over the eaves: おにぎり
+ var c=tyWorld(R,TYW/2,TYF-4),bx=Math.round(wd(c[0],X0))-27,by=Math.round(wd(c[1],Y0))-16;
+ u.fillStyle='rgba(10,8,24,.45)';u.fillRect(bx+3,by+4,54,15);u.fillStyle='#2a180e';u.fillRect(bx-1,by-1,56,17);u.fillStyle='#8a5a34';u.fillRect(bx,by,54,15);u.fillStyle='#f0e4c4';u.fillRect(bx+2,by+2,50,11);
+ u.fillStyle='#1a1008';var gx=bx+4;['お','に','ぎ','り'].forEach(function(ch){var G=TKANA[ch];for(var yy=0;yy<5;yy++)for(var xx=0;xx<5;xx++)if(G[yy][xx]==='#')u.fillRect(gx+xx*2,by+3+yy*2-1,2,2);gx+=12});
+ u.fillStyle='#d8262e';u.fillRect(bx+2,by+13,50,1)}
+// the nobori banner flutters in the wind (drawn live, it moves)
+function toyoFlag(){var R=TOYO;if(!R||mode!=='game')return;var p=tyWorld(R,TYW-4,TYF+9),x=SX(p[0]),y=SY(p[1]);if(x<-30||y<-40||x>VW+30||y>VH+30)return;
+ var wv=(typeof W!=='undefined'?W.wind:.15)||.15,ph=TIME*(3+wv*6);for(var k=0;k<14;k++){var sw=Math.round(Math.sin(ph-k*.45)*(1+wv*2.5)*k/14);cx.fillStyle=k%5===2?'#f4f0f6':'#d8262e';cx.fillRect(x-6+sw,y-16+k,5,1)}
+ cx.fillStyle='#f4f0f6';cx.fillRect(x-5,y-12,1,1);cx.fillRect(x-4,y-8,1,1)}
+var _lmGT=lmGround;lmGround=function(g,it,X0,Y0,AN){if(it.k==='toyo'){toyoGround(g,it,X0,Y0);return}_lmGT(g,it,X0,Y0,AN)};
+var _lmTT=lmTop;lmTop=function(u,it,X0,Y0,AN){if(it.k==='toyo'){toyoTop(u,it,X0,Y0);return}_lmTT(u,it,X0,Y0,AN)};
+var _coTy=collide;collide=function(c){var n=_coTy(c),R=TOYO;if(R&&R.bld&&!c.l){var B=R.bld,dx=wd(B.x,c.x),dy=wd(B.y,c.y);if(Math.abs(dx)<90&&Math.abs(dy)<90)satBox(c,dx,dy,B.hx,B.hy,B.a,.22,.35)}return n};
+// the old cart is gone (and so is its glow)
+var _ssxTy=stStallXY;stStallXY=function(k){if(k==='toyo'&&TOYO)return null;return _ssxTy(k)};
+var _dzTy=drawZones;drawZones=function(l){_dzTy(l);if(l===0)toyoFlag()};
+// night: the lanterns, the shop window and the signboard glow
+var _edTy=emisDraw;emisDraw=function(a){_edTy(a);var R=TOYO;if(!R||a<=.02)return;[[TYW/2-13,TYF+6,7,8,[255,90,58],.85],[TYW/2+13,TYF+6,7,8,[255,90,58],.85],[20,TYF+7,20,8,[255,214,140],.6],[TYW/2,TYF-10,30,10,[255,220,170],.35]].forEach(function(q){var w=tyWorld(R,q[0],q[1]),x=SX(w[0]),y=SY(w[1]);if(x>-60&&y>-60&&x<VW+60&&y<VH+60)gl(x,y,q[2],q[3],q[4],a*q[5])})};
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
