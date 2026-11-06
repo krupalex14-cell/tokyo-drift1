@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='06.11 03:56';
+var GAME_BUILD='06.11 04:07';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -377,6 +377,10 @@ var EN={
  'Поймал!':'Caught it!',
  'Лови!':'Catch it!',
  'цель!':'goal!',
+ 'Рин толкнула!':'Rin rammed you!',
+ 'потеряла тебя':'lost you',
+ 'идёт на таран!':'going for a ram!',
+ 'Рин тебя прижала':'Rin boxed you in',
  'сборка':'build',
  'лови — выровняй!':'catch it — straighten up!',
  'занос':'slide',
@@ -499,6 +503,10 @@ function applyLang(){document.documentElement.lang=S.lang==='en'?'en':S.lang==='
 
 // ===== Chinese (Simplified): keyed by the Russian source text, like EN; missing keys fall back to English =====
 var ZH={
+ "Рин толкнула!":"凛撞了你！",
+ "потеряла тебя":"跟丢了你",
+ "идёт на таран!":"要撞过来了！",
+ "Рин тебя прижала":"凛把你逼停了",
  "цель!":"达成目标！",
  "СЮЖЕТ":"剧情",
  "СВОБОДНАЯ ЕЗДА":"自由驾驶",
@@ -4637,7 +4645,7 @@ function stStart(m,quick){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amou
   if(m.type==='pay'){if(S.coins>=m.amount){S.coins-=m.amount;S.story.debt-=m.amount;save();stDone(true)}else{ST.act=null;toast(L('Нужно')+' '+m.amount+' ¥');return}return}
   if(m.ride&&!quick){ST.ride=true;var rp=stPlace(m.ride);stRoute(rp.x,rp.y);return}
   stMain(m)})}
-function stMain(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;
+function stMain(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;ST.hid=0;ST.pin=0;ST.rams=0;
  if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
  if(m.type==='chase'){WP=null;stSpawnRin()}
  if(m.type==='save'){WP=null;var pz=stZone(m.zone),pp=stPlace(m.at);if(pz&&!stOnPad(m)&&pp){var gq=pp.g||pp;stRoute(gq.x,gq.y)}}
@@ -4721,8 +4729,12 @@ function stKinds(m,dt){
   ST.far=d>900?ST.far+dt:0;if(ST.far>6){ST.fail='потерял Рэйко';zoneEnd('time');return true}return false}
  if(m.type==='race'&&ZS&&ZS.z.id===m.zone){var ps2=ZS.s;for(var i=0;i<RIV.length;i++){var R=RIV[i];R.wait=ZS.ph!=='go';if(ZS.ph!=='go')continue;var lead=stRoadS(R)-ps2;
    R.sk=R.sk0*clamp(1-(lead-100)/1000,.6,1.2);if(stRoadS(R)>=ZS.z.s1){ST.fail=(R.id==='rin'?'Рин':'Сидзука')+' первая на финише';zoneEnd('time');return true}}return false}
- if(m.type==='chase'){var R2=RIV[0];if(!R2)return false;stTrail(R2);var dd=Math.hypot(wd(R2.x,car.x),wd(R2.y,car.y)),lag=R2.L-R2.P;R2.vmax=dd>300?460:dd<100?330:410;R2.sk=dd>300?1:.9;
-  ST.esc=(dd>520||lag>900)?ST.esc+dt:0;if(ST.esc>3){popup(L('Оторвался!'),'big');stDone(true);return true}
+ if(m.type==='chase'){var R2=RIV[0];if(!R2)return false;var dd=stRinUpdate(R2,dt);
+  // escape: 520+ px ahead for 3 s, or out of her sight for 5 s
+  ST.esc=dd>520?ST.esc+dt:0;ST.hid=(R2.nolos>0&&dd>260)?(ST.hid||0)+dt:0;
+  if(ST.esc>3||ST.hid>5){popup(L('Оторвался!'),'big');stDone(true);return true}
+  // pinned: she has you boxed in and you are not moving
+  ST.pin=(dd<58&&car.sp<30)?(ST.pin||0)+dt:Math.max(0,(ST.pin||0)-dt*2);if(ST.pin>3){stDone(false,'Рин тебя прижала');return true}
   if(ST.t>m.limit){stDone(false,'Рин не отстала');return true}return false}
  return false}
 function stOnPad(m){var z=stZone(m.zone);if(!z||car.l)return false;var sp=z.spec;if(sp){var dx=wd(car.x,sp.x+sp.w/2),dy=wd(car.y,sp.y+sp.h/2);return Math.abs(dx)<sp.w/2-4&&Math.abs(dy)<sp.h/2-4}return Math.hypot(wd(z.x,car.x),wd(z.y,car.y))<z.r+40}
@@ -4754,7 +4766,7 @@ function stHud(){var e=$('sobj');if(!e)return;var m=ST.act;if(!ST.mode||mode!=='
  else if(m.type==='save'){var lf=Math.max(0,Math.ceil(m.limit-ST.t));t=ST.out?L('заедь на площадку')+' · '+Math.round(Math.hypot(wd(P[m.at].x,car.x),wd(P[m.at].y,car.y))/4)+' '+L('м'):L('поймал')+' '+ST.prog+'/'+m.need+' · '+(ST.sv?L('лови — выровняй!'):L('занос')+' '+(car.sp>30&&car.fw>0?Math.round(Math.abs(angd(Math.atan2(car.vy,car.vx),car.a))*57.3):0)+'°/'+Math.round(SAVE_DEEP*57.3)+'°')+' · '+lf+' '+L('с');bar=ST.prog/m.need}
  else if(m.type==='tandem'&&RIV[0]){var g2=RIV[0];t=L('Рэйко')+' '+Math.round(Math.hypot(wd(g2.x,car.x),wd(g2.y,car.y))/4)+' '+L('м')+' · '+L('хвост')+' '+Math.round(ST.tot?ST.close/ST.tot*100:0)+'% · '+ST.touch+'/3';bar=ST.tot?ST.close/ST.tot:0}
  else if(m.type==='race'&&ZS){var pos=1;RIV.forEach(function(R){if(stRoadS(R)>ZS.s)pos++});t=L('место')+' '+pos+'/3 · '+L('до финиша')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
- else if(m.type==='chase'&&RIV[0]){var R3=RIV[0];t=L('Рин')+' '+Math.round(Math.hypot(wd(R3.x,car.x),wd(R3.y,car.y))/4)+' '+L('м')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(ST.esc/3,0,1)}
+ else if(m.type==='chase'&&RIV[0]){var R3=RIV[0];t=L('Рин')+' '+Math.round(Math.hypot(wd(R3.x,car.x),wd(R3.y,car.y))/4)+' '+L('м')+(ST.hid>0?' · '+L('потеряла тебя'):R3.atk?' · '+L('идёт на таран!'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(Math.max(ST.esc/3,(ST.hid||0)/5),0,1)}
  else if(m.type==='tt'&&ZS){t=L('ты')+' '+(ZS.z.T-ZS.t).toFixed(1)+' · '+L('Сидзука')+' '+(m.rec||0).toFixed(1)+' '+L('с')}
  else if(m.type==='duel'){t=L('Гэн')+': '+fmtN(ST.gen)+'  ·  '+L('ты')+': '+fmtN(ZS?ZS.score+run.pend:0)}
  else if(m.type==='zone'&&ZS){t=m.course?L('доедь до финиша'):L('цель')+': '+fmtN(m.goalPts)}
@@ -4936,6 +4948,36 @@ stRamen=function(z){var R=RAMEN;if(!R){var r=z.road,s=Math.max((r.za||0)+70,z.s0
 stStallDraw=function(){var p=stStallXY('toyo');if(p)stYatai(p,0)};
 // night: lanterns, the roof sign and the pole sign glow
 var _edR=emisDraw;emisDraw=function(a){_edR(a);var R=RAMEN;if(!R||a<=.02)return;[[RW/2-15,50,8,8,[255,90,58],.8],[RW/2+12,50,8,8,[255,90,58],.8],[RW/2,24,34,11,[255,200,170],.35],[RW-14,RD-16,14,10,[255,70,60],.7]].forEach(function(q){var w=rmWorld(R,q[0],q[1]),x=SX(w[0]),y=SY(w[1]);if(x>-60&&y>-60&&x<VW+60&&y<VH+60)gl(x,y,q[2],q[3],q[4],a*q[5])})};
+
+// ===== chase (lesson "Cut off"): Rin hunts you over the road network, closes in and tries to ram =====
+// She used to replay your exact trail and got stuck on the first wall you scraped. Now she re-plans a GPS route to
+// where you are going every second, drives it at a pace matched to your car, and when she has you in sight up
+// close she goes straight for your rear quarter. After a hit she eases off for a moment so you can get away.
+function gpsPathFrom(fx,fy,tx,ty){var q=gpsNear(tx,ty,90)||gpsNear(tx,ty,260)||gpsNear(tx,ty,700);if(!q)return null;var sw=WP,sc=car,pts=null;
+ try{WP={x:wrap(tx),y:wrap(ty),q:q};car={x:fx,y:fy};gpsRoute();pts=WP&&WP.pts}catch(e){pts=null}WP=sw;car=sc;return pts&&pts.length>1?pts:null}
+function ptInBld(x,y){var h=false;BH.q(x-1,y-1,x+1,y+1,function(b){if(h||b.hid)return;var dx=wd(x,b.x),dy=wd(y,b.y);if(dx>0&&dy>0&&dx<b.w&&dy<b.h)h=true});return h}
+function stLos(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),d=Math.hypot(dx,dy),n=Math.ceil(d/14);for(var i=1;i<n;i++){var t=i/n;if(ptInBld(x0+dx*t,y0+dy*t))return false}return true}
+function rinOffPath(R){if(!R.pts||R.pts.length<2)return 1e9;var T=[0,0,0];rivAt(R,R.P,T);return Math.hypot(wd(R.c.x,T[0]),wd(R.c.y,T[1]))}
+function rinAttack(r,dt){if(!r.atk)return null;var c=r.c,lead=.22,ca=Math.cos(car.a),sa=Math.sin(car.a);
+ var side=(wd(c.x,car.x)*-sa+wd(c.y,car.y)*ca)>=0?1:-1,tx=car.x+car.vx*lead-ca*9-sa*side*5,ty=car.y+car.vy*lead-sa*9+ca*side*5;
+ var head=c.dr?Math.atan2(c.vy,c.vx):c.a,err=angd(Math.atan2(wd(ty,c.y),wd(tx,c.x)),head),I={s:clamp(err*3,-1,1),t:1,b:0,h:0};
+ if(Math.abs(err)>1.25&&c.sp>110){I.t=.2;I.b=.5}
+ if(r.stuck>.6){r.rev=.8;r.stuck=0;r.rt=0}if(r.rev>0){r.rev-=dt;return{s:err>0?-1:1,t:0,b:1,h:0}}
+ return I}
+var _rivAIc=rivAI;rivAI=function(r,dt){if(r.hunt){var o=rinAttack(r,dt);if(o)return o;if(r.stuck>.6)r.rt=0}return _rivAIc(r,dt)};
+function stRinSetup(R){R.hunt=1;R.rt=0;R.drift=1;R.back=2.2;var P=R.c.P,Q=car.P;P.vmax=Math.max(P.vmax,Q.vmax*1.04);P.pw=Math.max(P.pw,Q.pw*1.06);P.grip=Math.max(P.grip,Q.grip);P.turn=Math.max(P.turn,Q.turn);P.dturn=Math.max(P.dturn,Q.dturn)}
+// returns the straight-line distance to the player
+function stRinUpdate(R,dt){var c=R.c,dd=Math.hypot(wd(car.x,c.x),wd(car.y,c.y));if(!R.hunt)stRinSetup(R);
+ R.rt-=dt;R.cd=(R.cd||0)-dt;R.back=(R.back||0)-dt;R.lt=(R.lt||0)-dt;
+ if(R.lt<=0){R.lt=.25;R.los=(c.l|0)===(car.l|0)&&dd<420&&stLos(c.x,c.y,car.x,car.y)?1:0}
+ R.nolos=R.los?0:(R.nolos||0)+dt;
+ R.atk=!!(R.los&&dd<125&&R.back<=0);
+ if(!R.atk&&(R.rt<=0||rinOffPath(R)>55||R.L-R.P<40)){R.rt=dd>500?1.5:.85;var lead=Math.min(.9,dd/350),p=gpsPathFrom(c.x,c.y,car.x+car.vx*lead,car.y+car.vy*lead);if(p)rivPath(R,p,false)}
+ // pace: matched to your car, a little quicker when she is far behind, easing off right after a hit
+ var pv=car.P.vmax;R.vmax=R.back>0?pv*.75:dd>420?pv*1.08:dd>200?pv*1.02:pv;R.sk=R.back>0?.85:1;
+ // contact = a ram attempt
+ if(dd<c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(c.vx-car.vx,c.vy-car.vy);if(rel>35){R.cd=2.4;R.back=2;ST.rams=(ST.rams||0)+1;flash(L('Рин толкнула!'),.9);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}
+ return dd}
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
