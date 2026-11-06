@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='06.11 20:19';
+var GAME_BUILD='06.11 23:31';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -496,7 +496,8 @@ var EN={
  'Замок':'Castle','Сэнсо-дзи':'Senso-ji','Колесо':'Ferris wheel','Скайтри':'Skytree','Токийская башня':'Tokyo Tower','Неон-тауэр':'Neon Tower','Вокзал':'Station','Сумо':'Sumo',
  'тории':'torii','пагода':'pagoda','храм':'temple','сад':'garden','онсэн':'onsen','ёкотё':'yokocho','бамбук':'bamboo',
  "Гэн тебя блокирует!":"Gen is blocking you!","удар!":"hit!","Вон он! Не упусти!":"There it is! Don’t lose it!","номер":"plate","Номер снят!":"Plate filmed!","Вперёд!":"Go!","Кир рядом":"Kir is right there","фургон":"van","полиция":"police","потеряли тебя":"they lost you","старт через":"start in","выбери в карточке":"choose on the card","фургон ушёл в доки":"the van got into the docks","Сэйдзи первый на финише":"Seiji finished first","Гэн первый на финише":"Gen finished first","Тэцу первый на финише":"Tetsu finished first","Ватанабэ толкнул!":"Watanabe rammed you!","Тэцу оглушён!":"Tetsu is stunned!","«Бульдозер» оглушён!":"A Bulldozer is stunned!","Тэцу таранит!":"Tetsu rams you!","Таран!":"Ram!","Хана вышла из машины":"Hana got out of the car","задел":"you touched something","потерял фургон":"lost the van","Ватанабэ тебя прижал":"Watanabe pinned you","полиция не отстала":"the police stayed on you","Кир финишировал без тебя":"Kir finished without you","соперник первым на финише":"a rival finished first","«Бульдозер»":"Bulldozer","«Бульдозер» первый на финише":"a Bulldozer finished first","Кир далеко отстал":"Kir fell far behind","кадр с Рю":"shot with Ryu","кадр! ты далеко от Рю":"photo! you are far from Ryu","коснулся машины Рин":"touched Rin’s car","потерял Рин":"lost Rin","Рю набрал больше":"Ryu scored more","далеко от Рин":"too far from Rin","Кир":"Kir","Рю":"Ryu","Ватанабэ":"Watanabe","Сэйдзи":"Seiji","Тэцу":"Tetsu","Фургон":"Van","Бульдозер":"Bulldozer",
- "через":"via"
+ "через":"via",
+ "пролети рядом с машиной на скорости":"fly past a car at speed","Кир: «Ого!»":"Kir: “Whoa!”","Кир: «Ладно, верю. Теперь в мастерскую!»":"Kir: “OK, I believe you. Now to the garage!”","Кир: «Э, сначала покажи, что умеешь!»":"Kir: “Hey, show me what you can do first!”","Тайник!":"The stash!","Курьер остановился":"The courier stopped","Курьер смотрит в зеркало!":"The courier is checking his mirror!","Курьер приехал":"The courier arrived","маячок":"beacon","остановись":"stop here","курьер":"courier","подозрение":"suspicion","догоняй!":"catch up!","курьер тебя заметил":"the courier spotted you","потерял курьера":"lost the courier","здесь!":"right here!","горячо!":"hot!","теплее":"warmer","прохладно":"cool","холодно":"cold","Кир в машине":"Kir is in the car","Курьер":"Courier"
 };
 function L(s){if(typeof S==='undefined'||!S||S.lang==='ru'||!S.lang)return s;if(S.lang==='zh'&&typeof ZH!=='undefined'&&ZH[s]!=null)return ZH[s];return EN[s]!=null?EN[s]:s}
 // a (Russian, English) pair in the current language: Chinese is looked up by the Russian text, English is the fallback
@@ -1373,7 +1374,60 @@ var ZH={
  "«Бульдозер» первый на финише":"一辆“推土机”先到了终点",
  "через":"途经",
  "Склад у площадки":"场地旁的仓库",
- "Южный склад":"南仓库"
+ "Южный склад":"南仓库",
+ "пролети рядом с машиной на скорости":"高速擦过一辆车",
+ "Кир: «Ого!»":"基尔：“哇！”",
+ "Кир: «Ладно, верю. Теперь в мастерскую!»":"基尔：“好吧，我信了。现在去车库！”",
+ "Кир: «Э, сначала покажи, что умеешь!»":"基尔：“喂，先露一手！”",
+ "Тайник!":"藏物处！",
+ "Курьер остановился":"快递员停下了",
+ "Курьер смотрит в зеркало!":"快递员在看后视镜！",
+ "Курьер приехал":"快递员到了",
+ "маячок":"信标",
+ "остановись":"停下",
+ "курьер":"快递员",
+ "подозрение":"怀疑",
+ "догоняй!":"快追上！",
+ "курьер тебя заметил":"快递员发现了你",
+ "потерял курьера":"跟丢了快递员",
+ "здесь!":"就在这儿！",
+ "горячо!":"很热！",
+ "теплее":"热一点",
+ "прохладно":"凉",
+ "холодно":"冷",
+ "Кир в машине":"基尔在车上",
+ "Кир не верит в «пьяный стиль»: выполни три его просьбы по дороге и довези его до мастерской":"基尔不信“醉拳风格”：路上完成他的三个要求，再把他送到车库",
+ "Курьер":"快递员",
+ "Проследи за курьером: держись позади, не ближе 20 м и не дальше 110 м":"跟踪快递员：保持在他后面，不近于20米，不远于110米",
+ "К Тэцу снова приходил курьер с конвертом. Пора узнать, кому он его везёт.":"快递员又带着信封去找铁了。是时候查清他要送给谁了。",
+ "Найди тайник Миши в доках по сигналу маячка — навигатор не поможет":"靠信标信号在码头找到米沙的藏物处——这次导航帮不上忙",
+ "Тэцу вспомнил: двенадцать лет назад Миша что-то прятал у старых кранов.":"铁想起来了：十二年前米沙在旧吊车旁藏过东西。",
+ "Кир: «Покажи свой пьяный занос!»":"基尔：“来个醉拳漂移！”",
+ "Кир: «Разгонись до 150!»":"基尔：“开到150！”",
+ "Кир: «Проскочи впритирку к машине!»":"基尔：“贴着别的车擦过去！”",
+ "Ага. «Просто». Стоп, а ты точно тот самый Лёха из видео? Докажи. Три фокуса по дороге — и я поверю.":"哦。“只是”。等等，你真是视频里那个廖哈？证明一下。路上露三手——我就信。",
+ "Заказывай. Садись.":"你点吧。上车。",
+ "Слушай, Тэцу продаёт свою старую «восемьдесят шестую». Я тут выйду — заберу её. Вечером позвоню.":"听着，铁要卖他那辆旧“八六”。我在这儿下车——把它开走。晚上给你打电话。",
+ "Видал? Моя «восемьдесят шестая». Почти без ржавчины!":"看见没？我的“八六”。几乎没生锈！",
+ "И ещё: Хана зовёт на Скрамбл, с ней какой-то спонсор. Едем — я за тобой.":"还有：花叫我们去十字路口，她身边有个什么赞助商。走——我跟着你。",
+ "Кто их вызвал?! Мы же только закончили! Я сворачиваю в переулок, ты уводи их!":"谁叫的警察？！我们才刚跑完！我拐进小巷，你把他们引开！",
+ "Я в мастерскую. На сегодня с меня хватит полиции.":"我回车库了。今晚的警察够我受的了。",
+ "Пьяный. Тот курьер с одеколоном опять был у меня. Оставил конверт, забрал ответ — и уехал. Чёрный седан.":"醉鬼。那个带古龙水味的快递员又来找我了。留下信封，拿走回信——走了。一辆黑色轿车。",
+ "Он ещё у порта. Я тебе этого не говорил.":"他还在港口附近。我可没跟你说过。",
+ "(Держаться сзади. Не слишком близко — и не упустить.)":"（跟在后面。别太近——也别跟丢。）",
+ "(Курьер встал у Скрамбла. К нему подкатила жёлтая машина…)":"（快递员停在十字路口。一辆黄色的车开到他旁边……）",
+ "(Конверт ушёл в окно. Лица не видно. Но эту жёлтую машину я где-то видел.)":"（信封从车窗递了进去。看不见脸。但这辆黄色的车我在哪儿见过。）",
+ "Жёлтая? В этом городе полно жёлтых машин, брат. Но номер запомни.":"黄色的？这城里黄色的车多的是，兄弟。不过记住车牌。",
+ "Засветился? Ладно. Курьеры ездят кругами — он ещё вернётся к порту.":"被发现了？算了。快递员都是绕圈跑的——他还会回港口的。",
+ "Эй, пьяный. Твой дядя тут гонял лет двенадцать назад. У старых кранов у него был тайник.":"喂，醉鬼。你叔叔大概十二年前在这儿跑过。他在旧吊车旁有个藏东西的地方。",
+ "У какого крана — не помню. Но Миша поставил там маячок. Если батарейка жива, твоя рация его поймает.":"哪个吊车——我不记得了。但米沙在那儿放了个信标。要是电池还有电，你的对讲机能收到。",
+ "Я залез на контейнер, мне всё видно! Заманивай их в стены и контейнеры. Тэцу тяжёлый — после удара секунды три в себя приходит.":"我爬上集装箱了，全都看得见！把他们引到墙和集装箱上。铁很重——撞一下要缓三秒左右。",
+ "Кир · за рулём «восемьдесят шестой»":"基尔 · 开着“八六”",
+ "Кир · на крыше контейнера":"基尔 · 在集装箱顶上",
+ "Сначала кинем твои сумки в мастерскую. Потом — к бабушке Тоё, лучшие онигири в Токио.":"先把你的包放到车库。然后去丰婆婆那儿——东京最好吃的饭团。",
+ "(обходит машину) Погоди… это та самая Сакура из твоих видео? Вживую она ещё круче. А девушка из видео где?":"（绕着车走了一圈）等等……这就是你视频里那辆“樱花”？真车更帅。那视频里的女孩呢？",
+ "Ладно, верю: ты тот самый Лёха. Так это и есть мастерская дяди Миши? Пахнет как у деда в гараже.":"好吧，我信了：你就是那个廖哈。这就是米沙叔叔的车库？闻起来跟我爷爷的车库一样。",
+ "Диван твой. Сумки — в угол.":"沙发归你。包放角落里。"
 };
 
 // ===== QR code encoder (byte mode, ECC level L, versions 1-5, single RS block) =====
@@ -4881,7 +4935,7 @@ STORY.push(
 
 // ---- state
 if(!S.story||typeof S.story!=='object')S.story={m:0,started:0,debt:30000,v:2,hi:0};
-(function(){var o=S.story;if(o.v===2)return;var m=o.m|0,mi=STORY.length;for(var i=m;i<STORY_OLD.length;i++){var j=-1;for(var k=0;k<STORY.length;k++)if(STORY[k].id===STORY_OLD[i])j=k;if(j>=0&&j<mi)mi=j}
+(function(){var o=S.story;if((o.v|0)>=2)return;var m=o.m|0,mi=STORY.length;for(var i=m;i<STORY_OLD.length;i++){var j=-1;for(var k=0;k<STORY.length;k++)if(STORY[k].id===STORY_OLD[i])j=k;if(j>=0&&j<mi)mi=j}
  if(m>=STORY_OLD.length)mi=STORY_OLD.length;o.m=mi;o.hi=Math.max(o.hi|0,mi);o.v=2})();
 var ST={mode:false,act:null,ride:false,arr:false,t:0,prog:0,hits:0,stop:0,routed:'',lastOk:false,gen:0,photo:0,prompt:false,end:null};
 function stCur(){return STORY[S.story.m|0]||null}
@@ -5251,25 +5305,39 @@ function gpsPathFrom(fx,fy,tx,ty){var q=gpsNear(tx,ty,90)||gpsNear(tx,ty,260)||g
 function ptInBld(x,y){var h=false;BH.q(x-1,y-1,x+1,y+1,function(b){if(h||b.hid)return;var dx=wd(x,b.x),dy=wd(y,b.y);if(dx>0&&dy>0&&dx<b.w&&dy<b.h)h=true});return h}
 function stLos(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),d=Math.hypot(dx,dy),n=Math.ceil(d/14);for(var i=1;i<n;i++){var t=i/n;if(ptInBld(x0+dx*t,y0+dy*t))return false}return true}
 function rinOffPath(R){if(!R.pts||R.pts.length<2)return 1e9;var T=[0,0,0];rivAt(R,R.P,T);return Math.hypot(wd(R.c.x,T[0]),wd(R.c.y,T[1]))}
-function rinAttack(r,dt){if(!r.atk)return null;var c=r.c,lead=.22,ca=Math.cos(car.a),sa=Math.sin(car.a);
+function rinAttack(r,dt){if(!r.atk&&!r.hold)return null;var c=r.c,lead=.22,ca=Math.cos(car.a),sa=Math.sin(car.a),dd=Math.hypot(wd(car.x,c.x),wd(car.y,c.y));
  var side=(wd(c.x,car.x)*-sa+wd(c.y,car.y)*ca)>=0?1:-1,tx=car.x+car.vx*lead-ca*9-sa*side*5,ty=car.y+car.vy*lead-sa*9+ca*side*5;
  var head=c.dr?Math.atan2(c.vy,c.vx):c.a,err=angd(Math.atan2(wd(ty,c.y),wd(tx,c.x)),head),I={s:clamp(err*3,-1,1),t:1,b:0,h:0};
+ if(dd<52)r.stuck=0;// leaning on you is the point, not being stuck
+ if(r.stuck>.6){r.rev=.8;r.stuck=0;r.rt=0;r.revN=(r.revN||0)+1}if(r.rev>0){r.rev-=dt;return{s:err>0?-1:1,t:0,b:1,h:0}}
+ // overshot you at close range: back up and turn, instead of a lap round the block
+ if(Math.abs(err)>1.7&&dd<120){if(c.sp>70)return{s:I.s,t:0,b:1,h:0};return{s:err>0?-1:1,t:0,b:1,h:0}}
  if(Math.abs(err)>1.25&&c.sp>110){I.t=.2;I.b=.5}
- if(r.stuck>.6){r.rev=.8;r.stuck=0;r.rt=0}if(r.rev>0){r.rev-=dt;return{s:err>0?-1:1,t:0,b:1,h:0}}
+ // arrive at a speed she can still steer with (you standing still = she does not fly past), then lean on you
+ var vd=r.hold?(dd<95?0:dd*1.1):Math.max(70,dd*2.3+car.sp);if(c.sp>vd+25){I.t=0;I.b=r.hold?.8:.45}else if(c.sp>vd)I.t=.25;
+ if(!r.hold&&dd<46&&car.sp<45)I.t=.6;
  return I}
 var _rivAIc=rivAI;rivAI=function(r,dt){if(r.hunt){var o=rinAttack(r,dt);if(o)return o;if(r.stuck>.6)r.rt=0}return _rivAIc(r,dt)};
+function c3jam(R,dt,dd){var c=R.c;R.jt=(R.jt||0)+dt;if(R.jt<1)return;R.jt=0;var mv=R.jx==null?99:Math.hypot(wd(c.x,R.jx),wd(c.y,R.jy));R.jx=c.x;R.jy=c.y;
+ R.jam=mv<22&&dd>70?(R.jam||0)+1:0;if(R.jam<4||(R.los&&dd<240))return;var q=gpsNear(c.x,c.y,320);if(!q)return;R.jam=0;c.x=q.x;c.y=q.y;c.a=Math.atan2(wd(car.y,q.y),wd(car.x,q.x));c.vx=c.vy=c.w=0;c.dr=false;R.x=q.x;R.y=q.y;R.rt=0;R.rev=0;R.stuck=0;R.revN=0}
 function stRinSetup(R){R.hunt=1;R.rt=0;R.drift=1;R.back=2.2;var P=R.c.P,Q=car.P;P.vmax=Math.max(P.vmax,Q.vmax*1.04);P.pw=Math.max(P.pw,Q.pw*1.06);P.grip=Math.max(P.grip,Q.grip);P.turn=Math.max(P.turn,Q.turn);P.dturn=Math.max(P.dturn,Q.dturn)}
 // returns the straight-line distance to the player
 function stRinUpdate(R,dt){var c=R.c,dd=Math.hypot(wd(car.x,c.x),wd(car.y,c.y));if(!R.hunt)stRinSetup(R);
  R.rt-=dt;R.cd=(R.cd||0)-dt;R.back=(R.back||0)-dt;R.lt=(R.lt||0)-dt;
  if(R.lt<=0){R.lt=.25;R.los=(c.l|0)===(car.l|0)&&dd<420&&stLos(c.x,c.y,car.x,car.y)?1:0}
  R.nolos=R.los?0:(R.nolos||0)+dt;
- R.atk=!!(R.los&&dd<125&&R.back<=0);
- if(!R.atk&&(R.rt<=0||rinOffPath(R)>55||R.L-R.P<40)){R.rt=dd>500?1.5:.85;var lead=Math.min(.9,dd/350),p=gpsPathFrom(c.x,c.y,car.x+car.vx*lead,car.y+car.vy*lead);if(p)rivPath(R,p,false)}
+ // you standing still in sight: she comes straight for you; right after a hit she hangs back close by instead of driving off
+ R.noatk=(R.noatk||0)-dt;if((R.revN||0)>=3){R.revN=0;R.noatk=2.5;R.rt=0}
+ R.slowT=car.sp<40?(R.slowT||0)+dt:0;
+ R.atk=!!(R.los&&R.back<=0&&R.noatk<=0&&(dd<125||(R.slowT>1.2&&dd<260)));
+ R.hold=!!(!R.atk&&R.los&&R.back>0&&dd<230&&R.noatk<=0);if(R.atk||R.hold)c3jam(R,dt,dd);
+ // wedged somewhere out of your sight for a while: back onto the nearest road, facing you
+ if(!R.atk&&!R.hold)c3jam(R,dt,dd);
+ if(!R.atk&&!R.hold&&(R.rt<=0||rinOffPath(R)>55||R.L-R.P<40)){R.rt=dd>500?1.5:.85;var lead=Math.min(.9,dd/350),p=gpsPathFrom(c.x,c.y,car.x+car.vx*lead,car.y+car.vy*lead);if(p)rivPath(R,p,false)}
  // pace: matched to your car, a little quicker when she is far behind, easing off right after a hit
  var pv=car.P.vmax;R.vmax=R.back>0?pv*.75:dd>420?pv*1.08:dd>200?pv*1.02:pv;R.sk=R.back>0?.85:1;
  // contact = a ram attempt
- if(dd<c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(c.vx-car.vx,c.vy-car.vy);if(rel>35){R.cd=2.4;R.back=2;ST.rams=(ST.rams||0)+1;flash(L(R.ramMsg||'Рин толкнула!'),.9);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}
+ if(dd<c.hx+car.hx+5&&R.cd<=0){var rel=Math.hypot(c.vx-car.vx,c.vy-car.vy);if(rel>35){R.cd=2.4;R.back=R.slowT>1.2?0:2;ST.rams=(ST.rams||0)+1;flash(L(R.ramMsg||'Рин толкнула!'),.9);if(S.vib&&navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}}
  return dd}
 
 // ===== weather: clear / overcast / rain with puddles / wind =====
@@ -5388,21 +5456,23 @@ var _edT=emisDraw;emisDraw=function(a){_edT(a);for(var i=0;i<PIECES.length;i++){
 // ===== chapter 3 «Огни Харуми»: Kir arrives, Hana's parts are stolen, Ryu courts Hana, someone leaks every move to the Shadows =====
 CHAP[3]={t:{ru:'Огни Харуми',en:'Harumi Lights'},tod:{ru:'ночь · порт',en:'night · the port'},goal:{ru:'Вернуть детали Ханы, узнать, кто сливает тебя «Теням», и внести третий взнос',en:'Get Hana’s parts back, find out who leaks your moves to the Shadows, and make the third payment'},pay:5000};
 CHAP[4]={t:{ru:'Призрак',en:'The Ghost'},tod:{ru:'глубокая ночь · перевал Кумо',en:'deep night · Kumo pass'}};
-var PH_W=['Ватанабэ · по рации','Watanabe · on the radio'],PH_R=['Рин · по телефону','Rin · on the phone'],PH_T3=['Тэцу · по телефону','Tetsu · on the phone'],PH_S=['Сидзука · по телефону','Shizuka · on the phone'];
+var PH_W=['Ватанабэ · по рации','Watanabe · on the radio'],KIR_86=['Кир · за рулём «восемьдесят шестой»','Kir · driving the “eighty-six”'],KIR_TOP=['Кир · на крыше контейнера','Kir · on a container roof'],PH_R=['Рин · по телефону','Rin · on the phone'],PH_T3=['Тэцу · по телефону','Tetsu · on the phone'],PH_S=['Сидзука · по телефону','Shizuka · on the phone'];
 STORY.push(
- {id:'d1',ch:3,title:{ru:'Паром из Владика',en:'The ferry from Vladik'},at:'port',type:'deliv',stops:['garage'],reward:200,
-  goal:{ru:'Встреть Кира в порту и отвези в мастерскую',en:'Meet Kir at the port and take him to the garage'},
+ {id:'d1',ch:3,title:{ru:'Паром из Владика',en:'The ferry from Vladik'},at:'port',type:'kirride',stops:['garage'],asks:['drift','speed','near'],pass:'kir',reward:300,
+  goal:{ru:'Кир не верит в «пьяный стиль»: выполни три его просьбы по дороге и довези его до мастерской',en:'Kir doesn’t believe in the “drunken style”: do his three requests on the way and get him to the garage'},
   why:{ru:'Кир приплыл из Владивостока. Лучший друг — и худший штурман.',en:'Kir came over from Vladivostok. Best friend, worst navigator.'},
   pre:[D('kir','Лёха! Восемь часов на пароме, кормили одной рыбой. Обнимашки потом, сначала — где тут нормальная еда?','Lyokha! Eight hours on a ferry and nothing but fish. Hugs later — where’s some real food around here?'),
-       D('lyokha','Сначала мастерская. Покажу тебе Сакуру.','Garage first. I’ll show you Sakura.'),
-       D('kir','Та самая из твоих видео? А девушка из видео где?','The one from your videos? And where’s the girl from the videos?'),
+       D('lyokha','Сначала кинем твои сумки в мастерскую. Потом — к бабушке Тоё, лучшие онигири в Токио.','First we drop your bags at the garage. Then Grandma Toyo’s — the best onigiri in Tokyo.'),
+       D('kir','(обходит машину) Погоди… это та самая Сакура из твоих видео? Вживую она ещё круче. А девушка из видео где?','(walks round the car) Wait… this is the Sakura from your videos? She’s even cooler for real. And where’s the girl from the videos?'),
        D('lyokha','Хана. Она… просто снимает.','Hana. She… just films.'),
-       D('kir','Ага. «Просто». Поехали, водитель.','Sure. “Just”. Let’s go, driver.')],
-  post:[D('kir','Так вот она какая, Сакура. Ты её прямо любишь, да?','So this is Sakura. You really love her, huh?'),
+       D('kir','Ага. «Просто». Стоп, а ты точно тот самый Лёха из видео? Докажи. Три фокуса по дороге — и я поверю.','Sure. “Just”. Wait, are you really the Lyokha from the videos? Prove it. Three tricks on the way and I’ll believe you.'),
+       D('lyokha','Заказывай. Садись.','Name them. Get in.')],
+  post:[D('kir','Ладно, верю: ты тот самый Лёха. Так это и есть мастерская дяди Миши? Пахнет как у деда в гараже.','Fine, I believe you: you’re the real Lyokha. So this is Uncle Misha’s garage? Smells like grandpa’s.'),
+        D('lyokha','Диван твой. Сумки — в угол.','The couch is yours. Bags in the corner.'),
         D('hana','Лёха! Мою лавку обокрали! Новый турбо для Сакуры, все детали — всё увезли!','Lyokha! My shop was robbed! The new turbo for Sakura, all the parts — gone!',PH_H),
         D('hana','Соседи видели белый фургон с бульдозером на борту — он только что свернул на вашу улицу! Перехвати!','The neighbours saw a white van with a bulldozer on the side — it just turned onto your street! Cut it off!',PH_H),
         D('kir','Добро пожаловать в Токио, да?','Welcome to Tokyo, huh?')]},
- {id:'d2',ch:3,title:{ru:'Фургон',en:'The van'},at:'garage',auto:true,type:'pursuit',via:['hana'],dest:'pad',loop:['port','yd2','yd1','pad'],need:10,limit:80,reward:400,
+ {id:'d2',ch:3,title:{ru:'Фургон',en:'The van'},at:'garage',auto:true,pass:'kir',type:'pursuit',via:['hana'],dest:'pad',loop:['port','yd2','yd1','pad'],need:10,limit:80,reward:400,
   goal:{ru:'Догони фургон и держись рядом 10 секунд — Кир снимет номер',en:'Catch the van and stay close for 10 seconds — Kir will film the plate'},
   why:{ru:'Фургон с деталями Ханы уходит к докам.',en:'The van with Hana’s parts is heading for the docks.'},
   pre:[D('kir','Вон он! Белый, с бульдозером! Подъедь поближе, я сниму номер.','There it is! White, with a bulldozer! Get closer, I’ll film the plate.'),
@@ -5411,7 +5481,7 @@ STORY.push(
         D('hana','Тэцу?! Его банда держит все доки. Туда просто так не заезжают.','Tetsu?! His gang runs all the docks. Nobody just drives in there.',PH_H),
         D('lyokha','Значит, заедем не просто так.','Then we won’t “just” drive in.')],
   fail:[D('kir','Ушёл… Давай ещё раз. Я в этот раз не буду жевать.','It got away… Let’s go again. I won’t be chewing this time.')],timeout:'фургон ушёл в доки'},
- {id:'d3',ch:3,title:{ru:'Без царапин',en:'Not a scratch'},at:'pad',type:'deliv',stops:['crane'],clean:1,limit:70,reward:450,
+ {id:'d3',ch:3,title:{ru:'Без царапин',en:'Not a scratch'},at:'pad',pass:'kir',type:'deliv',stops:['crane'],clean:1,limit:70,reward:450,
   goal:{ru:'Проедь доки до старого крана и ничего не задень',en:'Drive through the docks to the old crane without touching anything'},
   why:{ru:'Тэцу отдаст половину деталей, если ты проедешь его доки без единой царапины.',en:'Tetsu will give back half the parts if you get through his docks without a scratch.'},
   pre:[D('tetsu','Ты пьяный, что ли? Так въезжать в мои доки.','Are you drunk? Driving into my docks like that.'),
@@ -5421,17 +5491,19 @@ STORY.push(
   post:[D('tetsu','Хм. Ни царапины. Держи половину.','Hm. Not a scratch. Here’s half.'),
         D('lyokha','Кто тебе их заказал?','Who ordered them?'),
         D('tetsu','Конверт принёс курьер. Денег много, имени нет. Только пах дорогим одеколоном. Как в Неон-тауэре.','A courier brought an envelope. Lots of money, no name. It just smelled of expensive cologne. Like in Neon Tower.'),
-        D('kir','Одеколон. Отличная улика, Шерлок.','Cologne. Great clue, Sherlock.')],
+        D('kir','Одеколон. Отличная улика, Шерлок.','Cologne. Great clue, Sherlock.'),
+        D('kir','Слушай, Тэцу продаёт свою старую «восемьдесят шестую». Я тут выйду — заберу её. Вечером позвоню.','Listen, Tetsu is selling his old “eighty-six”. I’ll get out here and pick it up. I’ll call you tonight.')],
   fail:[D('tetsu','Задел. Вали. Приходи, когда научишься ездить.','You touched it. Get lost. Come back when you can drive.')]},
  {id:'d4',ch:3,title:{ru:'Двое на Вангане',en:'Two on the Wangan'},at:'wgs',type:'coop',zone:'wg',reward:450,
   goal:{ru:'Проедь Ванган вместе с Киром: финишируйте с разницей не больше 10 секунд',en:'Drive the Wangan with Kir: finish no more than 10 seconds apart'},
   why:{ru:'Тэцу продал Киру старую «восемьдесят шестую». Пора показать ему ночной Токио.',en:'Tetsu sold Kir an old “eighty-six”. Time to show him Tokyo at night.'},
-  pre:[D('kir','Тэцу отдал мне свою старую «восемьдесят шестую». Почти без ржавчины!','Tetsu let me have his old “eighty-six”. Hardly any rust!'),
+  pre:[D('kir','Видал? Моя «восемьдесят шестая». Почти без ржавчины!','See this? My “eighty-six”. Hardly any rust!',KIR_86),
        D('lyokha','Ванган. Едем рядом, не отставай.','The Wangan. We ride together, keep up.'),
        D('kir','Это ты не отставай.','You keep up.')],
   post:[D('kir','Видел чёрную машину сзади? Всю дорогу висела. С эмблемой — тень какая-то.','Did you see the black car behind us? It hung there the whole way. With a logo — some kind of shadow.'),
         D('lyokha','«Тени». Сидзука про них говорила.','The Shadows. Shizuka told me about them.'),
-        D('kir','Кто-то знает, где ты бываешь, брат. Слишком хорошо знает.','Someone knows where you go, bro. Knows it too well.')],
+        D('kir','Кто-то знает, где ты бываешь, брат. Слишком хорошо знает.','Someone knows where you go, bro. Knows it too well.'),
+        D('kir','И ещё: Хана зовёт на Скрамбл, с ней какой-то спонсор. Едем — я за тобой.','And another thing: Hana’s calling us to the Scramble, some sponsor is with her. Let’s go — I’ll follow you.',KIR_86)],
   fail:[D('kir','Ты меня бросил! Я чуть в отбойник не уехал.','You ditched me! I nearly went into the barrier.')]},
  {id:'d5',ch:3,title:{ru:'Незнакомец',en:'The stranger'},at:'scramble',type:'duel',zone:'scr',rival:'ryu',rate:1.15,reward:500,
   goal:{ru:'Набери на Скрамбле больше очков, чем Рю, за 45 секунд',en:'Outscore Ryu at the Scramble in 45 seconds'},
@@ -5450,11 +5522,12 @@ STORY.push(
   goal:{ru:'Уйди от полиции: оторвись или скройся у неё из виду',en:'Lose the police: get away or get out of their sight'},
   why:{ru:'Кто-то вызвал полицию прямо на заезд.',en:'Someone called the police right onto the run.'},
   pre:[D('watanabe','Белая Сакура, говорит полиция Токио. Немедленно остановитесь.','White Sakura, this is the Tokyo police. Stop immediately.',PH_W),
-       D('kir','Кто их вызвал?! Мы же только закончили!','Who called them?! We just finished!'),
+       D('kir','Кто их вызвал?! Мы же только закончили! Я сворачиваю в переулок, ты уводи их!','Who called them?! We just finished! I’m turning into an alley, you lead them away!',PH_K),
        D('lyokha','Держись крепче.','Hold on tight.')],
   post:[D('watanabe','Белая Сакура… Потерял. Совсем потерял. Какая жалость.','White Sakura… Lost him. Completely lost him. What a pity.',PH_W),
         D('watanabe','(тише) Звонок был анонимный. Из автомата у Скрамбла. Береги себя, парень.','(quieter) The call was anonymous. From a payphone at the Scramble. Take care, kid.',PH_W),
-        D('kir','Он что, нам сейчас подмигнул?','Did he just wink at us?')],
+        D('kir','Он что, нам сейчас подмигнул?','Did he just wink at us?',PH_K),
+        D('kir','Я в мастерскую. На сегодня с меня хватит полиции.','I’m going back to the garage. Enough police for one night.',PH_K)],
   fail:[D('watanabe','Попался. На первый раз — штраф и лекция о вреде заносов. Езжай домой, гонщик.','Gotcha. First time: a fine and a lecture on the dangers of drifting. Go home, racer.')]},
  {id:'d7',ch:3,title:{ru:'Ночь фейерверков',en:'Fireworks night'},at:'garage',type:'choice',reward:0,
   goal:{ru:'Выбери, с кем провести ночь фейерверков',en:'Choose who to spend fireworks night with'},
@@ -5464,7 +5537,7 @@ STORY.push(
        D('lyokha','(А Хана… после Рю почти не звонит.)','(And Hana… she’s barely called since Ryu.)',LYO_T),
        D('kir','Ну? Кого зовёшь?','So? Who are you asking?')],
   choices:[{v:'hana',ru:'Позвать Хану на колесо обозрения',en:'Take Hana to the Ferris wheel'},{v:'rin',ru:'Тандем с Рин под салютом',en:'Tandem with Rin under the fireworks'}],post:[]},
- {id:'d7h',ch:3,only:'hana',title:{ru:'Колесо обозрения',en:'The Ferris wheel'},at:'hana',type:'deliv',stops:['wheel'],clean:3,limit:60,fw:1,reward:300,
+ {id:'d7h',ch:3,only:'hana',pass:'hana',title:{ru:'Колесо обозрения',en:'The Ferris wheel'},at:'hana',type:'deliv',stops:['wheel'],clean:3,limit:60,fw:1,reward:300,
   goal:{ru:'Довези Хану до колеса обозрения до главного залпа. Три удара — и она выйдет',en:'Get Hana to the Ferris wheel before the big finale. Three hits and she gets out'},
   why:{ru:'Ты позвал Хану. Не опоздай — и не тряси, она в платье.',en:'You asked Hana. Don’t be late — and no shaking, she’s in a dress.'},
   pre:[D('hana','Ты правда меня зовёшь? Не Рю, не камера — просто ты?','You’re really asking me? Not Ryu, not the camera — just you?'),
@@ -5492,16 +5565,27 @@ STORY.push(
         D('lyokha','Хана, это не то, что…','Hana, it’s not what…'),
         D('hana','Мне всё равно. Правда.','I don’t care. Really.',PH_H)],
   fail:[D('rin','Отстал. Скучно с тобой, ёппарай.','You fell behind. You’re boring, yopparai.')]},
- {id:'d8',ch:3,title:{ru:'Записка №2',en:'Note #2'},at:'port',type:'deliv',stops:['crane'],reward:0,
-  goal:{ru:'Найди тайник Миши под старым краном в порту',en:'Find Misha’s stash under the old crane at the port'},
-  why:{ru:'Тэцу вспомнил: двенадцать лет назад Миша что-то прятал под старым краном.',en:'Tetsu remembered: twelve years ago Misha hid something under the old crane.'},
-  pre:[D('tetsu','Эй, пьяный. Твой дядя тут гонял лет двенадцать назад. Под старым краном у него был тайник.','Hey, drunk. Your uncle raced here about twelve years ago. He had a stash under the old crane.',PH_T3),
-       D('lyokha','Откуда ты знаешь?','How do you know?'),D('tetsu','Я тогда был пацаном и подметал доки. Он дал мне сто иен, чтобы я молчал.','I was a kid sweeping the docks back then. He gave me a hundred yen to keep quiet.',PH_T3)],
+ {id:'d7c',ch:3,title:{ru:'Курьер',en:'The courier'},at:'port',type:'tail',dest:'scramble',reward:450,
+  goal:{ru:'Проследи за курьером: держись позади, не ближе 20 м и не дальше 110 м',en:'Tail the courier: stay behind him, no closer than 20 m and no further than 110 m'},
+  why:{ru:'К Тэцу снова приходил курьер с конвертом. Пора узнать, кому он его везёт.',en:'The courier came to Tetsu with an envelope again. Time to find out who he takes it to.'},
+  pre:[D('tetsu','Пьяный. Тот курьер с одеколоном опять был у меня. Оставил конверт, забрал ответ — и уехал. Чёрный седан.','Drunk. That cologne courier was at mine again. Left an envelope, took the reply and went. A black sedan.',PH_T3),
+       D('tetsu','Он ещё у порта. Я тебе этого не говорил.','He’s still near the port. You didn’t hear it from me.',PH_T3),
+       D('lyokha','(Держаться сзади. Не слишком близко — и не упустить.)','(Stay behind. Not too close — and don’t lose him.)',LYO_T)],
+  post:[D('lyokha','(Курьер встал у Скрамбла. К нему подкатила жёлтая машина…)','(The courier stopped at the Scramble. A yellow car pulled up to him…)',LYO_T),
+        D('lyokha','(Конверт ушёл в окно. Лица не видно. Но эту жёлтую машину я где-то видел.)','(The envelope went in through the window. Can’t see the face. But I’ve seen that yellow car somewhere.)',LYO_T),
+        D('kir','Жёлтая? В этом городе полно жёлтых машин, брат. Но номер запомни.','Yellow? This city is full of yellow cars, bro. But remember the plate.',PH_K)],
+  fail:[D('tetsu','Засветился? Ладно. Курьеры ездят кругами — он ещё вернётся к порту.','Got spotted? Fine. Couriers drive in circles — he’ll be back at the port.',PH_T3)]},
+ {id:'d8',ch:3,title:{ru:'Записка №2',en:'Note #2'},at:'port',type:'search',stash:'yd2',limit:150,reward:200,
+  goal:{ru:'Найди тайник Миши в доках по сигналу маячка — навигатор не поможет',en:'Find Misha’s stash in the docks by its beacon signal — no navigator this time'},
+  why:{ru:'Тэцу вспомнил: двенадцать лет назад Миша что-то прятал у старых кранов.',en:'Tetsu remembered: twelve years ago Misha hid something by the old cranes.'},
+  pre:[D('tetsu','Эй, пьяный. Твой дядя тут гонял лет двенадцать назад. У старых кранов у него был тайник.','Hey, drunk. Your uncle raced here about twelve years ago. He had a stash by the old cranes.',PH_T3),
+       D('lyokha','Откуда ты знаешь?','How do you know?'),D('tetsu','Я тогда был пацаном и подметал доки. Он дал мне сто иен, чтобы я молчал.','I was a kid sweeping the docks back then. He gave me a hundred yen to keep quiet.',PH_T3),
+       D('tetsu','У какого крана — не помню. Но Миша поставил там маячок. Если батарейка жива, твоя рация его поймает.','Which crane — I don’t remember. But Misha put a beacon there. If the battery’s alive, your radio will pick it up.',PH_T3)],
   post:[D('misha','«По Харуми я гонял с Куродой. Он знает, что было на Кумо. Найдёшь его — скажи, что я не злюсь».','“I raced Harumi with Kuroda. He knows what happened on Kumo. If you find him, tell him I’m not angry.”',NOTE),
         D('lyokha','Курода… Ещё одно имя.','Kuroda… Another name.'),
-        D('kir','И ещё одно: Гэн звонил. В полночь гонка на Вангане. Пять машин, призовые — две с половиной тысячи.','And another one: Gen called. A race on the Wangan at midnight. Five cars, the prize is two and a half thousand.'),
+        D('kir','И ещё одно: Гэн звонил. В полночь гонка на Вангане. Пять машин, призовые — две с половиной тысячи.','And another one: Gen called. A race on the Wangan at midnight. Five cars, the prize is two and a half thousand.',PH_K),
         D('lyokha','Половина взноса. Совпадение?','Half the payment. A coincidence?'),
-        D('kir','В этом городе — нет.','Not in this city.')]},
+        D('kir','В этом городе — нет.','Not in this city.',PH_K)]},
  {id:'d9',ch:3,title:{ru:'Полночь на Вангане',en:'Midnight on the Wangan'},at:'wgs',type:'race5',zone:'wg',reward:2500,
   goal:{ru:'Гонка пятерых: приди первым на Вангане',en:'A five-car race: finish first on the Wangan'},
   why:{ru:'Подпольную гонку собрал Гэн. Призовые — половина взноса.',en:'Gen put together an underground race. The prize is half the payment.'},
@@ -5522,7 +5606,7 @@ STORY.push(
   why:{ru:'Обгонишь Тэцу в его доках — он отдаст все детали и назовёт имя заказчика.',en:'Beat Tetsu in his own docks and he gives back all the parts and names whoever paid him.'},
   pre:[D('tetsu','Ты обогнал меня на Вангане. В моих доках так не выйдет.','You beat me on the Wangan. It won’t work in my docks.'),
        D('tetsu','Я и трое моих «Бульдозеров». Финиш — у старого крана. Обгонишь — отдам всё. И назову имя.','Me and three of my Bulldozers. The finish is at the old crane. Beat me and I give everything back. And name the name.'),
-       D('kir','Заманивай их в стены и контейнеры. Тэцу тяжёлый — после удара секунды три в себя приходит.','Lure them into walls and containers. Tetsu is heavy — after a crash he needs about three seconds to come round.',PH_K),
+       D('kir','Я залез на контейнер, мне всё видно! Заманивай их в стены и контейнеры. Тэцу тяжёлый — после удара секунды три в себя приходит.','I’m up on a container, I can see everything! Lure them into walls and containers. Tetsu is heavy — after a crash he needs about three seconds to come round.',KIR_TOP),
        D('lyokha','Понял.','Got it.')],
   post:function(){var h=S.story.pick!=='rin';return [D('tetsu','…Ладно. Ты не боишься. Это я уважаю.','…Fine. You’re not afraid. I respect that.'),
         D('tetsu','Детали Ханы — все. И имя. Конверт мне передал Гэн.','All of Hana’s parts. And the name. Gen gave me the envelope.'),
@@ -5739,6 +5823,53 @@ function fwDraw(a){if(!FW.p.length)return;var bright=.55+.45*Math.min(1,a);
  cx.globalAlpha=1}
 var _udC3=stUpdate;stUpdate=function(dt){_udC3(dt);fwUpdate(dt);c3Siren(dt)};
 var _dnC3=stDone;stDone=function(ok,why){var m=ST.act;ST.lastWhy=why||'';if(m&&m.fw&&ok)FW.until=TIME+40;_dnC3(ok,why)};
+// ===== more kinds of missions: Kir's requests on the ride, tailing the courier, a hot/cold search =====
+// saves made before the courier mission existed: a story position past it moves one along
+(function(){var st=S.story;if(!st||(st.v|0)>=3)return;var ins=-1;for(var i=0;i<STORY.length;i++)if(STORY[i].id==='d7c')ins=i;if(ins>=0){if((st.m|0)>=ins)st.m=(st.m|0)+1;if((st.hi|0)>=ins)st.hi=(st.hi|0)+1}st.v=3;try{save()}catch(e){}})();
+var KASK={drift:{ru:'Кир: «Покажи свой пьяный занос!»',en:'Kir: “Show me your drunken drift!”'},speed:{ru:'Кир: «Разгонись до 150!»',en:'Kir: “Get her up to 150!”'},near:{ru:'Кир: «Проскочи впритирку к машине!»',en:'Kir: “Squeeze past a car, really close!”'}};
+function c3AskDone(k,dt){if(k==='drift')return run.pend>=500;if(k==='speed')return car.sp*.45>=150;
+ if(k==='near'){if(car.sp<170)return false;for(var i=0;i<AI.length;i++){var a=AI[i];if((a.l|0)!==(car.l|0)||a.fd)continue;var dx=wd(a.x,car.x),dy=wd(a.y,car.y);if(Math.abs(dx)>50||Math.abs(dy)>50)continue;var g=Math.hypot(dx,dy)-a.hx-car.hx*.6;if(g>0&&g<9)return true}return false}return false}
+function c3AskInfo(k){if(k==='drift')return L('занос')+' '+Math.min(500,Math.floor(run.pend||0))+'/500';if(k==='speed')return Math.round(car.sp*.45)+'/150 '+L('км/ч');return L('пролети рядом с машиной на скорости')}
+var _smC3b=stMain;stMain=function(m){
+ if(m.type==='kirride'){_smC3b({type:'x'});ST.ask=0;ST.askW=0;WP=null;flash(LT(KASK[m.asks[0]]),2.2);return}
+ if(m.type==='search'){_smC3b({type:'x'});ST.fnd=0;ST.bp=0;WP=null;return}
+ if(m.type==='tail'){_smC3b({type:'x'});ST.sus=0;ST.lost=0;ST.look=0;ST.lookT=5+Math.random()*3;ST.pz=0;ST.pzT=9+Math.random()*4;var d=stPlace(m.dest),dq=d.g||d,pp=gpsPathFrom(car.x,car.y,dq.x,dq.y);if(!pp){ST.act=null;return}
+  var pts=c3Res(pp,8),k=Math.min(pts.length-3,32),P0=pts[k],P1=pts[k+1];
+  var C=rivMake({id:'courier',name:'Курьер',tag:'#c8c8d8',car:10,col:6,str:4,glow:0,x:P0[0],y:P0[1],a:Math.atan2(wd(P1[1],P0[1]),wd(P1[0],P0[0])),pts:pts.slice(k),loop:false,vmax:230,wait:false,drift:0});C.sk=.82;
+  // a yellow car waits for him at the end
+  var E=pts[pts.length-1],E2=pts[Math.max(0,pts.length-6)],ea=Math.atan2(wd(E[1],E2[1]),wd(E[0],E2[0]));rivMake({id:'yellow',name:'',car:2,col:3,str:0,glow:0,x:E[0]+Math.cos(ea)*34-Math.sin(ea)*10,y:E[1]+Math.sin(ea)*34+Math.cos(ea)*10,a:ea+Math.PI,pts:[[E[0],E[1]],[E[0]+1,E[1]]],loop:false,vmax:0,wait:true});
+  WP=null;return}
+ _smC3b(m)};
+var _skC3b=stKinds;stKinds=function(m,dt){
+ if(m.type==='kirride'){var P=stPlaces(),G=P.garage;
+  if(ST.ask<m.asks.length){if(c3AskDone(m.asks[ST.ask],dt)){ST.ask++;popup(L('Кир: «Ого!»')+' '+ST.ask+'/'+m.asks.length,'big');if(S.snd)try{auBell()}catch(e){}
+     if(ST.ask<m.asks.length)setTimeout(function(){if(ST.act===m)flash(LT(KASK[m.asks[ST.ask]]),2.2)},900);else{flash(L('Кир: «Ладно, верю. Теперь в мастерскую!»'),2.4);stRoute(G.x,G.y)}}
+   else if(Math.hypot(wd(G.x,car.x),wd(G.y,car.y))<70&&TIME-ST.askW>5){ST.askW=TIME;flash(L('Кир: «Э, сначала покажи, что умеешь!»'),1.8)}return false}
+  if((!WP||!WP.pts)&&TIME-(ST.rt||0)>1.5)stRoute(G.x,G.y);
+  if(Math.hypot(wd(G.x,car.x),wd(G.y,car.y))<62){stDone(true);return true}return false}
+ if(m.type==='search'){var S2=stPlace(m.stash),d=Math.hypot(wd(S2.x,car.x),wd(S2.y,car.y)),sg=clamp(1-d/1500,0,1);ST.sg=sg;
+  ST.bp-=dt;if(ST.bp<=0){ST.bp=.18+(1-sg)*1.1;if(S.snd)try{auTone(500+sg*1000,.035+sg*.03,.05,'square')}catch(e){}}
+  if(d<80&&car.sp<50){ST.fnd+=dt;if(ST.fnd>1.2){popup(L('Тайник!'),'big');if(S.snd)try{auBell()}catch(e){}stDone(true);return true}}else ST.fnd=Math.max(0,ST.fnd-dt);
+  if(ST.t>m.limit){stDone(false,'время вышло');return true}return false}
+ if(m.type==='tail'){var C=RIV[0];if(!C)return false;var dd=Math.hypot(wd(C.x,car.x),wd(C.y,car.y));
+  // he stops now and then, and checks his mirrors
+  ST.pzT-=dt;if(ST.pz>0){ST.pz-=dt;C.vmax=0}else{C.vmax=dd>360?150:230;if(ST.pzT<=0){ST.pz=1.8+Math.random();ST.pzT=10+Math.random()*5;flash(L('Курьер остановился'),1)}}
+  ST.lookT-=dt;if(ST.look>0)ST.look-=dt;else if(ST.lookT<=0){ST.look=1.6;ST.lookT=6+Math.random()*4;flash(L('Курьер смотрит в зеркало!'),1.2)}
+  var same=(C.c.l|0)===(car.l|0);
+  if(same&&dd<80)ST.sus+=dt*.9;else if(same&&dd<150&&(ST.look>0||ST.pz>0))ST.sus+=dt*.45;else ST.sus=Math.max(0,ST.sus-dt*.1);
+  if(ST.sus>=1){stDone(false,'курьер тебя заметил');return true}
+  ST.lost=dd>440?ST.lost+dt:0;if(ST.lost>6){stDone(false,'потерял курьера');return true}
+  if(C.L-C.P<130){C.vmax=0;popup(L('Курьер приехал'),'big');stDone(true);return true}return false}
+ return _skC3b(m,dt)};
+var _stC3b=stTarget;stTarget=function(){var m=ST.act;if(ST.mode&&m&&!ST.ride){if(m.type==='tail'&&RIV[0])return{x:RIV[0].x,y:RIV[0].y};if(m.type==='search')return null;if(m.type==='kirride')return ST.ask>=m.asks.length?stPlace('garage'):null}return _stC3b()};
+var _shC3b=stHud;stHud=function(){_shC3b();var m=ST.act,e=$('sobj');if(!m||!e||!ST.mode||mode!=='game'||ST.ride)return;var t=null,bar=-1;
+ if(m.type==='kirride'){if(ST.ask<m.asks.length){var k=m.asks[ST.ask];t=LT(KASK[k])+' · '+c3AskInfo(k)+' · '+(ST.ask+1)+'/'+m.asks.length;bar=ST.ask/m.asks.length}else{var G=stPlace('garage');t=LT(G.name)+' · '+Math.round(Math.hypot(wd(G.x,car.x),wd(G.y,car.y))/4)+' '+L('м');bar=1}}
+ else if(m.type==='search'){var sg=ST.sg||0;t=L('маячок')+': '+L(sg>.93?'здесь!':sg>.75?'горячо!':sg>.5?'теплее':sg>.25?'прохладно':'холодно')+(sg>.9?' · '+L('остановись'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=sg}
+ else if(m.type==='tail'&&RIV[0]){var C=RIV[0];t=L('курьер')+' '+Math.round(Math.hypot(wd(C.x,car.x),wd(C.y,car.y))/4)+' '+L('м')+' · '+L('подозрение')+' '+Math.round(Math.min(1,ST.sus)*100)+'%'+(ST.lost>0?' · '+L('догоняй!'):'');bar=Math.min(1,ST.sus)}
+ if(t!==null)e.innerHTML='<b>'+stEsc(LT(m.title))+'</b><span>'+stEsc(t)+'</span>'+(bar>=0?'<i><u style="width:'+Math.round(clamp(bar,0,1)*100)+'%"></u></i>':'');
+ // who is in the car with you
+ if(m.pass&&!e.querySelector('.ps'))e.insertAdjacentHTML('beforeend','<em class="ps">'+stEsc(L(m.pass==='kir'?'Кир в машине':'Хана в машине'))+'</em>')};
+var _hoC3b=home;home=function(){var m=ST.act;_hoC3b();if(m&&ST.act===m&&(m.type==='tail'||m.type==='search'||m.type==='kirride'))stAbort()};
 
 // ===== GPS arrows at night and in the rain: they glow (drawn again in the light pass) =====
 function gpsGlow(a){if(!WP||!WP.arr)return;var k=Math.min(1,a+((typeof W!=='undefined'&&W.rain)||0)*.6);if(k<=.03)return;var A=WP.arr,S6=gpsSpr(),P=WP.P;
@@ -5838,6 +5969,38 @@ var _ssxTy=stStallXY;stStallXY=function(k){if(k==='toyo'&&TOYO)return null;retur
 var _dzTy=drawZones;drawZones=function(l){_dzTy(l);if(l===0)toyoFlag()};
 // night: the lanterns, the shop window and the signboard glow
 var _edTy=emisDraw;emisDraw=function(a){_edTy(a);var R=TOYO;if(!R||a<=.02)return;[[TYW/2-13,TYF+6,7,8,[255,90,58],.85],[TYW/2+13,TYF+6,7,8,[255,90,58],.85],[20,TYF+7,20,8,[255,214,140],.6],[TYW/2,TYF-10,30,10,[255,220,170],.35]].forEach(function(q){var w=tyWorld(R,q[0],q[1]),x=SX(w[0]),y=SY(w[1]);if(x>-60&&y>-60&&x<VW+60&&y<VH+60)gl(x,y,q[2],q[3],q[4],a*q[5])})};
+
+// ===== the objective card folds to two short lines (tap it; remembered) =====
+(function(){var st=document.createElement('style');st.textContent='#sobj{pointer-events:auto;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent}#sobj::after{content:"–";position:absolute;right:5px;top:3px;color:#ffd23a;font-size:12px;line-height:1}#sobj.mini::after{content:"+"}'+
+ '#sobj b{padding-right:11px}#sobj.mini b,#sobj.mini span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#sobj.mini em{display:none}#sobj.mini em.ps{display:block;white-space:nowrap}#sobj.mini i{height:3px;margin-top:3px}#sobj em.ps{color:#b8f0c0;margin-top:3px}';document.head.appendChild(st)})();
+var _shMini=stHud;stHud=function(){_shMini();var e=$('sobj');if(e)e.classList.toggle('mini',!!S.hudMini)};
+document.addEventListener('pointerdown',function(ev){var e=ev.target&&ev.target.closest&&ev.target.closest('#sobj');if(!e)return;ev.stopPropagation();ev.preventDefault();S.hudMini=S.hudMini?0:1;try{save()}catch(x){}e.classList.toggle('mini',!!S.hudMini)},true);
+
+// ===== tidy-ups: trees that stood on the very edge of the carriageway, parked cars inside a row of trees;
+// Kir's "eighty-six" parked by the garage once he has it =====
+function roadEdgeNear(x,y,R){var best=null;RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='art'&&r.k!=='loc'&&r.k!=='touge')return;
+ for(var i=Math.max(0,sp.i-1);i<Math.min(r.n-1,sp.j+1);i++){var x0=r.xs[i],y0=r.ys[i],ex=wd(r.xs[i+1],x0),ey=wd(r.ys[i+1],y0),l2=ex*ex+ey*ey||1,dx=wd(x,x0),dy=wd(y,y0),t=clamp((dx*ex+dy*ey)/l2,0,1),qx=dx-ex*t,qy=dy-ey*t,d=Math.hypot(qx,qy),gap=d-r.hw;
+  if(!best||gap<best.gap)best={gap:gap,nx:d>0?qx/d:0,ny:d>0?qy/d:0,r:r}}});return best}
+function propTidy(){var seen=[],trees=[],cars=[];PH.q(0,0,WS,WS,function(p){if(p._tv)return;p._tv=1;seen.push(p);if(p.hid)return;if(p.t===P_TREE||p.t===P_SAKURA)trees.push(p);else if(p.t===P_CAR)cars.push(p)});seen.forEach(function(p){p._tv=0});
+ var moved=0,gone=0;
+ // a tree whose trunk is on the kerb line hangs over the lane: step it back onto the pavement, or take it away
+ trees.forEach(function(p){var e=roadEdgeNear(p.x,p.y,80);if(!e||e.gap>=6)return;var push=12-e.gap,nx=wrap(p.x+e.nx*push),ny=wrap(p.y+e.ny*push),e2=roadEdgeNear(nx,ny,80),ok=e2&&e2.gap>=10&&!ptInBld(nx,ny)&&occAt(nx,ny)!==2;
+  if(ok)PH.q(nx-10,ny-10,nx+10,ny+10,function(q){if(q!==p&&!q.hid&&Math.hypot(wd(q.x,nx),wd(q.y,ny))<(q.r||2)+6)ok=false});
+  var m=Math.max(p.r,12);hashRmNear(PH,p,p.x,p.y,m+2);if(ok){p.x=nx;p.y=ny;PH.add(p,nx-m,ny-m,nx+m,ny+m);moved++}else{p.hid=1;p.gone=1;gone++}});
+ // a parked car squeezed in between trees
+ cars.forEach(function(p){var hit=false;PH.q(p.x-24,p.y-24,p.x+24,p.y+24,function(q){if(q!==p&&!q.hid&&(q.t===P_TREE||q.t===P_SAKURA||q.t===P_LAMP)&&Math.hypot(wd(q.x,p.x),wd(q.y,p.y))<17)hit=true});if(hit){hashRmNear(PH,p,p.x,p.y,22);p.hid=1;p.gone=1;gone++}});
+ return {moved:moved,gone:gone}}
+var _bbTidy=buildBrk;buildBrk=function(){_bbTidy();try{window.TIDY=propTidy()}catch(e){console.error(e)}};
+// ---- Kir's car by the garage (from the moment he gets it from Tetsu, except while he is out driving it)
+var K86=null;
+function k86Spot(){var m=STORY.findIndex(function(q){return q.id==='d4'});if(m<0||(S.story.hi|0)<=m||!ST.mode)return null;var a=ST.act;if(a&&(a.id==='d4'||a.id==='d5'||a.id==='d6'))return null;
+ if(K86)return K86;var g=stPlaces().garage;if(!g)return null;var h=g.a!=null?g.a:0,ca=Math.cos(h),sa=Math.sin(h),x,y;
+ // on the pavement by the shutter, alongside the kerb (or, without a known building, just ahead of the stop)
+ if(typeof GARB!=='undefined'&&GARB){x=GARB.x+GARB.w*.8;y=GARB.y+GARB.h+7;h=0}else{x=g.x+ca*40-sa*6;y=g.y+sa*40+ca*6}
+ K86={x:wrap(x),y:wrap(y),a:h,spr:playerSprite(4,BODYC[0],STRC[1])};return K86}
+var _dzK86=drawZones;drawZones=function(l){_dzK86(l);if(l!==0||mode!=='game')return;var k=k86Spot();if(!k)return;var x=SX(k.x),y=SY(k.y),sp=k.spr,w=sp.width,h=sp.height;if(x<-60||y<-60||x>VW+60||y>VH+60)return;
+ var ra=Math.round(k.a/(Math.PI/32))*(Math.PI/32);cx.save();cx.translate(x+2,y+3);cx.rotate(ra);cx.fillStyle='rgba(12,8,40,.4)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();cx.save();cx.translate(x,y);cx.rotate(ra);cx.drawImage(sp,-w/2,-h/2);cx.restore()};
+var _coK86=collide;collide=function(c){var n=_coK86(c),k=K86&&k86Spot();if(k&&!c.l){var dx=wd(k.x,c.x),dy=wd(k.y,c.y);if(Math.abs(dx)<60&&Math.abs(dy)<60)satBox(c,dx,dy,CARS[4].hx,CARS[4].hy,k.a,.22,.35)}return n};
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
