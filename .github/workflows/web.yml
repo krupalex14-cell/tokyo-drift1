@@ -1,0 +1,30 @@
+# Publishes the browser version (for iPhone and any phone/PC) to the gh-pages branch on every push to main.
+# GitHub Pages serves it at https://krupalex14-cell.github.io/tokyo-drift1/
+name: Web version
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ 'www/**', 'web/**', 'scripts/build-web.sh', '.github/workflows/web.yml' ]
+permissions:
+  contents: write
+concurrency:
+  group: web-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build site
+        run: bash scripts/build-web.sh
+      - name: Push to gh-pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd site
+          git init -q -b gh-pages
+          git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "web ${{ github.sha }}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" gh-pages

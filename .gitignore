@@ -4,3 +4,4 @@ node_modules/
 *.apk
 ci.log
 .DS_Store
+site/
