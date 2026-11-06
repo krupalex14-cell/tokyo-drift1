@@ -1,0 +1,260 @@
+++ dirname scripts/ci-build.sh
++ cd scripts/..
++ npm install --no-audit --no-fund
+
+added 94 packages in 5s
++ npx cap add android
+✔ Adding native android project in android in 27.58ms
+✔ add in 27.91ms
+✔ Copying web assets from www to android/app/src/main/assets/public in 1.97ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 282.07μs
+✔ copy android in 5.47ms
+✔ Updating Android plugins in 407.71μs
+✔ update android in 7.57ms
+✔ Syncing Gradle in 130.71μs
+[success] android platform added!
+Follow the Developer Workflow guide to get building:
+https://capacitorjs.com/docs/basics/workflow
++ bash scripts/patch-android.sh
+Android: плагин LocalServer добавлен (android/app/src/main/java/com/tokyodrift/game)
++ npx --yes @capacitor/assets@3 generate --android --iconBackgroundColor '#171226' --splashBackgroundColor '#171226'
+npm warn deprecated prebuild-install@7.1.3: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+npm warn deprecated tar@6.2.1: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated glob@9.3.5: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+[log] xml(load) at /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/AndroidManifest.xml
+[log] xml(load) Found root namespaces in XML file: http://schemas.android.com/apk/res/android
+Generating assets for android
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-ldpi/ic_launcher.png (1.21 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-mdpi/ic_launcher.png (2.63 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-hdpi/ic_launcher.png (7.08 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png (13.52 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png (28.48 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png (44.22 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-ldpi/ic_launcher_round.png (3 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png (4.65 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png (10.13 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png (14.97 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png (27.78 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png (33.56 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-ldpi/ic_launcher_foreground.png (1.74 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png (2.77 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png (5.33 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png (8.3 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png (15.12 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png (19.16 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-ldpi/ic_launcher_background.png (2.08 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-mdpi/ic_launcher_background.png (2.91 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-hdpi/ic_launcher_background.png (4.35 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xhdpi/ic_launcher_background.png (6.74 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png (12.16 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png (14.07 KB)
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+CREATE android icon /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable/splash.png (11.05 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-ldpi/splash.png (6.87 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-mdpi/splash.png (11.26 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-hdpi/splash.png (20.48 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-xhdpi/splash.png (36.33 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-xxhdpi/splash.png (51.41 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-xxxhdpi/splash.png (67.78 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-ldpi/splash.png (7.1 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-mdpi/splash.png (11.05 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-hdpi/splash.png (21.1 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-xhdpi/splash.png (38.85 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-xxhdpi/splash.png (51.81 KB)
+CREATE android splash /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-xxxhdpi/splash.png (68.39 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-night/splash.png (6.87 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-ldpi/splash.png (6.87 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-mdpi/splash.png (11.26 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-hdpi/splash.png (20.48 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-xhdpi/splash.png (36.33 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-xxhdpi/splash.png (51.41 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-land-night-xxxhdpi/splash.png (67.78 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-ldpi/splash.png (7.1 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-mdpi/splash.png (11.05 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-hdpi/splash.png (21.1 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-xhdpi/splash.png (38.85 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-xxhdpi/splash.png (51.81 KB)
+CREATE android splash-dark /home/runner/work/tokyo-drift1/tokyo-drift1/android/app/src/main/res/drawable-port-night-xxxhdpi/splash.png (68.39 KB)
+
+
+Totals:
+android: 74 generated, 1.06 MB total
++ mkdir -p /home/runner/.android
++ cp keys/debug.keystore /home/runner/.android/debug.keystore
++ npx cap sync android
+✔ Copying web assets from www to android/app/src/main/assets/public in 3.42ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 459.47μs
+✔ copy android in 8.23ms
+✔ Updating Android plugins in 435.47μs
+✔ update android in 13.51ms
+[info] Sync finished in 0.031s
++ cd android
++ chmod +x gradlew
++ ./gradlew assembleDebug --no-daemon --stacktrace
+Downloading https://services.gradle.org/distributions/gradle-8.11.1-all.zip
+.....................10%......................20%......................30%......................40%......................50%......................60%......................70%......................80%......................90%......................100%
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preDebugBuild UP-TO-DATE
+> Task :capacitor-android:writeDebugAarMetadata
+> Task :app:javaPreCompileDebug
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :capacitor-android:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :capacitor-android:generateDebugResources
+> Task :capacitor-android:packageDebugResources
+> Task :capacitor-cordova-android-plugins:generateDebugResValues
+> Task :capacitor-cordova-android-plugins:generateDebugResources
+> Task :capacitor-cordova-android-plugins:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :capacitor-android:extractDeepLinksDebug
+> Task :capacitor-cordova-android-plugins:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:processDebugManifest
+> Task :capacitor-android:processDebugManifest
+> Task :app:mergeDebugResources
+> Task :capacitor-android:compileDebugLibraryResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :capacitor-cordova-android-plugins:compileDebugLibraryResources
+> Task :app:processDebugManifestForPackage
+> Task :capacitor-android:javaPreCompileDebug
+> Task :capacitor-android:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:generateDebugRFile
+> Task :capacitor-android:generateDebugRFile
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:processDebugResources
+
+> Task :capacitor-android:compileDebugJavaWithJavac
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :capacitor-cordova-android-plugins:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarDebug
+> Task :capacitor-android:mergeDebugShaders
+> Task :capacitor-android:compileDebugShaders NO-SOURCE
+> Task :capacitor-android:generateDebugAssets UP-TO-DATE
+> Task :capacitor-android:bundleLibCompileToJarDebug
+> Task :capacitor-android:packageDebugAssets
+> Task :app:compileDebugJavaWithJavac
+> Task :capacitor-cordova-android-plugins:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:compileDebugShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:packageDebugAssets
+> Task :app:mergeDebugAssets
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarDebug
+> Task :capacitor-android:bundleLibRuntimeToJarDebug
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:dexBuilderDebug
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :capacitor-android:processDebugJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugJniLibFolders
+> Task :capacitor-android:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :capacitor-android:mergeDebugNativeLibs NO-SOURCE
+> Task :app:mergeDebugJavaResource
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeLibDexDebug
+> Task :capacitor-android:copyDebugJniLibsProjectOnly
+> Task :capacitor-cordova-android-plugins:mergeDebugJniLibFolders
+> Task :capacitor-cordova-android-plugins:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectOnly
+> Task :app:mergeProjectDexDebug
+> Task :app:validateSigningDebug
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :capacitor-android:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-android:copyDebugJniLibsProjectAndLocalJars
+> Task :app:mergeExtDexDebug
+> Task :capacitor-android:extractDebugAnnotations
+> Task :capacitor-android:extractDeepLinksForAarDebug
+> Task :capacitor-android:mergeDebugGeneratedProguardFiles
+> Task :capacitor-android:mergeDebugConsumerProguardFiles
+> Task :capacitor-android:prepareDebugArtProfile
+> Task :capacitor-android:prepareLintJarForPublish
+> Task :capacitor-android:mergeDebugJavaResource
+> Task :capacitor-cordova-android-plugins:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-android:syncDebugLibJars
+> Task :capacitor-android:bundleDebugAar
+> Task :capacitor-android:assembleDebug
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:extractDebugAnnotations
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarDebug
+> Task :capacitor-cordova-android-plugins:mergeDebugGeneratedProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeDebugConsumerProguardFiles
+> Task :capacitor-cordova-android-plugins:prepareDebugArtProfile
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :capacitor-cordova-android-plugins:prepareLintJarForPublish
+> Task :capacitor-cordova-android-plugins:mergeDebugJavaResource
+> Task :capacitor-cordova-android-plugins:syncDebugLibJars
+> Task :capacitor-cordova-android-plugins:bundleDebugAar
+> Task :capacitor-cordova-android-plugins:assembleDebug
+[Incubating] Problems report is available at: file:///home/runner/work/tokyo-drift1/tokyo-drift1/android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 1m 11s
+85 actionable tasks: 85 executed
++ cp app/build/outputs/apk/debug/app-debug.apk ../tokyo-drift.apk
++ ls -la ../tokyo-drift.apk
+-rw-r--r-- 1 runner runner 5339488 Nov  6 20:34 ../tokyo-drift.apk
