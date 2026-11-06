@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='06.11 04:24';
+var GAME_BUILD='06.11 04:34';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -1930,6 +1930,21 @@ function chunkNeed(cx,cy,sync){cx=((cx%NC)+NC)%NC;cy=((cy%NC)+NC)%NC;var k=cy*NC
 function chunkPump(n){var t0=performance.now();while(BQ.length&&n-->0){var k=BQ.shift();if(CHK.has(k))continue;CHK.set(k,bakeChunk(k%NC,(k/NC)|0));if(performance.now()-t0>9)break}if(CHK.size>120){var a=[];CHK.forEach(function(v,k){a.push([v.age,k])});a.sort(function(p,q){return p[0]-q[0]});for(var i=0;i<CHK.size-100;i++)CHK.delete(a[i][1])}}
 function chunkDirty(x0,y0,x1,y1){var a=Math.floor(x0/CH),b=Math.floor(x1/CH),c=Math.floor(y0/CH),d=Math.floor(y1/CH);for(var y=c;y<=d;y++)for(var x=a;x<=b;x++){var k=(((y%NC)+NC)%NC)*NC+(((x%NC)+NC)%NC);CHK.delete(k)}}
 function typeAt(x,y){x=wrap(x);y=wrap(y);var cx=(x/CH)|0,cy=(y/CH)|0,c=CHK.get(cy*NC+cx);if(!c)return 1;return c.t[((y|0)-cy*CH)*CH+((x|0)-cx*CH)]}
+// district at a world point (same rule as the classifier) and smooth value noise for organic district edges
+function distAt(wx,wy){wx=wrap(wx);wy=wrap(wy);var ci=(Math.floor(wy/OC)%ON)*ON+Math.floor(wx/OC);return CD[ci]!==255?CD[ci]:DGRID[(Math.floor(wy/DGS)%DG)*DG+Math.floor(wx/DGS)%DG]}
+function vnoise(x,y,s){var X=Math.floor(x/16),Y=Math.floor(y/16),fx=x/16-X,fy=y/16-Y;fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);var a=hsh(X,Y,s),b=hsh(X+1,Y,s),c=hsh(X,Y+1,s),d=hsh(X+1,Y+1,s);return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy}
+// district colours blurred over ~±32 px, so asphalt, pavement and sidewalks fade from one district into the next
+function distBlend(X0,Y0){var BG=8,BM=4,BN=CH/BG+1,BW=BN+2*BM,dg=new Uint8Array(BW*BW),i,x,y,c,k,uni=true;
+ for(y=0;y<BW;y++)for(x=0;x<BW;x++){dg[y*BW+x]=distAt(X0+(x-BM)*BG,Y0+(y-BM)*BG);if(dg[y*BW+x]!==dg[0])uni=false}
+ if(uni)return null;
+ function blur(pal){var a=new Float32Array(BW*BW*3),h=new Float32Array(BW*BN*3),o=new Float32Array(BN*BN*3),W2=(BM+1)*(BM+1);
+  for(i=0;i<BW*BW;i++){var pc=pal[dg[i]];a[i*3]=pc[0];a[i*3+1]=pc[1];a[i*3+2]=pc[2]}
+  for(y=0;y<BW;y++)for(x=0;x<BN;x++)for(c=0;c<3;c++){var sm=0;for(k=-BM;k<=BM;k++)sm+=(BM+1-Math.abs(k))*a[(y*BW+x+BM+k)*3+c];h[(y*BN+x)*3+c]=sm/W2}
+  for(y=0;y<BN;y++)for(x=0;x<BN;x++)for(c=0;c<3;c++){var sm2=0;for(k=-BM;k<=BM;k++)sm2+=(BM+1-Math.abs(k))*h[((y+BM+k)*BN+x)*3+c];o[(y*BN+x)*3+c]=sm2/W2}
+  return o}
+ return{n:BN,art:blur(ART_C),loc:blur(LOC_C),sw:blur(SW_C),pav:blur(PAV_C)}}
+function blendAt(G,x,y){var n=G.n,ix=x>>3,iy=y>>3,fx=(x&7)/8,fy=(y&7)/8,i00=(iy*n+ix)*3,i10=i00+3,i01=i00+n*3,i11=i01+3,o=[0,0,0];
+ for(var c=0;c<3;c++){var a=G.cur[i00+c]+(G.cur[i10+c]-G.cur[i00+c])*fx,b=G.cur[i01+c]+(G.cur[i11+c]-G.cur[i01+c])*fx;o[c]=a+(b-a)*fy}return o}
 function bakeChunk(cx,cy){
  var X0=cx*CH,Y0=cy*CH,M2=MKS*MKS,i,x,y;
  var spans=[],dspans=[],nodes=[],ljs=[],specs=[],ponds=[],brushes=[];
@@ -1957,13 +1972,13 @@ function bakeChunk(cx,cy){
  var m2=mk.getImageData(0,0,MKS,MKS).data,m3=null;
  if(brushes.length){mkPrep();brushes.forEach(function(b){discM(b.x,b.y,X0,Y0,b.r,b.t===0?'#f00':b.t===4?'#0f0':'#00f')});m3=mk.getImageData(0,0,MKS,MKS).data}
  // --- classify (padded)
- var vt=new Uint8Array(M2),dd=new Uint8Array(M2);
+ var vt=new Uint8Array(M2),dd=new Uint8Array(M2),DB=distBlend(X0,Y0),JW=(MKS>>2)+1,JX=DB?new Float32Array(JW*JW).fill(-99):null,JY=DB?new Float32Array(JW*JW):null;
  var rvy=new Float32Array(MKS),rvh=new Float32Array(MKS);for(x=0;x<MKS;x++){var wx=wrap(X0+x-1);rvy[x]=rivY(wx);rvh[x]=rivHW(wx)}
  for(y=0;y<MKS;y++){var wy=wrap(Y0+y-1),oy=Math.floor(wy/OC);for(x=0;x<MKS;x++){var wx2=wrap(X0+x-1),k=y*MKS+x,q=k*4,ci=(oy%ON)*ON+Math.floor(wx2/OC),d=CD[ci]!==255?CD[ci]:DGRID[(Math.floor(wy/DGS)%DG)*DG+Math.floor(wx2/DGS)%DG];dd[k]=d;
    var t,ov=OCC[ci];
    if(m2[q+2]>127)t=5;else if(m1[q+1]>127)t=0;else if(m1[q+2]>127)t=1;else if(m1[q]>127)t=2;
    else if(Math.abs(wd(wy,rvy[x]))<rvh[x])t=4;
-   else t=ov===3?10:ov===5?11:ov===4?12:(d===D_FOREST?11:13);
+   else{var dj=d;if(DB&&ov!==3&&ov!==5&&ov!==4){var jk=(y>>2)*JW+(x>>2);if(JX[jk]===-99){JX[jk]=(vnoise(wx2,wy,41)-.5)*44;JY[jk]=(vnoise(wx2,wy,43)-.5)*44}dj=distAt(wx2+JX[jk],wy+JY[jk])}t=ov===3?10:ov===5?11:ov===4?12:(dj===D_FOREST?11:13)}
    if(t>=10)for(var p=0;p<ponds.length;p++){var pp=ponds[p],ex=wd(wx2,pp.x)/pp.rx,ey=wd(wy,pp.y)/pp.ry;if(ex*ex+ey*ey<1){t=4;break}}
    if(m3){if(m3[q]>127)t=0;else if(m3[q+1]>127)t=4;else if(m3[q+2]>127)t=10}
    if(m2[q]>127&&t!==4)t=6;
@@ -1971,14 +1986,14 @@ function bakeChunk(cx,cy){
  var G=mkCanvas(CH,CH),g=G.getContext('2d'),img=g.createImageData(CH,CH),buf=img.data,T=new Uint8Array(CH*CH),spark=[];
  var TMAP={0:0,1:0,2:1,4:5,5:2,6:6,10:2,11:3,12:1,13:1};
  for(y=0;y<CH;y++){var wy3=Y0+y;for(x=0;x<CH;x++){var k3=(y+1)*MKS+x+1,t3=vt[k3],d3=dd[k3],wx3=X0+x,n=hsh(wx3,wy3,1),c,o=(y*CH+x)*4,up=vt[k3-MKS],dn=vt[k3+MKS],lf=vt[k3-1],rt=vt[k3+1];
-   if(t3===0||t3===1){c=t3===0?ART_C[d3]:LOC_C[d3];var v=n*6-3;if(hsh(wx3>>3,wy3>>3,7)<.06)v-=5;c=[c[0]+v,c[1]+v,c[2]+v];if(up===2||dn===2||lf===2||rt===2)c=[c[0]-10,c[1]-10,c[2]-8];if(d3===3&&t3===1&&((wx3&7)===0||(wy3&15)===0))c=[c[0]-10,c[1]-10,c[2]-8]}
-   else if(t3===2){c=SW_C[d3];var v2=n*5-2;if((wx3&7)===0||(wy3&7)===0)v2-=12;c=[c[0]+v2,c[1]+v2,c[2]+v2];if(up<2||dn<2||lf<2||rt<2)c=[c[0]+34,c[1]+34,c[2]+34];if(up===4||dn===4||lf===4||rt===4)c=[214,220,232]}
+   if(t3===0||t3===1){if(DB){DB.cur=t3===0?DB.art:DB.loc;c=blendAt(DB,x,y)}else c=t3===0?ART_C[d3]:LOC_C[d3];var v=n*6-3;if(hsh(wx3>>3,wy3>>3,7)<.06)v-=5;c=[c[0]+v,c[1]+v,c[2]+v];if(up===2||dn===2||lf===2||rt===2)c=[c[0]-10,c[1]-10,c[2]-8];if(d3===3&&t3===1&&((wx3&7)===0||(wy3&15)===0))c=[c[0]-10,c[1]-10,c[2]-8]}
+   else if(t3===2){if(DB){DB.cur=DB.sw;c=blendAt(DB,x,y)}else c=SW_C[d3];var v2=n*5-2;if((wx3&7)===0||(wy3&7)===0)v2-=12;c=[c[0]+v2,c[1]+v2,c[2]+v2];if(up<2||dn<2||lf<2||rt<2)c=[c[0]+34,c[1]+34,c[2]+34];if(up===4||dn===4||lf===4||rt===4)c=[214,220,232]}
    else if(t3===4){c=[40,94,178];var v3=n*6-3;c=[c[0]+v3,c[1]+v3,c[2]+v3];if(up!==4||(k3>=2*MKS&&vt[k3-2*MKS]!==4))c=[28,64,128];else if(hsh(wx3>>2,wy3,5)<.04)c=[70,130,210];if(hsh(wx3,wy3,77)<.004&&up===4&&dn===4)spark.push(x,y)}
    else if(t3===5){c=[64,128,84];if(hsh(wx3,wy3,3)<.15)c=[52,108,70];if(up===0||dn===0||lf===0||rt===0)c=[220,224,232]}
    else if(t3===6){c=[176,182,196];if(dn!==6)c=[110,114,128];if((wx3&7)===0)c=[150,156,170]}
    else if(t3===10){c=[60,118,78];var v4=n*8-4;c=[c[0]+v4,c[1]+v4,c[2]+v4];if(hsh(wx3,wy3,4)<.08)c=[48,98,64]}
    else if(t3===11){c=[30,66,46];if(hsh(wx3,wy3,4)<.2)c=[24,54,38];else if(hsh(wx3,wy3,6)<.06)c=[44,86,58]}
-   else{c=PAV_C[d3];var v5=n*5-2;if(t3===13&&((wx3%6)===0||(wy3%6)===0))v5-=8;c=[c[0]+v5,c[1]+v5,c[2]+v5]}
+   else{if(DB){DB.cur=DB.pav;c=blendAt(DB,x,y)}else c=PAV_C[d3];var v5=n*5-2;if(t3===13&&((wx3%6)===0||(wy3%6)===0))v5-=8;c=[c[0]+v5,c[1]+v5,c[2]+v5]}
    if(t3!==4&&(up===4||dn===4||lf===4||rt===4)&&t3!==2)c=[196,200,212];
    if(m2[(k3)*4+1]>127)c=[c[0]*.56,c[1]*.56,c[2]*.66];
    buf[o]=c[0];buf[o+1]=c[1];buf[o+2]=c[2];buf[o+3]=255;T[y*CH+x]=TMAP[t3]}}
