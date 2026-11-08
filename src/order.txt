@@ -40,6 +40,7 @@
 07r_toyo
 07s_hud
 07t_fix
+07u_ch4
 08d_back
 08e_shop
 08f_radio

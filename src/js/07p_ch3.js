@@ -276,8 +276,8 @@ function c3Rammers(dt){for(var i=0;i<RIV.length;i++){var R=RIV[i];if(R.wait)cont
 // ---- per-frame logic of the new types
 var _skC3=stKinds;stKinds=function(m,dt){
  // knocks count once you are on your way (not while pulling out of the start spot)
- if(m.clean&&!ST.ride&&!ST.arr){var sp0=stPlace(m.at),grace=ST.t<2||(sp0&&Math.hypot(wd(sp0.x,car.x),wd(sp0.y,car.y))<130);var hit=!grace&&(ST.cmax>28||ST.cbrk);ST.cmax=0;ST.cbrk=0;ST.ccd=(ST.ccd||0)-dt;if(hit&&ST.ccd<=0){ST.ccd=.9;ST.ctouch=(ST.ctouch||0)+1;
-   if(ST.ctouch>=m.clean){stDone(false,m.clean>1?'Хана вышла из машины':'задел');return true}flash(L('удар!')+' '+ST.ctouch+'/'+m.clean,1)}}
+ if(m.clean&&!ST.ride&&!ST.arr){var sp0=stPlace(m.at),grace=ST.t<2||(sp0&&Math.hypot(wd(sp0.x,car.x),wd(sp0.y,car.y))<130);var hit=!grace&&(ST.cmax>(m.cleanMin||28)||ST.cbrk);ST.cmax=0;ST.cbrk=0;ST.ccd=(ST.ccd||0)-dt;if(hit&&ST.ccd<=0){ST.ccd=.9;ST.ctouch=(ST.ctouch||0)+1;
+   if(ST.ctouch>=m.clean){stDone(false,m.cleanFail||(m.clean>1?'Хана вышла из машины':'задел'));return true}flash(L('удар!')+' '+ST.ctouch+'/'+m.clean,1)}}
  if(m.type==='choice')return true;
  if(m.type==='pursuit'){var V=RIV[0];if(!V)return false;var dd=Math.hypot(wd(V.x,car.x),wd(V.y,car.y));
   // it pulls away once you are close (or after a few seconds), then stays catchable: stuck in traffic when you fall far behind
@@ -316,7 +316,8 @@ var _skC3=stKinds;stKinds=function(m,dt){
   if(ST.t>m.limit){stDone(false,'не успел к финишу');return true}return false}
  return _skC3(m,dt)};
 // a clean run counts every knock: walls, cars, poles, anything you break
-var _coC3=collide;collide=function(c){var n=_coC3(c);if(c===car&&ST.act&&ST.act.clean&&COLL.max>(ST.cmax||0))ST.cmax=COLL.max;return n};
+// (being hit by traffic while you are nearly standing still is not your knock)
+var _coC3=collide;collide=function(c){var sp0=c===car?c.sp:0,n=_coC3(c);if(c===car&&ST.act&&ST.act.clean&&sp0>45&&COLL.max>(ST.cmax||0))ST.cmax=COLL.max;return n};
 var _bpC3=breakProp;breakProp=function(p,c,ai){if(!ai&&c===car&&ST.act&&ST.act.clean)ST.cbrk=1;_bpC3(p,c,ai)};
 // ---- zone finish for the zone types of this chapter
 var _zeC3=zoneEnd;zoneEnd=function(why){var m=ST.act,z=ZS&&ZS.z;
