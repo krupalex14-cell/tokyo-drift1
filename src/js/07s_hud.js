@@ -1,0 +1,5 @@
+// ===== the objective card folds to two short lines (tap it; remembered) =====
+(function(){var st=document.createElement('style');st.textContent='#sobj{pointer-events:auto;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent}#sobj::after{content:"–";position:absolute;right:5px;top:3px;color:#ffd23a;font-size:12px;line-height:1}#sobj.mini::after{content:"+"}'+
+ '#sobj b{padding-right:11px}#sobj.mini b,#sobj.mini span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#sobj.mini em{display:none}#sobj.mini em.ps{display:block;white-space:nowrap}#sobj.mini i{height:3px;margin-top:3px}#sobj em.ps{color:#b8f0c0;margin-top:3px}';document.head.appendChild(st)})();
+var _shMini=stHud;stHud=function(){_shMini();var e=$('sobj');if(e)e.classList.toggle('mini',!!S.hudMini)};
+document.addEventListener('pointerdown',function(ev){var e=ev.target&&ev.target.closest&&ev.target.closest('#sobj');if(!e)return;ev.stopPropagation();ev.preventDefault();S.hudMini=S.hudMini?0:1;try{save()}catch(x){}e.classList.toggle('mini',!!S.hudMini)},true);
