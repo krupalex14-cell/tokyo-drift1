@@ -344,7 +344,7 @@ var _rdC3=rivDraw;rivDraw=function(z){_rdC3(z);for(var i=0;i<RIV.length;i++){var
 var _edC3=emisDraw;emisDraw=function(a){_edC3(a);for(var i=0;i<RIV.length;i++){var r=RIV[i];if(!r.siren)continue;var x=SX(r.x),y=SY(r.y);if(x<-60||y<-60||x>VW+60||y>VH+60)continue;var ph=Math.floor(TIME*8)%2;gl(x,y,26,26,ph?[255,58,58]:[58,122,255],.55+.35*a)}fwDraw(a)};
 var SIRT=0;function c3Siren(dt){var m=ST.act;if(!m||m.type!=='police'||!S.snd||mode!=='game')return;SIRT-=dt;if(SIRT<=0){SIRT=.42;var hi=Math.floor(TIME/.42)%2;try{auTone(hi?960:720,.025,.36,'sawtooth')}catch(e){}}}
 // ---- night for chapter 3 (when the time of day is on auto)
-var _todC3=todUpdate;todUpdate=function(dt){if(ST.mode&&(S.tod|0)===0&&mode==='game'){var c=ST.act||stCur();if(c&&c.ch===3){var d=((22.7-TODH+36)%24)-12;TODH=(TODH+clamp(d,-dt*3,dt*3)+24)%24}}_todC3(dt)};
+// (the night of chapter 3 is now set by the story clock in 07v_show)
 // ---- fireworks over the festival (fireworks-night missions, and a while after)
 var FW={p:[],t:0,until:0,cx:null,cy:null};
 // shells burst high above the city: kept in view space, sliding slowly against the camera (parallax), so they stay on screen at speed

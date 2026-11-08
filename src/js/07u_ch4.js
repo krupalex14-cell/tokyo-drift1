@@ -101,8 +101,8 @@ STORY.push(
         D('lyokha','Вот почему они всегда знают, где я. Пусть пока висит — пусть думают, что мы не нашли.','So that’s why they always know where I am. Leave it for now — let them think we haven’t found it.'),
         D('gen','Лёха! Я собрал ночное шоу в бамбуке, тут рядом. Все сборы — тебе на взнос. Я тебе должен, король.','Lyokha! I’ve set up a night show in the bamboo grove, right near you. All the takings go to your payment. I owe you, king.',PH_G4)])},
   fail:[D('hana','Он всё ещё за нами. К онсэну так нельзя.','He’s still on our tail. We can’t go to the onsen like this.')]},
- {id:'e6',ch:4,title:{ru:'Бамбук',en:'Bamboo'},at:'bamboo',type:'drift',goalPts:1500,radius:360,reward:1000,
-  goal:{ru:'Ночное шоу Гэна в бамбуковой роще: набери 1 500 очков заносом у фонарей',en:'Gen’s night show in the bamboo grove: score 1,500 drift points by the lanterns'},
+ {id:'e6',ch:4,title:{ru:'Бамбук',en:'Bamboo'},at:'arena',dc:'arenac',type:'drift',goalPts:1500,radius:330,reward:1000,
+  goal:{ru:'Ночное шоу Гэна на арене у бамбуковой рощи: набери 1 500 очков заносом перед трибунами',en:'Gen’s night show at the arena by the bamboo grove: score 1,500 drift points in front of the stands'},
   why:{ru:'Гэн заглаживает вину: все сборы с шоу — тебе на взнос. Хана снимает.',en:'Gen is making amends: all the show’s takings go to your payment. Hana is filming.'},
   pre:[D('gen','Дамы и господа! Только сегодня, среди бамбука и фонарей — король Скрамбла представляет… ёппарая!','Ladies and gentlemen! Tonight only, among the bamboo and the lanterns — the King of the Scramble presents… the yopparai!'),
        D('hana','Я снимаю. Не урони мне фонарь на голову.','I’m filming. Don’t knock a lantern onto my head.'),
@@ -196,9 +196,17 @@ STORY.push(
        D('ghost','Я никому не поддаюсь, Рэйко.','I don’t go easy on anyone, Reiko.',KUR)],
   arrive:[D('ghost','До тории на вершине. Без света. На последнем повороте я гашу всё.','To the torii at the top. No lights. On the last turn I switch off everything.',KUR),
        D('lyokha','(Как тогда. Только теперь — доедем.)','(Like back then. Only this time we finish.)',LYO_T)],
-  post:function(){var h=S.story.pick!=='rin';return [D('ghost','…Обогнал. Двенадцать лет. Я думал, уже не дождусь.','…You beat me. Twelve years. I thought I’d never see it.',KUR),
+  post:[D('ghost','…Обогнал. Двенадцать лет. Я думал, уже не дождусь.','…You beat me. Twelve years. I thought I’d never see it.',KUR),
         D('ghost','(протягивает карту памяти) Здесь та ночь. Целиком.','(holds out a memory card) That night is on here. All of it.',KUR),
-        D('reiko','Спасибо, Хидэо.','Thank you, Hideo.')].concat(h?
+        D('reiko','Спасибо, Хидэо.','Thank you, Hideo.'),
+        D('reiko','Поехали ко мне. Рассвет встретим в раменной — Хана уже там, я ей позвонила. Я поеду вперёд.','Come to my place. We’ll see the dawn in at the ramen shop — Hana is already there, I called her. I’ll drive ahead.')],
+  fail:[D('ghost','Не сегодня. Приезжай завтра. Я подожду.','Not tonight. Come back tomorrow. I’ll wait.',KUR)]},
+ {id:'e13',ch:4,title:{ru:'Рассвет',en:'Dawn'},at:'kumotop',auto:true,type:'deliv',stops:['ramen'],tod:6.4,todFrom:4.7,todRate:.04,reward:0,
+  goal:{ru:'Доедь до раменной Рэйко — рассвет встретите там',en:'Drive to Reiko’s ramen shop — you’ll see the dawn in there'},
+  why:{ru:'Карта той ночи у тебя. Рэйко позвала всех к себе.',en:'The card from that night is yours. Reiko has called everyone to her place.'},
+  pre:[D('lyokha','(Карта в кармане. Скоро рассвет.)','(The card is in my pocket. Dawn is coming.)',LYO_T)],
+  talk:[[4,D('kir','Брат! Рэйко написала. Еду к ней — встретим рассвет вместе.','Bro! Reiko texted. I’m heading to her place — we’ll see the sunrise together.',PH_K)]],
+  post:function(){var h=S.story.pick!=='rin';return (h?
        [D('hana','(рассвет в раменной Рэйко; засыпает у Лёхи на плече) Только не шевелись…','(dawn at Reiko’s ramen shop; she falls asleep on Lyokha’s shoulder) Just don’t move…'),
         D('reiko','(Лёхе, шёпотом) Береги её.','(to Lyokha, in a whisper) Take care of her.')]:
        [D('lyokha','(Рассвет в раменной. Телефон. Сообщение от Рин: «Живой? Тандем в субботу».)','(Dawn at the ramen shop. My phone. A message from Rin: “Alive? Tandem on Saturday.”)',LYO_T),
@@ -206,7 +214,6 @@ STORY.push(
        [D('ryu','(в дверях раменной) Карта у тебя, ёппарай?','(in the ramen shop doorway) Got the card, yopparai?'),
         D('ryu','Отец хочет её. А я хочу тебя — на кольце. Без отцовских денег. Ты и я.','My father wants it. And I want you — on the ring. No father’s money. Just you and me.'),
         D('lyokha','Назови время.','Name the time.')])},
-  fail:[D('ghost','Не сегодня. Приезжай завтра. Я подожду.','Not tonight. Come back tomorrow. I’ll wait.',KUR)],
   chapterEnd:4,next:{ru:'«Тени» бросают вызов',en:'The Shadows throw down the gauntlet'}}
 );
 // ---- places: the foot and the top of Kumo, the old onsen with Misha's garage №3, the bamboo grove next to it
@@ -253,8 +260,8 @@ function c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f){var ca=Math.cos(a),sa=Math.sin(a),hx
  [-1,1].forEach(function(s){if(f.f){var fx=sx+ca*(hx-1)-sa*s*(hy-2.5),fy=sy+sa*(hx-1)+ca*s*(hy-2.5);gl(fx,fy,5,5,[255,246,214],.25+.6*lv)}
   if(f.r){var rx=sx-ca*(hx-.5)-sa*s*(hy-2.5),ry=sy-sa*(hx-.5)+ca*s*(hy-2.5);gl(rx,ry,brk?8:5,brk?8:5,[255,40,60],(brk?.85:.18+.5*lv))}})}
 var _clC4=carLights;carLights=function(x,y,a,Ln,Hh,lv,brk,isP){var f=C4LF;if(!f&&C4PL&&isP&&car&&x===car.x&&y===car.y)f={f:0,r:1};if(!f)return _clC4(x,y,a,Ln,Hh,lv,brk,isP);c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f)};
-var _rlC4=remLight;remLight=function(r,lv){if(r.nohl||r.nobrk){C4LF={f:!r.nohl,r:!r.nobrk};try{_rlC4(r,lv)}finally{C4LF=null}}else _rlC4(r,lv)};
-var _lpC4=lightPass;lightPass=function(){var dk=c4Dark(),m0=TODS.m;C4PL=dk;if(dk&&TODS.L>.3)TODS.m=[Math.round(m0[0]*.8),Math.round(m0[1]*.8),Math.round(m0[2]*.86)];try{_lpC4()}finally{TODS.m=m0;C4PL=false}};
+var _rlC4=remLight;remLight=function(r,lv){if(r.nohl||r.nobrk){var g=r.glow;if(r.nohl)r.glow=0;C4LF={f:!r.nohl,r:!r.nobrk};try{_rlC4(r,lv)}finally{C4LF=null;r.glow=g}}else _rlC4(r,lv)};
+var _lpC4=lightPass;lightPass=function(){var dk=c4Dark(),m0=TODS.m,g0=S.glow;C4PL=dk;if(dk){S.glow=0;if(TODS.L>.3)TODS.m=[Math.round(m0[0]*.8),Math.round(m0[1]*.8),Math.round(m0[2]*.86)]}try{_lpC4()}finally{TODS.m=m0;S.glow=g0;C4PL=false}};
 // tail lights painted on the sprite: off for a car that has killed them
 var _ruC4=rivUpdate;rivUpdate=function(dt){_ruC4(dt);for(var i=0;i<RIV.length;i++)if(RIV[i].nobrk)RIV[i].b=0};
 // the player's hits on a rival (rivals only feel walls and props in their own collision pass)
@@ -302,7 +309,7 @@ function c4GarDraw(){var b=C4G;if(!b)return;var x=Math.round(SX(b.x)),y=Math.rou
 // the bamboo show: strings of paper lanterns hung over the road around the drift spot
 var C4BL=null;
 function c4ShowOn(){var c=ST.act||stCur();return !!(ST.mode&&c&&c.id==='e6')}
-function c4ShowLan(){if(C4BL)return C4BL;C4BL=[];var p=STP&&STP.bamboo;if(!p)return C4BL;for(var i=0;i<14;i++){var a=i/14*TAU,R=150+(i%2)*40,x=wrap(p.x+Math.cos(a)*R),y=wrap(p.y+Math.sin(a)*R);if(ptInBld(x,y))continue;C4BL.push({x:x,y:y,c:i%3?'#ff4d5a':'#fff1d6'})}return C4BL}
+function c4ShowLan(){if(C4BL)return C4BL;C4BL=[];var p=STP&&(STP.arenac||STP.bamboo);if(!p)return C4BL;for(var i=0;i<14;i++){var a=i/14*TAU,R=150+(i%2)*40,x=wrap(p.x+Math.cos(a)*R),y=wrap(p.y+Math.sin(a)*R);if(ptInBld(x,y))continue;C4BL.push({x:x,y:y,c:i%3?'#ff4d5a':'#fff1d6'})}return C4BL}
 function c4Chochin(p){var x=SX(p.x),y=SY(p.y);if(x<-8||y<-14||x>VW+8||y>VH+8)return;var sw=Math.round(Math.sin(TIME*1.7+p.x)*1);cx.fillStyle='#14101e';cx.fillRect(x-2+sw,y-7,5,7);cx.fillStyle=p.c;cx.fillRect(x-1+sw,y-6,3,5);cx.fillStyle='#14101e';cx.fillRect(x+sw,y-9,1,2)}
 var _dzC4=drawZones;drawZones=function(l){_dzC4(l);if(l!==0||!window.worldReady)return;if(!STP){if(typeof RH!=='undefined'&&RH)stPlaces();else return}
  var L4=c4Lanterns();for(var i=0;i<L4.length;i++)c4Toro(L4[i]);var P=STP;if(P.kumotop)c4Torii(P.kumotop.tx,P.kumotop.ty);if(C4G)c4GarDraw();else c4ShedDraw();
@@ -497,7 +504,6 @@ var _stC4=stTarget;stTarget=function(){var m=ST.act;if(ST.mode&&m&&!ST.ride){
  if(m.type==='shake')return ST.ph===1?stPlace(m.dest):null;if(m.type==='escort')return stPlace(m.dest);if(m.type==='calm')return stPlace(m.stops[0]);
  if(m.type==='crace'&&ST.rte){var cq=ST.rte.cp[ST.rte.ci];return{x:cq.x,y:cq.y}}if(C4Z[m.type])return null}return _stC4()};
 var _hoC4=home;home=function(){var m=ST.act;_hoC4();if(m&&ST.act===m&&(m.type==='shake'||m.type==='escort'||m.type==='calm'||m.type==='crace'))stAbort();c4SubClear()};
-var _todC4=todUpdate;todUpdate=function(dt){if(ST.mode&&(S.tod|0)===0&&mode==='game'){var c=ST.act||stCur();if(c&&c.ch===4){var d=((1.6-TODH+36)%24)-12;TODH=(TODH+clamp(d,-dt*3,dt*3)+24)%24}}_todC4(dt)};
 
 // ---- English for the UI strings of this chapter (dialogue lines carry their own), Chinese for everything
 Object.assign(EN,{"«Тени» добили машину Куроды":"The Shadows finished off Kuroda’s car","«Тени» прижали Призрака":"The Shadows pinned the Ghost","«Тени» сзади!":"Shadows behind!","«Тень»":"Shadow","«Тень» оглушена!":"The Shadow is stunned!","«Тень» отстала!":"The Shadow dropped back!","«Тень» первая на финише":"A Shadow got to the finish first","«Тень» сбита!":"Shadow knocked off!","Кадр!":"Shot!","Курода":"Kuroda","Курода в машине":"Kuroda is in the car","Курода вышел из машины":"Kuroda got out of the car","Курода отстаёт!":"Kuroda is falling behind!","Курода потерял тебя в темноте":"Kuroda lost you in the dark","Подожди Куроду":"Wait for Kuroda","Призрак":"Ghost","Призрак первым у тории":"The Ghost reached the torii first","Призрак погасил стоп-сигналы!":"The Ghost killed his tail lights!","Призрак ушёл от «Теней»":"The Ghost got away from the Shadows","Призрак ушёл, кадров мало":"The Ghost got away — not enough shots","Призрака зажимают":"Ghost boxed in","Призрака зажимают!":"They’re boxing in the Ghost!","Рин закрыла Сэйдзи!":"Rin shut the door on Seiji!","Рэйко в машине":"Reiko is in the car","Рэйко погасила стоп-сигналы!":"Reiko killed her tail lights!","Рю не отстал":"Ryu stayed on your tail","Удар по Куроде!":"Kuroda took a hit!","без фар":"no lights","впереди":"ahead","встань с ним борт в борт":"pull up side by side with him","держись так!":"hold it there!","до вершины":"to the top","до тории":"to the torii","замечание":"warning","замечания":"warnings","кадры":"shots","не успели к онсэну":"didn’t make it to the onsen","первый у тории!":"first at the torii!","позади":"behind","потерял тебя":"lost you","рядом":"close","потерял Призрака":"lost the Ghost","Призрак ушёл в темноту":"the Ghost vanished into the dark","потерял Рэйко":"lost Reiko","далеко от Рэйко":"too far from Reiko","коснулся машины Рэйко":"touched Reiko’s car","Рэйко попросила остановить":"Reiko asked you to stop"});
