@@ -39,7 +39,7 @@ function cgFit(){if(!CGM.on)return;var g=CGM.g,c=$('cgc'),k=$('cgk'),D=window.de
  var aw=wide?innerWidth-Math.min(innerWidth*.44,400)-46:Math.min(innerWidth-22,560),ah=wide?innerHeight-64:innerHeight-k.offsetHeight-110;
  var m=Math.min(aw/g.cw,ah/g.ch),s=Math.max(1,Math.floor(m*D))/D;if(s<m*.8)s=m;c.style.width=Math.round(g.cw*s)+'px';c.style.height=Math.round(g.ch*s)+'px'}
 function cgOpen(g){cgUi();CGM.g=g;CGM.on=true;var c=$('cgc');c.width=g.cw;c.height=g.ch;$('cgt').textContent=g.title();$('cgk').innerHTML='';$('cgov').style.display='none';cgMsg('');cgBal();
- CK.l=CK.r=CK.u=CK.d=0;CI.path=null;CI.bub=null;$('cap').style.display='none';$('cgm').classList.add('on');g.open();cgFit();CGM.last=performance.now();requestAnimationFrame(cgLoop)}
+ CIK.l=CIK.r=CIK.u=CIK.d=0;CI.path=null;CI.bub=null;$('cap').style.display='none';$('cgm').classList.add('on');g.open();cgFit();CGM.last=performance.now();requestAnimationFrame(cgLoop)}
 function cgClose(){if(!CGM.on)return;if(CGM.g.busy&&CGM.g.busy()){return}CGM.on=false;$('cgm').classList.remove('on');if(CGM.g.close)CGM.g.close();CI.hs=null}
 function cgLoop(t){if(!CGM.on)return;var dt=Math.min(.05,Math.max(0,(t-CGM.last)/1000));CGM.last=t;CGM.t+=dt;var g=$('cgc').getContext('2d');g.imageSmoothingEnabled=false;CGM.g.draw(g,CGM.t,dt);requestAnimationFrame(cgLoop)}
 addEventListener('resize',function(){if(CGM.on)setTimeout(cgFit,50)});
@@ -104,7 +104,7 @@ function cgFor(id){return id==='slots'?SLOT:id==='croup'?(typeof ROUL!=='undefin
 var _ciActG=ciAct;ciAct=function(){var h=CI.hs;if(!h)return;var key=h.id==='slots'||h.id==='race'?h.id:h.who,G=cgFor(key);if(G){cgOpen(G);return}_ciActG()};
 
 // ================= roulette (European, one zero) =================
-var RW=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26],RRED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+var RWHL=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26],RRED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 function rCol(n){return n===0?'g':RRED.indexOf(n)>=0?'r':'b'}
 var ROUL={cw:176,ch:226,chip:10,bets:{},hist:[],last:null,st:'idle',W:0,B:0,ballR:31,res:null,stack:[],
  title:function(){return TR('Рулетка','Roulette')},
@@ -140,12 +140,12 @@ var ROUL={cw:176,ch:226,chip:10,bets:{},hist:[],last:null,st:'idle',W:0,B:0,ball
   // the wheel
   var cx0=40,cy0=38,sp=this.st==='spin';
   if(sp){var u=Math.min(1,(t-this.t0)/this.dur),e=1-Math.pow(1-u,3);this.W=this.W0+e*TAU*2.2;
-   var tgt=RW.indexOf(this.res)/37*TAU,rel=tgt+(1-e)*(-TAU*7)+0;this.B=this.W+rel;this.ballR=u<.72?31:u<.82?31-(u-.72)/.1*5+Math.sin(u*80)*1.2:26;
+   var tgt=RWHL.indexOf(this.res)/37*TAU,rel=tgt+(1-e)*(-TAU*7)+0;this.B=this.W+rel;this.ballR=u<.72?31:u<.82?31-(u-.72)/.1*5+Math.sin(u*80)*1.2:26;
    var pk=Math.floor((this.B-this.W)/TAU*37);if(pk!==this._pk&&u>.6){this._pk=pk;cgS('ball')}
    if(u>=1){this.B=this.W+tgt;this.ballR=26;this.settle()}}
-  else{this.W+=dt*.25;if(this.last!=null)this.B=this.W+RW.indexOf(this.last)/37*TAU}
+  else{this.W+=dt*.25;if(this.last!=null)this.B=this.W+RWHL.indexOf(this.last)/37*TAU}
   cgDisc(g,cx0+2,cy0+3,35,'rgba(10,6,20,.4)');cgDisc(g,cx0,cy0,35,K);cgDisc(g,cx0,cy0,34,'#5a3420');cgDisc(g,cx0,cy0,31,'#3a2014');
-  for(var y=-30;y<=30;y++)for(var x=-30;x<=30;x++){var d=Math.hypot(x,y);if(d>29.5||d<20.5)continue;var a=Math.atan2(y,x)-this.W,idx=Math.floor((((a+TAU/74)%TAU+TAU)%TAU)/TAU*37)%37,n=RW[idx],c=rCol(n),fr=(((a+TAU/74)%TAU+TAU)%TAU)/TAU*37%1;
+  for(var y=-30;y<=30;y++)for(var x=-30;x<=30;x++){var d=Math.hypot(x,y);if(d>29.5||d<20.5)continue;var a=Math.atan2(y,x)-this.W,idx=Math.floor((((a+TAU/74)%TAU+TAU)%TAU)/TAU*37)%37,n=RWHL[idx],c=rCol(n),fr=(((a+TAU/74)%TAU+TAU)%TAU)/TAU*37%1;
    R(cx0+x,cy0+y,1,1,fr<.08?'#c49a36':d>27.5?(c==='g'?'#2a9a4a':c==='r'?'#c8202a':'#1c1418'):(c==='g'?'#1e7a3a':c==='r'?'#a01820':'#14101e'))}
   cgDisc(g,cx0,cy0,20,K);cgDisc(g,cx0,cy0,19,'#7a4a24');cgDisc(g,cx0,cy0,13,'#5a3420');for(i=0;i<4;i++){var a2=this.W*1+i*TAU/4;for(var q=3;q<15;q++)R(Math.round(cx0+Math.cos(a2)*q),Math.round(cy0+Math.sin(a2)*q),1,1,'#c49a36')}cgDisc(g,cx0,cy0,4,'#c49a36');cgDisc(g,cx0,cy0,2,'#ffd23a');
   if(sp||this.last!=null){var bx=cx0+Math.cos(this.B)*this.ballR,by=cy0+Math.sin(this.B)*this.ballR;cgDisc(g,bx,by,1.6,'#ffffff');R(Math.round(bx)-1,Math.round(by)-1,1,1,'#ffffff')}

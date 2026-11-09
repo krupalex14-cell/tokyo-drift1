@@ -233,11 +233,11 @@ function ciBubble(){var e=$('cab');if(!e)return;var b=CI.bub;if(!b||b.t<=0){if(e
  if(e._tx!==b.tx){e.textContent=b.tx;e._tx=b.tx}e.style.display='block';var s=CI.kc/DPR;e.style.left=Math.round((b.x-CI.ox)*s)+'px';e.style.top=Math.round((b.y-CI.oy)*s)+'px'}
 
 // ---------- moving
-var CK={l:0,r:0,u:0,d:0};
+var CIK={l:0,r:0,u:0,d:0};
 function ciMove(mx,my){var nx=CI.x+mx,ny=CI.y+my,ok=false;if(ciFree(nx,ny)){CI.x=nx;CI.y=ny;ok=true}else if(mx&&ciFree(nx,CI.y)){CI.x=nx;ok=true}else if(my&&ciFree(CI.x,ny)){CI.y=ny;ok=true}
  if(ok){CI.ph+=Math.hypot(mx,my);CI.mv=true;if(Math.abs(mx)>.01||Math.abs(my)>.01)CI.d=Math.abs(mx)>Math.abs(my)?(mx<0?2:3):(my<0?1:0)}return ok}
 function ciUpdate(dt){var sp=54;CI.mv=false;
- var kx=(CK.r?1:0)-(CK.l?1:0),ky=(CK.d?1:0)-(CK.u?1:0);
+ var kx=(CIK.r?1:0)-(CIK.l?1:0),ky=(CIK.d?1:0)-(CIK.u?1:0);
  if(kx||ky){CI.path=null;CI.auto=null;var L=Math.hypot(kx,ky);ciMove(kx/L*sp*dt,ky/L*sp*dt)}
  else if(CI.path&&CI.path.length){var p=CI.path[0],dx=p[0]-CI.x,dy=p[1]-CI.y,d=Math.hypot(dx,dy);if(d<1){CI.path.shift()}else{var st=Math.min(d,sp*dt);if(!ciMove(dx/d*st,dy/d*st)){CI.path=null}}}
  if(CI.path&&!CI.path.length){CI.path=null;if(CI.auto&&CI.hs===CI.auto)ciAct();CI.auto=null}
@@ -285,7 +285,7 @@ function casCanEnter(){return mode==='game'&&!!CAS&&!!car&&!ZS&&!DLG&&!(typeof S
 function casDoor(){return {x:CAS.x+164,y:CAS.y+CAS.h+8}}
 function casEnter(){if(CI.on||!casCanEnter())return;try{if(run)bank()}catch(e){}
  if(!window._tdbCas&&window.tdBack){var ob=window.tdBack;window.tdBack=function(){if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){cgClose();return true}casExit();return true}return ob()};window._tdbCas=1}
- CI.on=true;mode='cas';K.l=K.r=K.t=K.b=K.h=0;CK.l=CK.r=CK.u=CK.d=0;auStop();var cq=$('csq');if(cq)cq.classList.remove('on');
+ CI.on=true;mode='cas';K.l=K.r=K.t=K.b=K.h=0;CIK.l=CIK.r=CIK.u=CIK.d=0;auStop();var cq=$('csq');if(cq)cq.classList.remove('on');
  $('hud').style.display='none';$('ctl').style.display='none';casUi(true);
  CI.x=180;CI.y=224;CI.cx=CI.x;CI.cy=CI.y;CI.d=1;CI.path=null;CI.auto=null;CI.bub=null;CI.hs=null;CI.fade=1;CI.mv=false;$('cap').style.display='none';
  $('cacn').textContent=Math.floor(S.coins)+' ¥';ciResize();CIN.forEach(function(n){if(n.id==='croup')n.d=3;else if(n.id==='bounc'||n.id==='deal1'||n.id==='deal2'||n.id==='cash')n.d=0});
@@ -293,17 +293,17 @@ function casEnter(){if(CI.on||!casCanEnter())return;try{if(run)bank()}catch(e){}
  if(!CI.seen){hn.style.display='block';CI.hint=5;CI.seen=true}
  setTimeout(function(){if(CI.on)ciSay('guard')},450);
  CI.last=performance.now();requestAnimationFrame(ciLoop)}
-function casExit(){if(!CI.on)return;if(typeof CGM!=='undefined'&&CGM.on){if(CGM.g.busy&&CGM.g.busy())return;cgClose()}CI.on=false;casUi(false);mode='game';CK.l=CK.r=CK.u=CK.d=0;
+function casExit(){if(!CI.on)return;if(typeof CGM!=='undefined'&&CGM.on){if(CGM.g.busy&&CGM.g.busy())return;cgClose()}CI.on=false;casUi(false);mode='game';CIK.l=CIK.r=CIK.u=CIK.d=0;
  var d=casDoor();car.x=d.x;car.y=d.y+4;car.a=0;car.vx=car.vy=car.w=0;car.sp=0;car.l=0;cam.x=car.x;cam.y=car.y;CI.away=false;
  $('hud').style.display='block';$('ctl').style.display='block';applyCtl();resize();MMCX=null;if(S.snd)auStart();last=performance.now();requestAnimationFrame(loop)}
 addEventListener('resize',function(){if(mode==='cas')ciResize()});
 // keys: walk, act, leave (taken before the game's own key handler, which would swallow them)
 addEventListener('keydown',function(e){
  if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){if(typeof cgKey==='function')cgKey(e);e.preventDefault();e.stopImmediatePropagation();return}var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
-  if(m){CK[m]=1}else if(!e.repeat&&(c==='Enter'||c==='NumpadEnter'||c==='Space'||c==='KeyE'))ciAct();else if(!e.repeat&&(c==='Escape'||c==='Backspace'))casExit();
+  if(m){CIK[m]=1}else if(!e.repeat&&(c==='Enter'||c==='NumpadEnter'||c==='Space'||c==='KeyE'))ciAct();else if(!e.repeat&&(c==='Escape'||c==='Backspace'))casExit();
   e.preventDefault();e.stopImmediatePropagation();return}
  if(mode==='game'&&(e.code==='Enter'||e.code==='NumpadEnter')&&!e.repeat){var q=$('csq');if(q&&q.classList.contains('on')&&!document.querySelector('#zp.on,#sq.on')&&!DLG){e.preventDefault();e.stopImmediatePropagation();casEnter()}}},true);
-addEventListener('keyup',function(e){if(mode!=='cas')return;var m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[e.code];if(m)CK[m]=0;e.stopImmediatePropagation()},true);
+addEventListener('keyup',function(e){if(mode!=='cas')return;var m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[e.code];if(m)CIK[m]=0;e.stopImmediatePropagation()},true);
 
 // ---------- in the city: the card by the carpet, a gold ring on the kerb, the mark on the map
 function casCard(){var q=$('csq');if(q)return q;var zp=$('zp');if(!zp)return null;q=document.createElement('div');q.id='csq';
