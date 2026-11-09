@@ -299,7 +299,7 @@ function casExit(){if(!CI.on)return;if(typeof CGM!=='undefined'&&CGM.on){if(CGM.
 addEventListener('resize',function(){if(mode==='cas')ciResize()});
 // keys: walk, act, leave (taken before the game's own key handler, which would swallow them)
 addEventListener('keydown',function(e){
- if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){if(typeof cgKey==='function')cgKey(e);e.preventDefault();e.stopImmediatePropagation();return}var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
+ if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){var tg=e.target;if(tg&&tg.tagName==='INPUT'){if(e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();var ob=tg.parentNode.querySelector('button');if(ob)ob.click()}else if(e.code==='Escape'){e.preventDefault();tg.blur()}e.stopImmediatePropagation();return}if(typeof cgKey==='function')cgKey(e);e.preventDefault();e.stopImmediatePropagation();return}var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
   if(m){CIK[m]=1}else if(!e.repeat&&(c==='Enter'||c==='NumpadEnter'||c==='Space'||c==='KeyE'))ciAct();else if(!e.repeat&&(c==='Escape'||c==='Backspace'))casExit();
   e.preventDefault();e.stopImmediatePropagation();return}
  if(mode==='game'&&(e.code==='Enter'||e.code==='NumpadEnter')&&!e.repeat){var q=$('csq');if(q&&q.classList.contains('on')&&!document.querySelector('#zp.on,#sq.on')&&!DLG){e.preventDefault();e.stopImmediatePropagation();casEnter()}}},true);

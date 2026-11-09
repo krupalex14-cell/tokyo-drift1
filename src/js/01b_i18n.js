@@ -167,7 +167,7 @@ var EN={
  'Интернет не нужен — телефоны связываются напрямую':'No internet needed — the phones talk directly',
  'Появится в версии-приложении для iPhone и Android.':'Coming in the iPhone and Android app.','Понятно':'Got it',
  // hud
- 'очки':'score','км/ч':'km/h','карта':'map','гараж':'garage','убрать метку':'clear marker','закрыть':'close',
+ 'очки':'score','км/ч':'km/h','карта':'map','гараж':'garage','убрать метку':'clear marker','телепорт':'teleport','Телепорт':'Teleport','закрыть':'close',
  '▶ играть':'▶ play','в меню':'to menu','сброс':'reset','Настройки':'Settings','Влево':'Left','Вправо':'Right','Тормоз и задний ход':'Brake and reverse','Газ':'Throttle','Ручник':'Handbrake',
  'близко!':'close!','Бам!':'Bam!','конус!':'cone!','Сбил пешехода!':'Hit a pedestrian!','Приехали!':'Arrived!','Метка убрана':'Marker removed','Тут нет дороги':'No road here',
  'автомат!':'vending machine!','барьер!':'barrier!','велик!':'bike!','вывеска!':'sign!','гидрант!':'hydrant!','горшок!':'flower pot!','знак!':'road sign!','почтовый ящик!':'mailbox!','урны!':'trash bins!','фонарь!':'street lamp!',

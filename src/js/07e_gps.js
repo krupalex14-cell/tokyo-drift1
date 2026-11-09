@@ -136,5 +136,11 @@ function gpsMini(g,k,MMS,th,rot){if(!WP||!WP.pts)return;var pts=WP.pts,ct=Math.c
 function gpsMap(g2,k,DPR){if(!WP)return;
  if(WP.pts){var pts=WP.pts;[['rgba(30,8,36,.85)',5],['#ff4d9a',2.5]].forEach(function(st){g2.strokeStyle=st[0];g2.lineWidth=st[1]*DPR;g2.lineCap='round';g2.lineJoin='round';g2.beginPath();var lx=null,ly=null;for(var i=WP.pi;i<pts.length;i++){var X=wrap(pts[i][0])*k,Y=wrap(pts[i][1])*k;if(lx===null||Math.abs(X-lx)>WS*k/2||Math.abs(Y-ly)>WS*k/2)g2.moveTo(X,Y);else g2.lineTo(X,Y);lx=X;ly=Y}g2.stroke()})}
  var p=gpsPinSpr(),sc=Math.max(2,Math.round(DPR*1.6));g2.imageSmoothingEnabled=false;g2.drawImage(p,Math.round(WP.x*k-5.5*sc),Math.round(WP.y*k-12.5*sc),11*sc,13*sc)}
-function gpsUI(){var w=$('mapw');if(w)w.style.display=WP?'inline-block':'none';}
+function gpsUI(){var w=$('mapw');if(w)w.style.display=WP?'inline-block':'none';var t=$('maptp');if(t)t.style.display=WP&&S.dev&&mode==='map'?'inline-block':'none';}
+function gpsTp(){if(!WP||!S.dev||!car||mode!=='map')return;var q=WP.q;
+ var r=q&&q.r;if(r&&r.k==='loc'){car.x=WP.x;car.y=WP.y;car.a=Math.atan2(r.ys[1]-r.ys[0],r.xs[1]-r.xs[0])}
+ else if(r&&r.pt){r.pt(q.s,TMP);var u=q.up?0:(r.m||0)+.5*(r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=WP.x;car.y=WP.y}
+ car.l=q&&q.up?1:0;car.vx=car.vy=car.w=0;car.sp=0;car.dr=false;car.spin=0;car.slip=0;cam.x=car.x;cam.y=car.y;cam.a=car.a;
+ WP=null;if(typeof preload==='function')preload();toggleMap();flash(L('Телепорт'),1);if(S.snd)try{auBell()}catch(e){}}
+
 var _gpsSG=startGame;startGame=function(k){_gpsSG(k);if(WP)gpsRoute()};
