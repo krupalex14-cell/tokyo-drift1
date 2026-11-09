@@ -280,7 +280,7 @@ function casUi(on){var G=$('game');var u=$('casui');
    '#csq .zk{font-size:11px;letter-spacing:.16em;color:#ffd23a}#csq .zn{font-size:16.5px;margin:2px 0 5px;line-height:1.1}#csq .zi{font-size:11px;color:var(--muted);font-weight:400;line-height:1.4}'+
    '#csq button{width:100%;margin-top:8px;border:0;padding:9px 0;font-size:16.5px;font-weight:900;background:#ffd23a;color:#2a1a0a;box-shadow:3px 3px 0 #b8862a}';
   document.head.appendChild(st)}
- u.style.display=on?'block':'none';if(!on){$('cab').style.display='none';$('cap').style.display='none';$('cahn').style.display='none'}}
+ u.style.display=on?'block':'none';if(on){u.classList.remove('ixs');u.querySelector('.cti b').textContent=TR('«Золотой дракон»','The Golden Dragon')}if(!on){$('cab').style.display='none';$('cap').style.display='none';$('cahn').style.display='none'}}
 function casCanEnter(){return mode==='game'&&!!CAS&&!!car&&!ZS&&!DLG&&!(typeof ST!=='undefined'&&ST.act)&&!(typeof NET!=='undefined'&&NET.on)&&!(typeof TD!=='undefined'&&TD.on)}
 function casDoor(){return {x:CAS.x+164,y:CAS.y+CAS.h+8}}
 function casEnter(){if(CI.on||!casCanEnter())return;try{if(run)bank()}catch(e){}

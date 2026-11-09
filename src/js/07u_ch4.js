@@ -214,7 +214,7 @@ STORY.push(
        [D('ryu','(в дверях раменной) Карта у тебя, ёппарай?','(in the ramen shop doorway) Got the card, yopparai?'),
         D('ryu','Отец хочет её. А я хочу тебя — на кольце. Без отцовских денег. Ты и я.','My father wants it. And I want you — on the ring. No father’s money. Just you and me.'),
         D('lyokha','Назови время.','Name the time.')])},
-  chapterEnd:4,next:{ru:'«Тени» бросают вызов',en:'The Shadows throw down the gauntlet'}}
+  scene:'dawn',chapterEnd:4,next:{ru:'«Тени» бросают вызов',en:'The Shadows throw down the gauntlet'}}
 );
 // ---- places: the foot and the top of Kumo, the old onsen with Misha's garage №3, the bamboo grove next to it
 var C4G=null,C4Z={ghost:1,guard:1,photo:1,gboss:1};

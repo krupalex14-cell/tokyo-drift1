@@ -49,6 +49,7 @@
 07zc_casino
 07zd_casino_in
 07ze_casino_games
+07zf_rooms
 08d_back
 08e_shop
 08f_radio

@@ -399,7 +399,7 @@ function stDone(ok,why){var m=ST.act;if(!m)return;ST.act=null;ST.ride=false;ST.a
  if(rw){S.coins+=rw;popup('+'+rw+' ¥','big')}
  var nxi=stNextIdx(idx+1);S.story.m=nxi;S.story.hi=Math.max(S.story.hi|0,nxi);save();ST.routed='';WP=null;
  var post=typeof m.post==='function'?m.post({hits:ST.hits}):m.post,sl=m.stops&&stStopLines(m,m.stops[m.stops.length-1]);if(sl)post=sl.concat(post||[]);if(m.work){car.vx=car.vy=car.w=0;car.dr=false}
- ST.talk=1;setTimeout(function(){ST.talk=0;if(m.zone)$('res').style.display='none';var talk=function(){dlgOpen(post,function(){
+ ST.talk=1;setTimeout(function(){ST.talk=0;if(m.zone)$('res').style.display='none';var talk=function(){(m.scene&&typeof ixStory==='function'?function(l,c){ixStory(m.scene,l,c)}:dlgOpen)(post,function(){
   if(m.chapterEnd){var ce=m.chapterEnd,n2=CHAP[ce+1];chapterCard(chDone(ce),LT(CHAP[ce].t),L('Дальше')+': '+LT(m.next),function(){var nx=stCur();chapterCard(chLbl(ce+1),LT(n2.t),nx?LT(n2.tod):L('скоро'),function(){if(nx&&nx.auto&&!ST.act)stStart(nx)})});return}
   var n=stCur();if(n&&n.auto)stStart(n)})};if(m.work)chapterCard(L('Мастерская'),LT(m.work),'',talk);else talk()},m.type==='zone'||m.type==='duel'?1400:300)}
 // ---- boss: Gen drifts around the Scramble
