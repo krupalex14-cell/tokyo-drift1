@@ -325,7 +325,7 @@ if(!S.story||typeof S.story!=='object')S.story={m:0,started:0,debt:30000,v:2,hi:
 var ST={mode:false,act:null,ride:false,arr:false,t:0,prog:0,hits:0,stop:0,routed:'',lastOk:false,gen:0,photo:0,prompt:false,end:null};
 function stCur(){return STORY[S.story.m|0]||null}
 // story branches: missions marked only:'x' are played only when that choice was made
-function stNextIdx(i){while(STORY[i]&&STORY[i].only&&STORY[i].only!==S.story.pick)i++;return i}
+function stNextIdx(i){while(STORY[i]&&(STORY[i].only&&STORY[i].only!==S.story.pick||STORY[i].req&&(S.story.f||{})[STORY[i].req[0]]!==STORY[i].req[1]))i++;return i}
 function stRivName(m){return m&&m.rival==='ryu'?'Рю':'Гэн'}
 function chLbl(n){return S.lang==='en'?'Chapter '+n:S.lang==='zh'?'第'+n+'章':'Глава '+n}
 function chDone(n){return S.lang==='en'?'Chapter '+n+' complete':S.lang==='zh'?'第'+n+'章完成':'Глава '+n+' пройдена'}
@@ -472,7 +472,7 @@ function stEsc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&am
 document.addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='go'){var c=stCur();if(c)stStart(c)}
  if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game'){stRetryPlace(c2);stStart(c2,true)}}
  if(b.dataset.st==='reset'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent=L('точно?');setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent=L('заново')}},2500);return}
-  if(S.story.debt<30000){S.coins+=30000-S.story.debt;S.story.debt=30000}S.story.m=0;S.story.started=1;ST.act=null;ST.routed='';save();
+  if(S.story.debt<30000){S.coins+=30000-S.story.debt;S.story.debt=30000}S.story.m=0;S.story.started=1;S.story.f={};ST.act=null;ST.routed='';save();
   chapterCard(chLbl(1),LT(CHAP[1].t),LT(CHAP[1].tod),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}});
 document.addEventListener('pointerdown',function(e){if(!DLG)return;if(e.target.closest('.dskip')){e.preventDefault();dlgNext(true);return}if(e.target.closest('#dlg')){e.preventDefault();dlgNext(false)}});
 // ---- objective HUD
