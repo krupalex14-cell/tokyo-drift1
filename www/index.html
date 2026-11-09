@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='09.11 12:25';
+var GAME_BUILD='09.11 12:29';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -7989,7 +7989,11 @@ var _hudCas=hud;hud=function(dt){_hudCas(dt);if(!CAS||!car||mode!=='game')return
  if(show!==q.classList.contains('on')){q.classList.toggle('on',show);if(show){q.querySelector('.zk').textContent=TR('КАЗИНО','CASINO');q.querySelector('.zn').textContent=TR('«Золотой дракон»','The Golden Dragon');q.querySelector('.zi').textContent=TR('Слоты, рулетка, блэкджек и ставки на заезды.','Slots, roulette, blackjack and race betting.');q.querySelector('button').textContent=TR('Войти','Go in')}}};
 var _dzCi=drawZones;drawZones=function(l){_dzCi(l);if(l!==0||!CAS||!car||mode!=='game'||!casCanEnter())return;var d=casDoor();if(Math.hypot(wd(car.x,d.x),wd(car.y,d.y))>280)return;
  var x=SX(d.x),y=SY(d.y),r=8+Math.round((Math.sin(TIME*3)+1)*1.5);cx.fillStyle='rgba(255,210,58,.85)';for(var a=0;a<24;a++){var an=a/24*TAU;cx.fillRect(Math.round(x+Math.cos(an)*r),Math.round(y+Math.sin(an)*r*.6),1,1)}cx.fillStyle='rgba(255,210,58,.5)';cx.fillRect(x-1,y-1,2,2)};
-var _omCas=openMap;openMap=function(){var r=_omCas.apply(this,arguments);try{if(CAS){var c=$('mapc'),g=c.getContext('2d'),k=c.width/WS,X=(CAS.x+CAS.w/2)*k,Y=(CAS.y+50)*k,D=DPR;g.fillStyle='#14101e';g.fillRect(X-4*D,Y-4*D,8*D,8*D);g.fillStyle='#ffd23a';g.fillRect(X-3*D,Y-3*D,6*D,6*D);g.fillStyle='#e0302a';g.fillRect(X-1*D,Y-1*D,2*D,2*D);g.font=(9*D)+'px monospace';g.fillStyle='rgba(255,240,200,.95)';g.fillText(L('Казино'),X+5*D,Y+3*D)}}catch(e){}return r};
+// on the big map: a casino chip with its name, placed like the other landmarks (it dodges the other labels)
+MAPG.chip=['..YYY..','.YRRRY.','YRWRWRY','YRRYRRY','YRWRWRY','.YRRRY.','..YYY..'];MAPK.casino=['chip','Казино'];
+var _mbCas=mapBase;mapBase=function(s){if(MAPB&&MAPBS===s)return MAPB;if(!CAS)return _mbCas(s);var fake={k:'casino',x:CAS.x,y:CAS.y,w:CAS.w,h:CASB};SPEC.push(fake);try{return _mbCas(s)}finally{var i=SPEC.indexOf(fake);if(i>=0)SPEC.splice(i,1)}};
+// on the little map in the corner: the chip shows up once the casino is in range
+var _dmCas=drawMini;drawMini=function(){_dmCas();try{if(!CAS||!car||!MMCX)return;var g=MMCX,rot=camRot(),k=MMS/(2*MMR),th=rot?-Math.PI/2-(cam.a||0):0,ct=Math.cos(th),st=Math.sin(th),dx=wd(CAS.x+CAS.w/2,car.x),dy=wd(CAS.y+CASB/2,car.y),X=MMS/2+(dx*ct-dy*st)*k,Y=MMS/2+(dx*st+dy*ct)*k,u=Math.max(1,Math.round(DPR*.8));if(X<4*u||Y<4*u||X>MMS-4*u||Y>MMS-4*u)return;mapGlyph(g,'chip',X,Y,u)}catch(e){}};
 
 Object.assign(ZH,{'КАЗИНО':'赌场','«Золотой дракон»':'“金龙”','Слоты, рулетка, блэкджек и ставки на заезды.':'老虎机、轮盘、二十一点和赛车投注。','Войти':'进去','Выйти':'离开','Казино':'赌场',
  'Нажимай на пол, чтобы идти':'点击地面行走','Стрелки — идти · Enter — действие · Esc — выйти':'方向键行走 · Enter 互动 · Esc 离开',
