@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='09.11 20:16';
+var GAME_BUILD='09.11 20:24';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -8968,10 +8968,16 @@ var VRACE={cw:176,ch:132,bet:1000,pick:1,paths:null,tf:null,
 
 // ---------- developer panel: start the VIP story again
 var _devPanelV=devPanel;devPanel=function(){return _devPanelV().replace('<button class="off" data-s="devoff">','<button data-s="devvip">'+L('VIP с нуля')+'</button><button class="off" data-s="devoff">')};
-var _devActionV=devAction;devAction=function(a,i){if(a==='devvip'){S.vipSt=0;save();toast(L('VIP с нуля'));renderSet();return}return _devActionV(a,i)};
+var _devActionV=devAction;devAction=function(a,i){if(a==='devvip'){S.vipSt=0;save();toast(L('VIP с нуля'));renderSet();return}
+ if(a==='devadd'){var e=$('devsum'),raw=String(e&&e.value||'').trim(),neg=/^[-−–]/.test(raw),v=cgNum(raw.replace(/^[-−–+]\s*/,''));if(!v){toast(TR('Введи сумму, например 1000000 или 5m','Type an amount, e.g. 1000000 or 5m'));return}
+  v=Math.min(v,9e15);var before=Math.floor(S.coins);S.coins=neg?Math.max(0,S.coins-v):Math.min(9e15,S.coins+v);save();toast((neg?'−':'+')+fmtN(Math.abs(Math.floor(S.coins)-before))+' ¥ · '+TR('на счету','balance')+' '+fmtN(S.coins)+' ¥');if(typeof cgBal==='function')cgBal();renderSet();return}
+ return _devActionV(a,i)};
+// any amount onto the balance: a field and a button above the developer's buttons
+var _devPanelV2=devPanel;devPanel=function(){return _devPanelV2().replace('<div class="dbt2">','<div class="dsum"><input id="devsum" type="text" inputmode="numeric" maxlength="20" autocomplete="off" placeholder="1000000 · 5k · 2m"><button data-s="devadd">'+L('На баланс')+'</button></div><div class="dsh">'+L('Любая сумма: 5000, 50k, 2m, 1b. С минусом — снять.')+'</div><div class="dbt2">')};
+(function(){var st=document.createElement('style');st.textContent='.dev .dsum{display:flex;gap:6px;margin-top:10px}.dev .dsum input{flex:1;min-width:0;border:0;background:#0e1a12;color:#7dff8c;font:inherit;font-size:16px;font-weight:900;padding:8px 10px;box-shadow:inset 0 0 0 2px #7dff8c;outline:0}.dev .dsum button{border:0;background:#7dff8c;color:#0e2a14;font-size:12px;padding:8px 12px;font-weight:900}.dev .dsh{font-size:11px;color:#b8f0c0;margin-top:4px}';document.head.appendChild(st)})();
 
-Object.assign(EN,{'Сора':'Sora','Сора первая на финише':'Sora finished first','VIP с нуля':'VIP from scratch','Казино':'Casino'});
-Object.assign(ZH,{'Сора':'空','Сора первая на финише':'空先到终点','VIP с нуля':'VIP 重新开始','Тацуми':'辰巳','Тацуми · по телефону':'辰巳 · 电话里',
+Object.assign(EN,{'На баланс':'Add to balance','Любая сумма: 5000, 50k, 2m, 1b. С минусом — снять.':'Any amount: 5000, 50k, 2m, 1b. With a minus — take away.','Сора':'Sora','Сора первая на финише':'Sora finished first','VIP с нуля':'VIP from scratch','Казино':'Casino'});
+Object.assign(ZH,{'На баланс':'加到余额','Любая сумма: 5000, 50k, 2m, 1b. С минусом — снять.':'任意金额：5000、50k、2m、1b。前面加负号——扣除。','Введи сумму, например 1000000 или 5m':'请输入金额，例如 1000000 或 5m','на счету':'余额','Сора':'空','Сора первая на финише':'空先到终点','VIP с нуля':'VIP 重新开始','Тацуми':'辰巳','Тацуми · по телефону':'辰巳 · 电话里',
  'Добро пожаловать наверх, Алексей-сан.':'欢迎上楼，阿列克谢先生。','Сора уже спрашивала про тебя.':'空已经在问你了。','Режим разработчика? Проходи, свои.':'开发者模式？上去吧，自己人。','Сначала заезд с Сорой. Потом — наверх.':'先和空比一场。然后再上楼。','Хозяин хочет тебя видеть. Его кабинет — вон та дверь.':'老板想见你。他的办公室就是那扇门。',
  'Вышибала у лестницы машет тебе: хозяин хочет тебя видеть.':'楼梯边的保镖向你招手：老板想见你。','Заезд с Сорой':'与空比赛','…Ладно. Ты быстрый.':'……好吧。你很快。','Сора сказала «быстрый». От неё это почти признание в любви.':'空说你“快”。从她嘴里说出来，几乎算是表白了。',
  'Карта VIP твоя. Балкон наверху — вышибала тебя пропустит. И десять тысяч за красивый заезд.':'VIP 卡归你了。阳台在楼上——保镖会放你过去。再加一万，奖励这场漂亮的比赛。','Мои стоп-сигналы тебе к лицу. Ещё раз? Я в «Драконе».':'我的尾灯挺配你的。再来一次？我在“龙”里等你。',
