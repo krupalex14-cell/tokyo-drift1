@@ -44,6 +44,8 @@
 07v_show
 07w_bots
 07x_port
+07y_ch5
+07z_ch5_i18n
 08d_back
 08e_shop
 08f_radio

@@ -396,27 +396,31 @@ function c4Boss(m,dt){var g=c4R('ghost');if(!g)return false;g.wait=ZS.ph!=='go';
  if(!g.nobrk&&Math.max(stRoadS(g),ZS.s)>z.s0+cl*.75){g.nobrk=1;flash(L('Призрак погасил стоп-сигналы!'),1.4)}
  if(stRoadS(g)>=z.s1){ST.fail='Призрак первым у тории';zoneEnd('time');return true}return false}
 // ---- shake the tail (Ryu, lights off), then to the onsen
-function c4ShakeStart(m){ST.ph=0;ST.hid=0;ST.esc=0;WP=null;stSpawnRin();var R=RIV[RIV.length-1],o=C3R.ryu;R.id=o.id;R.name=o.name;R.col=o.tag;R.car=o.car;R.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);R.noatk=1e9;R.back=3;
- c4Say(D('hana','Гаси фары и уходи переулками. Он не должен нас видеть.','Lights off and lose him in the side streets. He mustn’t see us.'))}
+// (m.tail = who follows you, m.sayGo / m.sayOk / m.failTx = what is said; the defaults are chapter 4's Ryu)
+function c4ShakeStart(m){ST.ph=0;ST.hid=0;ST.esc=0;WP=null;stSpawnRin();var R=RIV[RIV.length-1],o=(m.tail&&(C4R[m.tail]||C3R[m.tail]))||C3R.ryu;R.id=o.id;R.name=o.name;R.col=o.tag;R.car=o.car;R.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);R.noatk=1e9;R.back=3;
+ c4Say(m.sayGo||D('hana','Гаси фары и уходи переулками. Он не должен нас видеть.','Lights off and lose him in the side streets. He mustn’t see us.'))}
 function c4Shake(m,dt){var P=stPlace(m.dest);
  if(ST.ph===1){var d=Math.hypot(wd(P.x,car.x),wd(P.y,car.y));if(d<62){stDone(true);return true}if((!WP||!WP.pts)&&d>80&&TIME-(ST.rt||0)>1.5)stRoute(P.x,P.y);return false}
  var R=RIV[0];if(!R)return false;R.noatk=1e9;var dd=stRinUpdate(R,dt);if(c4Dark()&&dd>300)R.los=0;
  ST.hid=(!R.los&&dd>240)?ST.hid+dt:Math.max(0,ST.hid-dt*2);ST.esc=dd>650?ST.esc+dt:0;
- if(ST.hid>4||ST.esc>2.5){rivClear();ST.ph=1;popup(L('Оторвался!'),'big');if(S.snd)try{auBell()}catch(e){}c4Say(D('hana','Оторвались! Теперь — к онсэну. Фары можно включить.','We lost him! Now — to the onsen. You can turn your lights back on.'));stRoute(P.x,P.y);return true}
- if(ST.t>m.limit){stDone(false,'Рю не отстал');return true}return false}
+ if(ST.hid>4||ST.esc>2.5){rivClear();ST.ph=1;popup(L('Оторвался!'),'big');if(S.snd)try{auBell()}catch(e){}c4Say(m.sayOk||D('hana','Оторвались! Теперь — к онсэну. Фары можно включить.','We lost him! Now — to the onsen. You can turn your lights back on.'));stRoute(P.x,P.y);return true}
+ if(ST.t>m.limit){stDone(false,m.failTx||'Рю не отстал');return true}return false}
 // ---- lead Kuroda (no lights, wrecked) to the onsen; Shadows come in waves to finish him off
 function c4ShadowSpawn(G){var T=[0,0,0],back=420;for(;back<=960;back+=90){rivAt(G,G.P-back,T);if(Math.abs(wd(T[0],cam.x))>VW/2+40||Math.abs(wd(T[1],cam.y))>VH/2+40)break}
  var id=['sh1','sh2','sh3'][ST.wave%3],R=c3Pace(c3Riv(c4o(id,{x:T[0],y:T[1],a:T[2],pts:[[T[0],T[1]],[wrap(T[0]+Math.cos(T[2])*30),wrap(T[1]+Math.sin(T[2])*30)]],loop:false,vmax:470,wait:false,drift:0})),.95,1.2);
  R.sh=1;R.tgt=G.c;R.rt=0;R.cd2=0;flash(L('«Тени» сзади!'),1.2)}
-function c4EscortStart(m){ST.ph=0;ST.hp=m.hp||3;ST.lost=0;ST.wave=0;ST.wT=6;WP=null;stSpawnRin();var G=RIV[RIV.length-1],o=C4R.ghost;
- G.id='ghost';G.name='Курода';G.col=o.tag;G.car=o.car;G.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);G.nohl=1;G.drift=0;G.esc=1;var C=CARS[o.car];G.c.P=carParams(o.car,[1,1,1]);G.c.hx=C.hx;G.c.hy=C.hy;G.c.m=C.m||1;var P=stPlace(m.dest);stRoute(P.x,P.y)}
+// (m.esc = whose car you lead, m.escName, m.tx = its messages; the defaults are chapter 4's Kuroda; inside it is always 'ghost')
+var C4ETX={lost:'Курода потерял тебя в темноте',lag:'Курода отстаёт!',hit:'Удар по Куроде!',kill:'«Тени» добили машину Куроды',wait:'Подожди Куроду',late:'не успели к онсэну'};
+function c4Tx(m,k){return(m.tx&&m.tx[k])||C4ETX[k]}
+function c4EscortStart(m){ST.ph=0;ST.hp=m.hp||3;ST.lost=0;ST.wave=0;ST.wT=6;WP=null;stSpawnRin();var G=RIV[RIV.length-1],o=(m.esc&&(C4R[m.esc]||C3R[m.esc]))||C4R.ghost;
+ G.id='ghost';G.name=m.escName||'Курода';G.col=o.tag;G.car=o.car;G.spr=playerSprite(o.car,BODYC[o.col],STRC[o.str]);G.nohl=m.esc?0:1;G.drift=0;G.esc=1;var C=CARS[o.car];G.c.P=carParams(o.car,[1,1,1]);G.c.hx=C.hx;G.c.hy=C.hy;G.c.m=C.m||1;var P=stPlace(m.dest);stRoute(P.x,P.y)}
 function c4Escort(m,dt){var G=c4R('ghost'),P=stPlace(m.dest);if(!G)return false;stTrail(G);
  var dd=Math.hypot(wd(G.x,car.x),wd(G.y,car.y)),pv=car.P.vmax;G.vmax=dd<75?0:dd<140?110:Math.min(pv*.7,90+dd*1.2);G.sk=.9;
- G.pf=(G.pf||0)-dt;if(G.pf<=0){G.pf=.3;fxPuff(G.x-Math.cos(G.a)*-8,G.y-Math.sin(G.a)*-8,G.l|0)}
+ G.pf=(G.pf||0)-dt;if(G.pf<=0&&!m.esc){G.pf=.3;fxPuff(G.x-Math.cos(G.a)*-8,G.y-Math.sin(G.a)*-8,G.l|0)}
  // wedged behind you somewhere (not your fault): put him back on your trail, out of sight
  G.jam=G.c.sp<20&&dd>160?(G.jam||0)+dt:0;if(G.jam>2.5){G.jam=0;var TJ=[0,0,0];rivAt(G,Math.max(0,G.P+60),TJ);if(Math.abs(wd(TJ[0],cam.x))>VW/2+30||Math.abs(wd(TJ[1],cam.y))>VH/2+30||Math.abs(wd(G.x,cam.x))>VW/2+30||Math.abs(wd(G.y,cam.y))>VH/2+30){G.c.x=TJ[0];G.c.y=TJ[1];G.c.a=TJ[2];G.c.vx=G.c.vy=G.c.w=0;G.x=TJ[0];G.y=TJ[1];G.stuck=0;G.rev=0}}
- ST.lost=dd>520?ST.lost+dt:Math.max(0,ST.lost-dt);if(ST.lost>6){stDone(false,'Курода потерял тебя в темноте');return true}
- if(dd>340&&(!ST.lw||TIME-ST.lw>3)){ST.lw=TIME;flash(L('Курода отстаёт!'),1)}
+ ST.lost=dd>520?ST.lost+dt:Math.max(0,ST.lost-dt);if(ST.lost>6){stDone(false,c4Tx(m,'lost'));return true}
+ if(dd>340&&(!ST.lw||TIME-ST.lw>3)){ST.lw=TIME;flash(L(c4Tx(m,'lag')),1)}
  var live=0;for(var i=RIV.length-1;i>=0;i--){var R=RIV[i];if(!R.sh)continue;
   if(R.out){if(Math.hypot(wd(R.x,car.x),wd(R.y,car.y))>700)RIV.splice(i,1);continue}live++;R.tgt=G.c;
   if(c4Stun(R,G)){R.out=1;flash(L('«Тень» отстала!'),1.1)}
@@ -425,12 +429,12 @@ function c4Escort(m,dt){var G=c4R('ghost'),P=stPlace(m.dest);if(!G)return false;
   R.rt=(R.rt||0)-dt;if(!R.atk2&&(R.rt<=0||R.L-R.P<40)){R.rt=dG>500?1.4:.8;var p=gpsPathFrom(R.c.x,R.c.y,G.x,G.y);if(p)rivPath(R,p,false)}
   R.vmax=pv*(dG>500?1.08:.92);R.sk=1.1;
   if(dG<R.c.hx+G.c.hx+5&&R.cd2<=0){var rel=Math.hypot(R.c.vx-G.c.vx,R.c.vy-G.c.vy);if(rel>60&&R.c.sp>80){R.cd2=3;R.back=4;R.gh=(R.gh||0)+1;if(R.gh>=2){R.out=1;R.atk2=0}ST.hp--;fxSparks(G.x,G.y,12,0,0,G.l|0,1.2);if(S.snd)try{auHit(.5)}catch(e){}
-    flash(L('Удар по Куроде!')+' '+'♥'.repeat(Math.max(0,ST.hp))+'♡'.repeat(Math.max(0,(m.hp||3)-ST.hp)),1.2);if(ST.hp<=0){stDone(false,'«Тени» добили машину Куроды');return true}}}}
+    flash(L(c4Tx(m,'hit'))+' '+'♥'.repeat(Math.max(0,ST.hp))+'♡'.repeat(Math.max(0,(m.hp||3)-ST.hp)),1.2);if(ST.hp<=0){stDone(false,c4Tx(m,'kill'));return true}}}}
  // two Shadows in turn; each gives up after two rams on Kuroda, or at once when you hit it
  ST.wT-=dt;if(ST.wave<2&&!live&&ST.wT<=0&&ST.t>4){c4ShadowSpawn(G);ST.wave++;ST.wT=7}
- var dP=Math.hypot(wd(P.x,car.x),wd(P.y,car.y));if(dP<62){if(dd<230){stDone(true);return true}if(!ST.ww||TIME-ST.ww>3){ST.ww=TIME;flash(L('Подожди Куроду'),1.2)}}
+ var dP=Math.hypot(wd(P.x,car.x),wd(P.y,car.y));if(dP<62){if(dd<230){stDone(true);return true}if(!ST.ww||TIME-ST.ww>3){ST.ww=TIME;flash(L(c4Tx(m,'wait')),1.2)}}
  else if((!WP||!WP.pts)&&dP>80&&TIME-(ST.rt||0)>1.5)stRoute(P.x,P.y);
- if(ST.t>m.limit){stDone(false,'не успели к онсэну');return true}
+ if(ST.t>m.limit){stDone(false,c4Tx(m,'late'));return true}
  return false}
 // ---- a quiet drive: Kuroda talks, you keep under the limit
 function c4Calm(m,dt){var P=stPlace(m.stops[0]),d=Math.hypot(wd(P.x,car.x),wd(P.y,car.y)),kmh=car.sp*.45;
@@ -492,8 +496,8 @@ var _shC4=stHud;stHud=function(){_shC4();var m=ST.act,e=$('sobj');if(!m||!e||!ST
  else if(m.type==='guard'&&ZS){t=L('Призрака зажимают')+' '+Math.round(ST.pr*100)+'% · '+L('до вершины')+' '+Math.max(0,Math.round((ZS.z.s1-(c4R('ghost')?stRoadS(c4R('ghost')):ZS.s))/4))+' '+L('м');bar=ST.pr}
  else if(m.type==='photo'&&ZS){var g2=c4R('ghost');t=L('кадры')+' '+ST.prog+'/'+m.need+(g2?' · '+L('Призрак')+' '+dm(g2)+' '+L('м'):'')+' · '+L(ST.side?'держись так!':'встань с ним борт в борт');bar=(ST.prog+Math.min(1,ST.al/.45))/m.need}
  else if(m.type==='gboss'&&ZS){var g3=c4R('ghost'),ld=g3?Math.round((stRoadS(g3)-ZS.s)/4):0;t=L('Призрак')+' '+(ld>0?L('впереди')+' '+ld:L('позади')+' '+(-ld))+' '+L('м')+' · '+L('до тории')+' '+Math.max(0,Math.round((ZS.z.s1-ZS.s)/4))+' '+L('м');bar=clamp((ZS.s-ZS.z.s0)/(ZS.z.s1-ZS.z.s0),0,1)}
- else if(m.type==='shake'){if(ST.ph===1){var dP=stPlace(m.dest);t=LT(dP.name)+' · '+dm(dP)+' '+L('м')}else if(RIV[0]){t=L('Рю')+' '+dm(RIV[0])+' '+L('м')+(ST.hid>0?' · '+L('потерял тебя'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(Math.max(ST.esc/2.5,ST.hid/4),0,1)}}
- else if(m.type==='escort'){var G=c4R('ghost'),D2=stPlace(m.dest);t=(G?L('Курода')+' '+dm(G)+' '+L('м')+' · ':'')+'♥'.repeat(Math.max(0,ST.hp))+'♡'.repeat(Math.max(0,(m.hp||3)-ST.hp))+' · '+LT(D2.name)+' '+dm(D2)+' '+L('м')}
+ else if(m.type==='shake'){if(ST.ph===1){var dP=stPlace(m.dest);t=LT(dP.name)+' · '+dm(dP)+' '+L('м')}else if(RIV[0]){t=L(m.tailName||'Рю')+' '+dm(RIV[0])+' '+L('м')+(ST.hid>0?' · '+L('потерял тебя'):'')+' · '+Math.max(0,Math.ceil(m.limit-ST.t))+' '+L('с');bar=clamp(Math.max(ST.esc/2.5,ST.hid/4),0,1)}}
+ else if(m.type==='escort'){var G=c4R('ghost'),D2=stPlace(m.dest);t=(G?L(m.escName||'Курода')+' '+dm(G)+' '+L('м')+' · ':'')+'♥'.repeat(Math.max(0,ST.hp))+'♡'.repeat(Math.max(0,(m.hp||3)-ST.hp))+' · '+LT(D2.name)+' '+dm(D2)+' '+L('м')}
  else if(m.type==='calm'){var C=stPlace(m.stops[0]);t=LT(C.name)+' · '+dm(C)+' '+L('м')+' · '+Math.round(car.sp*.45)+'/'+m.vlim+' '+L('км/ч')+' · '+L('замечания')+' '+(ST.strk||0)+'/'+m.strikes;bar=Math.min(1,car.sp*.45/m.vlim)}
  else if(m.type==='crace'&&ST.rte){var T=ST.rte,pos=1;RIV.forEach(function(R){if(R.P>T.s)pos++});var cq=T.cp[T.ci];t=ST.cd>0?L('старт через')+' '+Math.ceil(ST.cd):L('место')+' '+pos+'/5 · '+(T.ci<T.cp.length-1?L('через')+' '+LT(stPlace(cq.k).name)+' · ':'')+L('до финиша')+' '+Math.max(0,Math.round((T.L-T.s)/4))+' '+L('м');bar=clamp(T.s/T.L,0,1)}
  if(t!==null){if(c4Dark())t+=' · '+L('без фар');c4Bar(t,bar,m,e)}
