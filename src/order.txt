@@ -52,6 +52,7 @@
 07zf_rooms
 07zg_vip
 07zh_home
+07zi_biz
 08d_back
 08e_shop
 08f_radio
