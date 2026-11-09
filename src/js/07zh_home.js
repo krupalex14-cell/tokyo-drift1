@@ -82,6 +82,7 @@ var HMI=[
   art:function(g,R){cgDisc(g,306,184,33,'#14101e');cgDisc(g,306,184,32,'#3a3e4a');cgDisc(g,306,184,29,'#5a5e6a');cgDisc(g,306,184,28,'#4a4e5a');for(var i=0;i<16;i++){var a=i/16*TAU;R(Math.round(306+Math.cos(a)*30),Math.round(184+Math.sin(a)*30),1,1,'#5ae0ff')}}},
  {id:'dragon',p:20000000,n:['Золотой дракон','The golden dragon'],d:['Статуя из чистого золота на мраморе. Двадцать миллионов. Смотрит, будто знает сколько.','A statue of solid gold on marble. Twenty million. It looks like it knows how much.'],r:[168,146,32,30],ob:[[170,148,28,26]],
   art:function(g,R){R(170,160,28,14,'#14101e');R(171,161,26,12,'#e8e4dc');R(171,161,26,1,'#ffffff');R(171,172,26,1,'#b8b4ac');for(var i=0;i<30;i++){var a=i*.42,rr=11-i*.3,x=184+Math.cos(a)*rr,y=158+Math.sin(a)*rr*.6-i*.15;cgDisc(g,x,y,2.2,'#a87a20');cgDisc(g,x-.5,y-.5,1.6,'#e8c050')}R(182,146,5,4,'#e8c050');R(183,145,1,1,'#fff0a0');R(186,147,1,1,'#c8202a');R(181,145,1,2,'#e8c050');R(187,145,1,2,'#e8c050')}}];
+function hmShow(id){return hmHas(id)||(IXR.home&&IXR.home.trial===id)}
 function hmItem(id){for(var i=0;i<HMI.length;i++)if(HMI[i].id===id)return HMI[i];return null}
 function hmRest(){var t=0;HMI.forEach(function(it){if(!hmHas(it.id))t+=it.p});return t}
 
@@ -98,7 +99,7 @@ function hmRoomArt(extra){var W=384,H=232,c=mkCanvas(W,H),g=c.getContext('2d'),x
  if(!hmHas('bed')){R(20,62,36,30,'#b8b4ac');R(21,63,34,28,'#e8e4dc');R(23,65,14,7,'#f8f8f8');R(21,78,34,13,'#8a8ea0');cgDisc(g,62,64,3,'#ffd27a')}
  HMI.forEach(function(it){if(hmHas(it.id)||it.id===extra)it.art(g,R)});
  return c}
-function hmObs(){var o=[[0,0,384,46],[0,0,8,232],[376,0,8,232],[0,228,172,4],[212,228,172,4],[222,200,16,18]];HMI.forEach(function(it){if(hmHas(it.id))o=o.concat(it.ob)});if(!hmHas('bed'))o.push([18,60,40,34]);return o}
+function hmObs(){var o=[[0,0,384,46],[0,0,8,232],[376,0,8,232],[0,228,172,4],[212,228,172,4],[222,200,16,18]];HMI.forEach(function(it){if(hmShow(it.id))o=o.concat(it.ob)});if(!hmHas('bed'))o.push([18,60,40,34]);return o}
 function hmHs(){var L2=[{id:'door',x:192,y:224,r:12,door:1,lb:['Выйти на улицу','Go outside'],act:function(){ixLeave()},tap:[172,214,40,18]},
   {id:'tab',x:230,y:196,r:14,lb:['Каталог для дома','Home catalogue'],tap:[222,198,16,20],act:function(){cgOpen(HSHOP)}}];
  function add(id,h){if(hmHas(id))L2.push(h)}
@@ -121,10 +122,10 @@ IXR.home={name:['Пентхаус «Скай Резиденс»','Sky Residence 
  card:[['ПЕНТХАУС','PENTHOUSE'],['«Скай Резиденс» у Токийской башни. Продаётся: 5 000 000 ¥','Sky Residence by Tokyo Tower. For sale: 5 000 000 ¥'],['Купить за 5 млн','Buy for 5M']],
  door:function(){return HM?HM.door:null},
  ob:[],hs:[],npc:[{id:'cat',p:'cat',x:200,y:170,d:0,sp:26,hide:true}],
- enter:function(o){if(!IXSH.cat)IXSH.cat=hmCatSheet();hmRefresh();var c=ixActor('cat');c.hide=!hmHas('cat');c.x=200;c.y=160;c.pose='stand';c.path=null;c.em=null;c.nap=0;
+ enter:function(o){this.view=!!o.view&&!hmOwn();this.trial=null;if(!IXSH.cat)IXSH.cat=hmCatSheet();hmRefresh();var c=ixActor('cat');c.hide=!hmHas('cat');c.x=200;c.y=160;c.pose='stand';c.path=null;c.em=null;c.nap=0;
   if(o.first)setTimeout(function(){if(!IX.on||IX.r!==IXR.home)return;ixScene([{fade:0},{go:['hero',192,150]},{face:['hero',1]},{w:.4},{em:['hero','...']},{w:1},{em:['hero',null]},{fn:function(){ixSay(TR('Пусто. Даже эхо тут дорогое.','Empty. Even the echo is expensive here.'),192,110)}},{w:2.2}],function(){var hn=$('cahn');hn.textContent=TR('Каталог мебели — планшет у входа.','The furniture catalogue is the tablet by the door.');hn.style.display='block';IX.hint=6})},300)},
- art:function(){return hmRoomArt(null)},
- leave:function(){GSHOP=false},
+ art:function(){return hmRoomArt(this.trial||null)},
+ leave:function(){GSHOP=false;this.trial=null;this.view=false;this.bg=null},
  tick:function(dt){var c=ixActor('cat'),ch=this.catHs;if(ch){ch.x=c.hide?-99:c.x;ch.y=c.hide?-99:c.y+4}if(c.hide||IX.scn)return;
   if(c.nap>0){c.nap-=dt;if(c.nap<=0){c.pose='stand';c.em=null}return}
   if(!c.path&&Math.random()<dt*.35){if(Math.random()<.25){c.pose='sit';c.d=0;c.em='zzz';c.nap=6+Math.random()*8;return}
@@ -135,21 +136,21 @@ IXR.home={name:['Пентхаус «Скай Резиденс»','Sky Residence 
   Rr(61,7,262,32,sk);for(var x=61;x<323;x++){var h=6+((x*37)%9)+(((x>>3)*13)%8);Rr(x,39-h,1,h,dk);if(f<.5&&((x*7)%4)===0)for(var y=40-h;y<38;y+=3)if(((x*31+y*17+Math.floor(t*.6)*5)%11)<3)Rr(x,y,1,1,(x+y)%3?'#ffd27a':'#bfe8ff')}
   var tx0=192;Rr(tx0,9,1,4,'#e8e8f0');for(var k=0;k<26;k++){var w=1+Math.floor(k/3.2);Rr(tx0-Math.floor(w/2),12+k,w,1,(Math.floor(k/4)%2)?'#f4f4f8':'#e8402a')}Rr(tx0-3,21,7,1,'#14101e');Rr(tx0-5,29,11,1,'#14101e');if(f<.5&&Math.floor(t*1.4)%2)Rr(tx0,8,1,1,'#ff3a3a');
   for(x=104;x<323;x+=44)Rr(x,7,2,32,'#2a2e3a');
-  if(hmHas('neon')&&!(Math.floor(t*7)%31===0)){g.save();g.translate(-ox,-oy);pf(g,'LYO',15,15,'#ff4da6',2);pf(g,'HA',23,26,'#ff4da6',1);g.restore()}
-  if(hmHas('aqua'))for(var i=0;i<4;i++){var ky=Math.round(66+((t*8+i*19)%70)),kx=254+(i%2)*5;Rr(kx,ky,3,2,i%2?'#ff8a3d':'#f4f4f4');Rr(kx+1,ky,1,1,'#e86a20')}
-  if(hmHas('arcade')){var fl=Math.floor(t*4)%3;Rr(335,53,8,2,['#ff4da6','#5ae0ff','#ffd23a'][fl]);Rr(355,53,8,2,['#5ae0ff','#ffd23a','#ff4da6'][fl])}
-  if(hmHas('tv')&&IX.pose==='sit'&&Math.abs(IX.x-182)<2&&IX.y===128){var tc=['#5a8aff','#ff6a8a','#ffd27a','#6aff9a'][Math.floor(t*.8)%4];Rr(153,46,58,3,tc);g.globalAlpha=.12;g.fillStyle=tc;g.beginPath();g.moveTo(153-ox,49-oy);g.lineTo(211-ox,49-oy);g.lineTo(236-ox,118-oy);g.lineTo(128-ox,118-oy);g.closePath();g.fill();g.globalAlpha=1}
-  if(hmHas('jacuzzi'))for(var b=0;b<8;b++){var a=b*.8+t*.6,r=(b*5+t*9)%17;Rr(Math.round(306+Math.cos(a)*r),Math.round(86+Math.sin(a)*r*.8),1,1,'#e8fcff')}
-  if(hmHas('lift')){var sp=ixCarSpr();if(sp){g.save();g.translate(306-ox,184-oy);g.rotate(t*.35);g.scale(1.5,1.5);g.fillStyle='rgba(10,6,20,.35)';g.fillRect(-sp.width/2+1,-sp.height/2+2,sp.width,sp.height);g.drawImage(sp,-sp.width/2,-sp.height/2);g.restore()}}},
- front:function(g,ox,oy){if(IX.pose!=='sit')return;if(hmHas('sofa')&&IX.y===128&&IX.x>=124&&IX.x<=240){g.fillStyle='#14101e';g.fillRect(124-ox,126-oy,118,8);g.fillStyle='#3a7a8a';g.fillRect(125-ox,126-oy,116,2);g.fillStyle='#1e4a5a';g.fillRect(125-ox,128-oy,116,5)}},
+  if(hmShow('neon')&&!(Math.floor(t*7)%31===0)){g.save();g.translate(-ox,-oy);pf(g,'LYO',15,15,'#ff4da6',2);pf(g,'HA',23,26,'#ff4da6',1);g.restore()}
+  if(hmShow('aqua'))for(var i=0;i<4;i++){var ky=Math.round(66+((t*8+i*19)%70)),kx=254+(i%2)*5;Rr(kx,ky,3,2,i%2?'#ff8a3d':'#f4f4f4');Rr(kx+1,ky,1,1,'#e86a20')}
+  if(hmShow('arcade')){var fl=Math.floor(t*4)%3;Rr(335,53,8,2,['#ff4da6','#5ae0ff','#ffd23a'][fl]);Rr(355,53,8,2,['#5ae0ff','#ffd23a','#ff4da6'][fl])}
+  if(hmShow('tv')&&IX.pose==='sit'&&Math.abs(IX.x-182)<2&&IX.y===128){var tc=['#5a8aff','#ff6a8a','#ffd27a','#6aff9a'][Math.floor(t*.8)%4];Rr(153,46,58,3,tc);g.globalAlpha=.12;g.fillStyle=tc;g.beginPath();g.moveTo(153-ox,49-oy);g.lineTo(211-ox,49-oy);g.lineTo(236-ox,118-oy);g.lineTo(128-ox,118-oy);g.closePath();g.fill();g.globalAlpha=1}
+  if(hmShow('jacuzzi'))for(var b=0;b<8;b++){var a=b*.8+t*.6,r=(b*5+t*9)%17;Rr(Math.round(306+Math.cos(a)*r),Math.round(86+Math.sin(a)*r*.8),1,1,'#e8fcff')}
+  if(hmShow('lift')){var sp=ixCarSpr();if(sp){g.save();g.translate(306-ox,184-oy);g.rotate(t*.35);g.scale(1.5,1.5);g.fillStyle='rgba(10,6,20,.35)';g.fillRect(-sp.width/2+1,-sp.height/2+2,sp.width,sp.height);g.drawImage(sp,-sp.width/2,-sp.height/2);g.restore()}}},
+ front:function(g,ox,oy){if(IX.pose!=='sit')return;if(hmShow('sofa')&&IX.y===128&&IX.x>=124&&IX.x<=240){g.fillStyle='#14101e';g.fillRect(124-ox,126-oy,118,8);g.fillStyle='#3a7a8a';g.fillRect(125-ox,126-oy,116,2);g.fillStyle='#1e4a5a';g.fillRect(125-ox,128-oy,116,5)}},
  glow:function(g,ox,oy,t){var f=ixSky();g.globalCompositeOperation='lighter';function pool(x,y,r,col,a){var gr=g.createRadialGradient(x-ox,y-oy,0,x-ox,y-oy,r);gr.addColorStop(0,'rgba('+col+','+a+')');gr.addColorStop(1,'rgba('+col+',0)');g.fillStyle=gr;g.fillRect(x-ox-r,y-oy-r,r*2,r*2)}
   var sc=ixSkyCol(f);pool(192,40,140,(sc[0]|0)+','+(sc[1]|0)+','+(sc[2]|0),.1+.15*f);
-  if(hmHas('neon'))pool(34,24,40,'255,77,166',.28);if(hmHas('bed'))pool(74,56,24,'255,210,140',.25);if(hmHas('aqua'))pool(258,100,30,'90,180,255',.18);if(hmHas('arcade'))pool(348,56,28,'180,90,255',.2);
-  if(hmHas('pool'))pool(60,156,36,'255,230,170',.18);if(hmHas('jacuzzi'))pool(306,86,30,'90,220,255',.2);if(hmHas('lift'))pool(306,184,40,'90,224,255',.14);if(hmHas('dragon'))pool(184,158,26,'255,200,80',.25);pool(230,205,12,'90,224,255',.3);
+  if(hmShow('neon'))pool(34,24,40,'255,77,166',.28);if(hmShow('bed'))pool(74,56,24,'255,210,140',.25);if(hmShow('aqua'))pool(258,100,30,'90,180,255',.18);if(hmShow('arcade'))pool(348,56,28,'180,90,255',.2);
+  if(hmShow('pool'))pool(60,156,36,'255,230,170',.18);if(hmShow('jacuzzi'))pool(306,86,30,'90,220,255',.2);if(hmShow('lift'))pool(306,184,40,'90,224,255',.14);if(hmShow('dragon'))pool(184,158,26,'255,200,80',.25);pool(230,205,12,'90,224,255',.3);
   g.globalCompositeOperation='source-over'}};
 // buying the flat at the street card; the first visit plays a little scene
 var _ixEnterHm=ixEnter;ixEnter=function(id,opt){if(id!=='home')return _ixEnterHm(id,opt);opt=opt||{};
- if(!hmOwn()){if(S.coins<HMPRICE){toast(TR('Нужно','Need')+' '+fmtN(HMPRICE)+' ¥ · '+TR('есть','you have')+' '+fmtN(Math.floor(S.coins))+' ¥');return}
+ if(!hmOwn()&&!opt.view){if(S.coins<HMPRICE){toast(TR('Нужно','Need')+' '+fmtN(HMPRICE)+' ¥ · '+TR('есть','you have')+' '+fmtN(Math.floor(S.coins))+' ¥');return}
   S.coins-=HMPRICE;S.home={own:1,items:{}};save();hmCard();popup(TR('Пентхаус твой!','The penthouse is yours!'),'big');if(S.snd)try{auBell()}catch(e){}opt.first=1}
  return _ixEnterHm(id,opt)};
 function hmCard(){IXR.home.card=hmOwn()?[['ПЕНТХАУС','PENTHOUSE'],['Твой дом. Вид на Токийскую башню.','Your home. A view of Tokyo Tower.'],['Домой','Go home']]:[['ПЕНТХАУС','PENTHOUSE'],['«Скай Резиденс» у Токийской башни. Продаётся: 5 000 000 ¥','Sky Residence by Tokyo Tower. For sale: 5 000 000 ¥'],['Купить за 5 млн','Buy for 5M']];var q=$('ixq');if(q&&q._room==='home')q._room=null}
@@ -176,11 +177,12 @@ var HSHOP={cw:384,ch:232,i:0,
  open:function(){this.ctl()},
  ctl:function(){var me=this,k=$('cgk');if(!k)return;k.innerHTML='';var it=HMI[this.i],own=hmHas(it.id),r=cgRow();
   r.appendChild(cgBtn('◀','',function(){me.i=(me.i+HMI.length-1)%HMI.length;me.ctl()}));var nb=cgBtn((this.i+1)+'/'+HMI.length+' · '+TR(it.n[0],it.n[1]),'',function(){});nb.style.flex='1';r.appendChild(nb);r.appendChild(cgBtn('▶','',function(){me.i=(me.i+1)%HMI.length;me.ctl()}));
-  var r2=cgRow(),b=cgBtn(own?TR('Уже стоит ✓','Already here ✓'):TR('Купить','Buy')+' · '+fmtN(it.p)+' ¥','go',function(){me.buy([it])});b.disabled=own;r2.appendChild(b);
-  var rest=hmRest();if(rest>0&&rest!==(own?-1:it.p))r2.appendChild(cgBtn(TR('Всё сразу','Everything')+' · '+fmtN(rest)+' ¥','',function(){me.buy(HMI.filter(function(q){return !hmHas(q.id)}))}));
-  cgMsg(TR(it.d[0],it.d[1]),own?'w':'');cgFit()},
- buy:function(list){var t=0;list.forEach(function(q){t+=q.p});if(!t)return;if(S.coins<t){cgMsg(TR('Не хватает','Not enough')+': '+fmtN(t-Math.floor(S.coins))+' ¥','l');return}
-  S.coins-=t;S.home.items=S.home.items||{};list.forEach(function(q){S.home.items[q.id]=1});save();cgBal();hmRefresh();cgS('win');popup('−'+fmtN(t)+' ¥','mul');this.ctl();cgMsg(list.length>1?TR('Квартира обставлена полностью!','The flat is fully furnished!'):TR(list[0].n[0],list[0].n[1])+' — '+TR('уже в квартире.','in the flat now.'),'b')},
+  var r2=cgRow(),vw=!hmOwn(),b=cgBtn(own?TR('Уже стоит ✓','Already here ✓'):TR('Купить','Buy')+' · '+fmtN(it.p)+' ¥','go',function(){me.buy([it])});b.disabled=own||vw;r2.appendChild(b);
+  if(!own){var tr=IXR.home.trial===it.id;r2.appendChild(cgBtn(tr?TR('Убрать примерку','Remove the try-on'):TR('Примерить','Try it on'),'',function(){IXR.home.trial=tr?null:it.id;hmRefresh();cgClose();var hn=$('cahn');if(!tr){hn.textContent=TR('Примерка','Try-on')+': '+TR(it.n[0],it.n[1])+'. '+TR('Нравится — купи в каталоге.','Like it? Buy it in the catalogue.');hn.style.display='block';IX.hint=6}}))}
+  var rest=hmRest();if(!vw&&rest>0&&rest!==(own?-1:it.p))r2.appendChild(cgBtn(TR('Всё сразу','Everything')+' · '+fmtN(rest)+' ¥','',function(){me.buy(HMI.filter(function(q){return !hmHas(q.id)}))}));
+  cgMsg(vw?TR('Это осмотр: сначала купи квартиру (5 000 000 ¥). Примерять можно уже сейчас.','This is a viewing: buy the flat first (5 000 000 ¥). You can try things on right now.'):TR(it.d[0],it.d[1]),vw?'l':own?'w':'');cgFit()},
+ buy:function(list){if(!hmOwn())return;var t=0;list.forEach(function(q){t+=q.p});if(!t)return;if(S.coins<t){cgMsg(TR('Не хватает','Not enough')+': '+fmtN(t-Math.floor(S.coins))+' ¥','l');return}
+  S.coins-=t;S.home.items=S.home.items||{};list.forEach(function(q){S.home.items[q.id]=1;if(IXR.home.trial===q.id)IXR.home.trial=null});save();cgBal();hmRefresh();cgS('win');popup('−'+fmtN(t)+' ¥','mul');this.ctl();cgMsg(list.length>1?TR('Квартира обставлена полностью!','The flat is fully furnished!'):TR(list[0].n[0],list[0].n[1])+' — '+TR('уже в квартире.','in the flat now.'),'b')},
  draw:function(g,t){var it=HMI[this.i];g.drawImage(hmPreview(hmHas(it.id)?null:it.id),0,0);if(IXR.home.live)IXR.home.live(g,0,0,t);
   if(Math.floor(t*3)%2){var r=it.r;g.strokeStyle='#ffd23a';g.lineWidth=2;g.strokeRect(r[0]-2,r[1]-2,r[2]+4,r[3]+4)}
   if(!hmHas(it.id)){g.fillStyle='rgba(20,16,30,.8)';g.fillRect(4,214,150,14);pfc(g,'PREVIEW',79,218,'#ffd23a')}}};
@@ -203,3 +205,8 @@ Object.assign(ZH,{'Пентхаус':'顶层公寓','ПЕНТХАУС':'顶层�
  'По новостям: «Неизвестный гонщик снова ушёл от полиции на С1».':'新闻：“不明车手又一次在C1甩掉了警察。”','Реклама: «Сакура-Траст. Мы верим в ваше будущее». Ну-ну.':'广告：“樱花信托。我们相信您的未来。”呵呵。','Ночное шоу: дрифт-корреспондент Аяка в прямом эфире.':'深夜节目：漂移记者绫香现场直播。',
  'Старое кино про Ванган. Кажется, в кадре молодой Тацуми.':'一部关于湾岸的老电影。镜头里好像是年轻的辰巳。','Доброе утро. Город уже проснулся.':'早上好。城市已经醒了。','Уже стоит ✓':'已经摆好了 ✓','Купить':'购买','Всё сразу':'全部买下','Не хватает':'还差',
  'Квартира обставлена полностью!':'房子全部布置好了！','уже в квартире.':'已经放进房子里了。'});
+
+var _hudHmView=hud;hud=function(dt){_hudHmView(dt);var q=$('ixq');if(!q)return;var b=q.querySelector('.hmv');var want=q.classList.contains('on')&&q._room==='home'&&!hmOwn();
+ if(want&&!b){b=document.createElement('button');b.className='hmv';b.style.cssText='margin-top:6px;background:#3a2c58;color:#6ee7ff;box-shadow:3px 3px 0 #1c1430;font-size:13px';b.onclick=function(){ixEnter('home',{view:1})};q.appendChild(b)}
+ if(b){b.style.display=want?'block':'none';if(want)b.textContent=TR('Осмотреть бесплатно','Look round for free')}};
+Object.assign(ZH,{'Убрать примерку':'取消试摆','Примерить':'试摆','Примерка':'试摆','Нравится — купи в каталоге.':'喜欢就在目录里买。','Это осмотр: сначала купи квартиру (5 000 000 ¥). Примерять можно уже сейчас.':'这是参观：先买下公寓（5 000 000 ¥）。现在就能试摆家具。','Осмотреть бесплатно':'免费参观'});
