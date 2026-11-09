@@ -8,6 +8,7 @@
 02c_land3
 03_sprites
 03b_cars
+03c_supercars
 04_bake
 04b_bld
 04c_land
@@ -53,6 +54,7 @@
 07zg_vip
 07zh_home
 07zi_biz
+07zj_dealer
 08d_back
 08e_shop
 08f_radio

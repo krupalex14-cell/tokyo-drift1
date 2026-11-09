@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='09.11 20:55';
+var GAME_BUILD='09.11 21:00';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -2178,6 +2178,64 @@ function buildTrees(){
   for(x=22;x<=28;x++){g.S(x,g.top(x)+1,'L')}for(x=24;x<=29;x++){g.S(x,7,'D');g.S(x,8,'D')}
   g.lights(2,29,[4,11],[5,10]);g.mirror(18);g.tire(4,8);g.tire(21,25);
   A.push({n:'Ниндзя RR',grid:g.rows(),pw:440,vmax:510,grip:1.18,turn:3.1,dturn:2.9,hx:16,hy:8,m:1.05,price:15000,desc:'Самая быстрая. Для королей перевала'})})();
+ A.forEach(function(c){CARS.push(c)});
+})();
+
+// ===== five supercars for the elite dealership (top-down, front to the right), 1 000 000 … 50 000 000 ¥ =====
+(function(){
+ function PG(L,W){var g=[],i,j;for(j=0;j<W;j++){var r=[];for(i=0;i<L;i++)r.push('.');g.push(r)}
+  var cy=(W-1)/2,o={L:L,W:W,cy:cy,S:function(x,y,c){x=Math.round(x);y=Math.round(y);if(y>=0&&y<W&&x>=0&&x<L)g[y][x]=c},G:function(x,y){return(y>=0&&y<W&&x>=0&&x<L)?g[y][x]:'.'},
+   body:function(hw){for(var x=0;x<L;x++){var h=hw(x);if(h<0)continue;for(var y=0;y<W;y++)if(Math.abs(y-cy)<=h+.01)g[y][x]='B'}},
+   outline:function(){var e=[];for(var y=0;y<W;y++)for(var x=0;x<L;x++){if(g[y][x]==='.')continue;if(o.G(x-1,y)==='.'||o.G(x+1,y)==='.'||o.G(x,y-1)==='.'||o.G(x,y+1)==='.')e.push([x,y])}e.forEach(function(q){g[q[1]][q[0]]='K'})},
+   sides:function(c){for(var x=0;x<L;x++)for(var y=1;y<W-1;y++){if(g[y][x]!=='B')continue;if(g[y-1][x]==='K'||g[y+1][x]==='K')g[y][x]=c}},
+   top:function(x){var y=0;while(y<W&&g[y][x]==='.')y++;return y},bot:function(x){var y=W-1;while(y>=0&&g[y][x]==='.')y--;return y},
+   glass:function(x0,x1,d,c){for(var x=x0;x<=x1;x++){var t=o.top(x)+d,b=o.bot(x)-d;for(var y=t;y<=b;y++)o.S(x,y,c||'W')}},
+   fill:function(x0,x1,y0,y1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)o.S(x,y,c)},
+   hl:function(x0,x1,y,c){for(var x=x0;x<=x1;x++)o.S(x,y,c)},
+   tire:function(x0,x1){for(var x=x0;x<=x1;x++){o.S(x,0,(x-x0)%2?'t':'T');o.S(x,W-1,(x-x0)%2?'t':'T')}},
+   mirror:function(x){o.S(x,0,'K');o.S(x+1,0,'M');o.S(x,W-1,'K');o.S(x+1,W-1,'M')},
+   rows:function(){return g.map(function(r){return r.join('')})}};return o}
+ var M=Math,A=[];
+ // 1 Сёгун GT-S — a long grand tourer: twin stripes, hood vents, quad pipes
+ (function(){var g=PG(34,16);function hw(x){if(x<2)return -1;if(x<=3)return 6.5;if(x<=28)return 7.5;return M.max(5.5,7.5-(x-28)*.4)}
+  g.body(hw);g.outline();g.sides('M');for(var y=0;y<16;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===15)?'K':'D')}g.S(1,6,'C');g.S(1,9,'C');
+  g.S(3,3,'R');g.S(3,4,'R');g.S(3,11,'R');g.S(3,12,'R');g.S(4,4,'r');g.S(4,11,'r');
+  g.glass(8,10,2);g.fill(11,16,3,12,'B');g.hl(11,16,3,'L');g.glass(17,20,2);g.S(19,4,'w');g.S(20,5,'w');for(var x=11;x<=16;x++){g.S(x,2,'W');g.S(x,13,'W')}
+  for(x=5;x<=32;x++){if(x>=8&&x<=20)continue;g.S(x,6,'D');g.S(x,9,'D')}g.fill(24,26,4,4,'V');g.fill(24,26,11,11,'V');
+  g.S(31,3,'Y');g.S(32,4,'Y');g.S(31,12,'Y');g.S(32,11,'Y');g.fill(33,33,6,9,'V');g.mirror(19);g.tire(5,8);g.tire(25,28);
+  A.push({n:'Сёгун GT-S',grid:g.rows(),pw:460,vmax:505,grip:1.12,turn:2.85,dturn:3.0,hx:17,hy:8,m:1.2,price:1000000,desc:'Гран-турер: быстрый и спокойный на любой скорости',elite:1,show:['#eceef4','#1b1b2f']})})();
+ // 2 Кицунэ RS — a light track fox: a huge wing, a roof scoop, a splitter
+ (function(){var g=PG(31,15);g.body(function(x){return x<=2?-1:x===3?6:x<=29?7:6});g.outline();g.sides('M');
+  for(var y=0;y<15;y++){g.S(0,y,y===0||y===14?'K':'D');g.S(1,y,'K');g.S(2,y,(y<=1||y>=13)?'K':(y===7?'K':'.'))}
+  g.S(4,3,'R');g.S(4,4,'R');g.S(4,10,'R');g.S(4,11,'R');
+  g.glass(7,9,2);g.fill(10,14,3,11,'B');g.hl(10,14,3,'L');g.fill(12,13,6,8,'V');g.glass(15,18,2);g.S(17,4,'w');g.S(18,5,'w');for(var x=10;x<=14;x++){g.S(x,2,'W');g.S(x,12,'W')}
+  for(x=19;x<=28;x++){var d=M.round((x-19)*.35);g.S(x,3+d,'D');g.S(x,11-d,'D')}g.S(28,3,'Y');g.S(28,11,'Y');g.fill(30,30,3,11,'C');g.mirror(16);g.tire(4,7);g.tire(21,24);
+  A.push({n:'Кицунэ RS',grid:g.rows(),pw:470,vmax:515,grip:1.3,turn:3.3,dturn:3.25,hx:15.5,hy:7.5,m:.9,price:3000000,desc:'Трековый лис: лёгкий, цепкий и злой',elite:1,show:['#ff8a3d','#1b1b2f']})})();
+ // 3 Райдзин E — an electric teardrop: one big glass canopy, light bars front and back
+ (function(){var g=PG(33,15);function hw(x){if(x<1)return -1;if(x<=2)return 5;if(x<=8)return 5+(x-2)*.42;if(x<=24)return 7.5;return M.max(4,7.5-(x-24)*.45)}
+  g.body(hw);g.outline();g.sides('M');for(var y=3;y<=11;y++)g.S(2,y,'R');g.S(2,7,'r');
+  var cy=g.cy;for(var x=9;x<=23;x++){var h=hw(x)-2.2-M.max(0,(x-19)*.5)-M.max(0,(11-x)*.6);for(y=M.ceil(cy-h);y<=M.floor(cy+h);y++)g.S(x,y,'W')}
+  for(x=11;x<=19;x++)g.S(x,M.ceil(cy-(hw(x)-2.6)),'w');for(x=25;x<=30;x++){g.S(x,7,'L')}
+  for(y=4;y<=10;y++)g.S(31,y,'Y');g.fill(5,8,0,0,'c');g.fill(5,8,14,14,'c');g.fill(23,26,0,0,'c');g.fill(23,26,14,14,'c');g.tire(5,8);g.tire(23,26);g.fill(6,7,0,0,'C');g.fill(6,7,14,14,'C');g.fill(24,25,0,0,'C');g.fill(24,25,14,14,'C');
+  A.push({n:'Райдзин E',grid:g.rows(),pw:560,vmax:535,grip:1.22,turn:3.0,dturn:2.8,hx:16.5,hy:7.5,m:1.1,price:8000000,desc:'Электрический гиперкар: мгновенная тяга и ни звука',elite:1,show:['#35c4ff','#ffffff']})})();
+ // 4 Оками V12 — a wide mid-engine wolf: louvered engine cover, side intakes, a wing
+ (function(){var g=PG(36,18);function hw(x){if(x<1)return -1;if(x<=2)return 7;if(x<=21)return 8.5;return M.max(5,8.5-(x-21)*.32)}
+  g.body(hw);g.outline();g.sides('M');for(var y=0;y<18;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===17)?'K':'D')}
+  for(y=3;y<=14;y++)g.S(3,y,(y<=5||y>=12)?'R':'V');g.S(3,8,'C');g.S(3,9,'C');
+  for(var x=5;x<=11;x+=2)for(y=5;y<=12;y++)g.S(x,y,'S');g.fill(12,13,2,3,'V');g.fill(12,13,14,15,'V');
+  var cy=g.cy;for(x=13;x<=23;x++){var h=hw(x)-2.8-M.max(0,(x-20)*.7);for(y=M.ceil(cy-h);y<=M.floor(cy+h);y++)g.S(x,y,(x<=14||x>=21)?'W':'B')}
+  g.hl(15,20,6,'L');g.S(22,7,'w');g.S(23,8,'w');for(x=24;x<=33;x++){g.S(x,8,'D');g.S(x,9,'D')}g.S(32,4,'Y');g.S(33,5,'Y');g.S(32,13,'Y');g.S(33,12,'Y');
+  g.mirror(20);g.tire(5,9);g.tire(25,29);
+  A.push({n:'Оками V12',grid:g.rows(),pw:600,vmax:560,grip:1.3,turn:3.05,dturn:3.0,hx:18,hy:9,m:1.15,price:20000000,desc:'Двенадцать цилиндров и волчий вой. Быстрее — только легенда',elite:1,show:['#c8202a','#1b1b2f']})})();
+ // 5 Дракон-87 — Tatsumi's wedge from the Wangan: louvered rear window, pop-up lamps, a gold stripe
+ (function(){var g=PG(34,16);function hw(x){if(x<1)return -1;if(x<=2)return 6.5;if(x<=22)return 7.5;return M.max(5,7.5-(x-22)*.22)}
+  g.body(hw);g.outline();g.sides('M');for(var y=0;y<16;y++){g.S(0,y,'K');g.S(1,y,(y===0||y===15)?'K':'D')}
+  for(y=3;y<=12;y++)g.S(3,y,'R');g.S(3,7,'r');g.S(3,8,'r');
+  for(var x=6;x<=10;x++)for(y=g.top(x)+2;y<=g.bot(x)-2;y++)g.S(x,y,x%2?'V':'W');
+  g.fill(11,15,3,12,'B');g.hl(11,15,3,'L');g.glass(16,19,2);g.S(18,4,'w');g.S(19,5,'w');for(x=11;x<=15;x++){g.S(x,2,'W');g.S(x,13,'W')}
+  for(x=4;x<=32;x++){g.S(x,g.top(x)+1,'D');g.S(x,g.bot(x)-1,'D')}g.fill(28,30,4,5,'L');g.fill(28,30,10,11,'L');g.hl(28,30,4,'K');g.hl(28,30,11,'K');
+  for(x=21;x<=26;x++)g.S(x,7,'V');g.mirror(17);g.tire(5,8);g.tire(25,28);
+  A.push({n:'Дракон-87',grid:g.rows(),pw:580,vmax:550,grip:1.15,turn:3.2,dturn:3.45,hx:17,hy:8,m:1.0,price:50000000,desc:'Машина Тацуми с Вангана-87. Создана для заносов. Только для VIP',elite:1,vip:1,show:['#141418','#ffd23f']})})();
  A.forEach(function(c){CARS.push(c)});
 })();
 
@@ -9285,6 +9343,90 @@ Object.assign(ZH,{'Парковка у Стадиона':'体育场停车场','�
  'А кабинет… оставь старику кресло. Иногда буду заходить.':'至于办公室……给老头子留把椅子。我偶尔会来坐坐。','«Золотой дракон» — твой. Доход: +400 000 ¥ в минуту.':'“金龙”归你了。收入：每分钟 +400 000 ¥。','Хозяин теперь ты. Я — просто старик с рыбками.':'现在你是老板了。我只是个养鱼的老头。',
  'Выручка за неделю выросла. Сора говорит, это из-за тебя.':'这周的营业额涨了。空说是因为你。','Не продавай вывеску. Дракон должен висеть.':'别卖招牌。龙必须挂着。','Босс.':'老板。','Наверху всё спокойно, босс.':'楼上一切安好，老板。','Добро пожаловать домой, босс.':'欢迎回家，老板。',
  'Выручка в порядке, босс. Твой процент уже на счету.':'营业额没问题，老板。你的分成已经到账了。','«Золотой дракон» · твой':'“金龙” · 你的'});
+
+// ===== «Элит Моторс»: the supercar showroom by the Ferris wheel =====
+// five cars turn on lit platforms; walk up to one — a window with the car, its numbers, buy / drive / test drive.
+// Дракон-87 is sold to VIP members of the Golden Dragon only.
+var DLRP=[[64,96],[180,84],[296,96],[104,166],[256,166]],DLRSP={};
+function dlrCars(){var L2=[];CARS.forEach(function(c,i){if(c.elite)L2.push(i)});return L2}
+function dlrSpr(ci){var c=CARS[ci],k=ci;if(!DLRSP[k])DLRSP[k]=gridToCanvas(c.grid,playerPal(c.show[0],c.show[1]));return DLRSP[k]}
+function dlrDoor(){var P=stPlaces();if(!P||!P.wheel)return null;if(!dlrDoor.q){var q=gpsNear(P.wheel.x+150,P.wheel.y+40,300)||gpsNear(P.wheel.x,P.wheel.y,500);dlrDoor.q=q?{x:q.x,y:q.y}:{x:P.wheel.x,y:P.wheel.y}}return dlrDoor.q}
+IXR.dealer={name:['Автосалон «Элит Моторс»','Elite Motors showroom'],w:360,h:220,entry:[180,212],exitY:216,doorR:44,
+ card:[['АВТОСАЛОН','SHOWROOM'],['«Элит Моторс»: суперкары от 1 до 50 млн.','Elite Motors: supercars from 1 to 50 million.'],['Зайти','Go in']],
+ door:function(){return dlrDoor()},
+ ob:[[0,0,360,46],[0,0,8,220],[352,0,8,220],[0,216,160,4],[200,216,160,4],[34,66,60,60],[150,54,60,60],[266,66,60,60],[74,136,60,60],[226,136,60,60],[158,140,44,14]],
+ npc:[{id:'mgr',p:'mgr',x:180,y:142,d:0,cut:14}],
+ enter:function(){},
+ hs:[{id:'door',x:180,y:212,r:12,door:1,lb:['Выйти на улицу','Go outside'],act:function(){ixLeave()},tap:[160,204,40,16]},
+  {id:'mgr',who:'mgr',x:180,y:162,r:12,lb:['Поговорить с менеджером','Talk to the manager'],act:function(){var m=ixActor('mgr'),L2=[TR('Добрый вечер. Каждая машина здесь — с гарантией и без вопросов.','Good evening. Every car here comes with a warranty and no questions.'),TR('«Дракон-87»? Только для гостей «Золотого дракона». Таков уговор с Тацуми-сан.','The Dragon-87? Only for guests of the Golden Dragon. That’s our deal with Tatsumi-san.'),TR('Тест-драйв бесплатный. Разбить машину на тест-драйве — тоже, но лучше не надо.','Test drives are free. Crashing one is free too, but better not.')],n=IX.mn=(IX.mn||0)+1;ixSay(L2[n%3],m.x,m.y-16)}}],
+ tick:function(){},
+ art:function(){var W=this.w,H=this.h,c=mkCanvas(W,H),g=c.getContext('2d'),x,y,K='#14101e';function R(a,b,w,h,col){g.fillStyle=col;g.fillRect(a,b,w,h)}
+  // white glossy tiles
+  for(y=44;y<H-4;y++)for(x=8;x<W-8;x++){var col=((x>>4)+(y>>4))&1?'#e4e4ec':'#dcdce6';if(x%16===0||y%16===0)col='#c4c4d0';else if((x+y*2)%37===0)col='#f4f4fa';g.fillStyle=col;g.fillRect(x,y,1,1)}
+  R(0,0,W,6,K);R(0,0,8,H,K);R(W-8,0,8,H,K);R(0,H-4,160,4,K);R(200,H-4,160,4,K);R(164,H-8,32,8,'#3a3a46');
+  // the glass front onto the bay (the view is drawn live), the sign above it
+  R(8,6,W-16,10,'#1c1c24');pfc(g,'ELITE MOTORS',W/2,8,'#e8c050');R(8,16,W-16,24,K);R(8,38,W-16,2,'#c8c8d4');R(8,40,W-16,4,'#9a9aa8');
+  // the platforms: dark discs, a ring of lights, a gold one for the legend
+  DLRP.forEach(function(p,i){var gold=i===4;cgDisc(g,p[0]+1,p[1]+2,31,'rgba(10,6,20,.18)');cgDisc(g,p[0],p[1],31,K);cgDisc(g,p[0],p[1],30,gold?'#5a4a2a':'#3a3e4a');cgDisc(g,p[0],p[1],27,gold?'#6a5a34':'#4a4e5a');for(var k=0;k<20;k++){var a=k/20*TAU;R(Math.round(p[0]+Math.cos(a)*29),Math.round(p[1]+Math.sin(a)*29),1,1,gold?'#ffd23a':'#bfe8ff')}});
+  // the manager's desk
+  R(158,140,44,14,K);R(159,141,42,8,'#f4f4f8');R(159,149,42,4,'#c8c8d4');R(166,142,10,5,'#2a2a34');R(167,143,8,3,'#5ae0ff');R(186,143,6,4,'#e8c050');
+  // plants in the corners
+  [[18,54],[342,54],[18,206],[342,206]].forEach(function(p){R(p[0]-5,p[1]-1,10,7,K);R(p[0]-4,p[1],8,5,'#e8e8f0');cgDisc(g,p[0],p[1]-4,5,'#1e5a32');cgDisc(g,p[0]-2,p[1]-6,2,'#2a7a40')});
+  return c},
+ live:function(g,ox,oy,t){function Rr(a,b,w,h,c){g.fillStyle=c;g.fillRect(a-ox,b-oy,w,h)}
+  // the night bay and the big wheel turning
+  Rr(9,17,342,21,'#121a3a');for(var x=9;x<351;x+=1){if(((x*13)%7)===0)Rr(x,30+((x*7)%4),2,1,'rgba(120,160,255,.35)')}Rr(9,33,342,5,'#0c1430');
+  var wx=96,wy=27,wr=9;for(var k=0;k<12;k++){var a=k/12*TAU+t*.15;Rr(Math.round(wx+Math.cos(a)*wr),Math.round(wy+Math.sin(a)*wr),1,1,['#ff4da6','#5ae0ff','#ffd23a'][k%3])}Rr(wx,wy,1,1,'#f4f4f8');Rr(wx-1,wy+1,1,10,'#3a3a46');Rr(wx+1,wy+1,1,10,'#3a3a46');
+  for(var b=0;b<8;b++)if(((b*31+Math.floor(t*.7))%5)<3)Rr(200+b*17,24+(b%3)*3,1,1,'#ffd27a');
+  // the cars turning on their platforms
+  var L2=dlrCars();DLRP.forEach(function(p,i){var ci=L2[i];if(ci==null)return;var sp=dlrSpr(ci);g.save();g.translate(p[0]-ox,p[1]-oy);g.rotate(t*.3+i*1.3);g.scale(1.5,1.5);g.fillStyle='rgba(10,6,20,.35)';g.fillRect(-sp.width/2+1,-sp.height/2+2,sp.width,sp.height);g.drawImage(sp,-sp.width/2,-sp.height/2);g.restore();
+   if(S.own[ci]){g.save();g.translate(-ox,-oy);pfc(g,'SOLD',p[0],p[1]+33,'#3aa06a');g.restore()}})},
+ glow:function(g,ox,oy,t){g.globalCompositeOperation='lighter';function pool(x,y,r,col,a){var gr=g.createRadialGradient(x-ox,y-oy,0,x-ox,y-oy,r);gr.addColorStop(0,'rgba('+col+','+a+')');gr.addColorStop(1,'rgba('+col+',0)');g.fillStyle=gr;g.fillRect(x-ox-r,y-oy-r,r*2,r*2)}
+  DLRP.forEach(function(p,i){pool(p[0],p[1],40,i===4?'255,210,80':'190,230,255',.18+.04*Math.sin(t*2+i))});pool(96,27,16,'255,77,166',.2);g.globalCompositeOperation='source-over'}};
+// a hotspot in front of each platform
+DLRP.forEach(function(p,i){IXR.dealer.hs.push({id:'car'+i,x:p[0],y:p[1]+38,r:13,tap:[p[0]-30,p[1]-30,60,60],get lb(){var ci=dlrCars()[i],c=CARS[ci];return [c.n+' · '+fmtN(c.price)+' ¥',L(c.n)+' · '+fmtN(c.price)+' ¥']},act:function(){DLR.i=i;cgOpen(DLR)}})});
+IXP.mgr={H:'#2a2a34',S:'#f2cfa8',T:'#1c1c24',W:'#f0eef4',A:'#c49a36',P:'#1c1c24',top:'suit',hair:'short'};
+
+// ---------- the window for one car
+var DLR={cw:200,ch:120,i:0,
+ title:function(){return TR('«Элит Моторс»','Elite Motors')},busy:function(){return false},
+ ci:function(){return dlrCars()[this.i]},
+ open:function(){this.ctl()},
+ ctl:function(){var me=this,k=$('cgk');if(!k)return;k.innerHTML='';var ci=this.ci(),c=CARS[ci],own=!!S.own[ci],n=dlrCars().length,r=cgRow();
+  r.appendChild(cgBtn('◀','',function(){me.i=(me.i+n-1)%n;me.ctl()}));var nb=cgBtn(L(c.n),'',function(){});nb.style.flex='1';r.appendChild(nb);r.appendChild(cgBtn('▶','',function(){me.i=(me.i+1)%n;me.ctl()}));
+  var r2=cgRow();if(!own)r2.appendChild(cgBtn(TR('Купить','Buy')+' · '+fmtN(c.price)+' ¥','go',function(){me.buy(ci)}));else if(S.car!==ci)r2.appendChild(cgBtn(TR('Сесть за руль','Drive it'),'go',function(){S.car=ci;save();cgMsg(L(c.n)+' — '+TR('ждёт у входа.','waiting outside.'),'w');me.ctl()}));else{var b=cgBtn(TR('На ходу ✓','Driving it ✓'),'go',function(){});b.disabled=true;r2.appendChild(b)}
+  if(!own)r2.appendChild(cgBtn(TR('Тест-драйв','Test drive'),'',function(){cgClose();ixLeave();setTimeout(function(){tdStart(ci)},60)}));
+  cgMsg(L(c.desc)+(c.vip&&vipSt()<2?' · '+TR('Нужна карта VIP «Золотого дракона».','You need the Golden Dragon VIP card.'):''),c.vip&&vipSt()<2?'l':'');cgFit()},
+ buy:function(ci){var c=CARS[ci];if(c.vip&&vipSt()<2){cgMsg(TR('Только для VIP «Золотого дракона». Тацуми-сан просил.','Golden Dragon VIPs only. Tatsumi-san’s request.'),'l');return}
+  if(S.coins<c.price){cgMsg(TR('Не хватает','Not enough')+': '+fmtN(c.price-Math.floor(S.coins))+' ¥','l');return}
+  S.coins-=c.price;S.own[ci]=1;S.car=ci;save();cgBal();cgS('big');popup(TR('Машина твоя!','The car is yours!'),'big');this.ctl();cgMsg(L(c.n)+' — '+TR('твоя. Ждёт у входа.','yours. Waiting outside.'),'b')},
+ draw:function(g,t){var ci=this.ci(),c=CARS[ci],K='#14101e',i;function R(a,b,w,h,col){g.fillStyle=col;g.fillRect(a,b,w,h)}
+  R(0,0,200,120,'#0e0c16');for(i=0;i<8;i++){g.globalAlpha=.05;cgDisc(g,62,64,40-i*4,'#bfe8ff');g.globalAlpha=1}cgDisc(g,62,66,34,c.vip?'#5a4a2a':'#2a2e3a');cgDisc(g,62,66,31,c.vip?'#6a5a34':'#3a3e4a');
+  var sp=dlrSpr(ci);g.save();g.translate(62,64);g.rotate(t*.4);g.scale(2,2);g.fillStyle='rgba(0,0,0,.4)';g.fillRect(-sp.width/2+1,-sp.height/2+2,sp.width,sp.height);g.drawImage(sp,-sp.width/2,-sp.height/2);g.restore();
+  pf(g,c.vip?'LEGEND':'SUPERCAR',124,10,c.vip?'#ffd23a':'#8ab8ff');
+  function bar(lb,v,y){pf(g,lb,124,y,'#b8b0c8');R(124,y+7,68,4,'#2a2440');R(124,y+7,Math.round(68*clamp(v,.04,1)),4,v>=.98?'#ffd23a':'#5ae0ff')}
+  bar('SPEED',(c.vmax-280)/290,24);bar('POWER',(c.pw-180)/430,40);bar('GRIP',(c.grip-.85)/.48,56);bar('STEER',((c.turn+c.dturn)/2-2.35)/1.0,72);
+  pf(g,cgK(c.price)+' YEN',124,92,'#ffd23a');if(S.own[ci])pf(g,'IN GARAGE',124,104,'#3aa06a')}};
+
+// ---------- the legend stays VIP-only in the garage too; a car bought or switched inside a room is ready when you walk out
+var _gaDlr=garAction;garAction=function(a,i){if(a==='buy'&&CARS[i]&&CARS[i].vip&&!S.own[i]&&vipSt()<2){toast(TR('«Дракон-87» — только для VIP «Золотого дракона»','The Dragon-87 is for Golden Dragon VIPs only'));return}return _gaDlr(a,i)};
+var _ixEnterDlr=ixEnter;ixEnter=function(id,opt){var r=_ixEnterDlr(id,opt);if(IX.on)IX.look={car:S.car,col:S.col,str:S.str};return r};
+var _ixLeaveDlr=ixLeave;ixLeave=function(){var lk=IX.look;if(IX.on&&lk&&car&&(lk.car!==S.car||lk.col!==S.col||lk.str!==S.str)&&!(typeof TD!=='undefined'&&TD.on)){var o=car;sprC=playerSprite(S.car,BODYC[S.col],STRC[S.str]);car=newCar();car.x=o.x;car.y=o.y;car.a=o.a;car.l=o.l;IX.look=null}return _ixLeaveDlr()};
+
+// ---------- on the map
+MAPG.carx=['.......','..YYY..','.YWYWY.','YYYYYYY','YSYYYSY','.S...S.','.......'];MAPK.dealer=['carx','Автосалон'];
+var _mbDlr=mapBase;mapBase=function(s){if(MAPB&&MAPBS===s)return MAPB;var d=dlrDoor();if(!d)return _mbDlr(s);var fake={k:'dealer',x:d.x-12,y:d.y-30,w:24,h:24};SPEC.push(fake);try{return _mbDlr(s)}finally{var i=SPEC.indexOf(fake);if(i>=0)SPEC.splice(i,1)}};
+
+Object.assign(EN,{'Автосалон':'Showroom','Сёгун GT-S':'Shogun GT-S','Кицунэ RS':'Kitsune RS','Райдзин E':'Raijin E','Оками V12':'Okami V12','Дракон-87':'Dragon-87',
+ 'Гран-турер: быстрый и спокойный на любой скорости':'A grand tourer: fast and calm at any speed','Трековый лис: лёгкий, цепкий и злой':'A track fox: light, grippy and mean','Электрический гиперкар: мгновенная тяга и ни звука':'An electric hypercar: instant torque, not a sound',
+ 'Двенадцать цилиндров и волчий вой. Быстрее — только легенда':'Twelve cylinders and a wolf’s howl. Only the legend is faster','Машина Тацуми с Вангана-87. Создана для заносов. Только для VIP':'Tatsumi’s car from the Wangan ’87. Built to drift. VIP only'});
+Object.assign(ZH,{'Автосалон':'车行','Сёгун GT-S':'将军 GT-S','Кицунэ RS':'狐 RS','Райдзин E':'雷神 E','Оками V12':'狼 V12','Дракон-87':'龙-87',
+ 'Гран-турер: быстрый и спокойный на любой скорости':'豪华GT：任何速度下都又快又稳','Трековый лис: лёгкий, цепкий и злой':'赛道之狐：轻、抓地强、够凶','Электрический гиперкар: мгновенная тяга и ни звука':'电动超跑：瞬间扭矩，悄无声息',
+ 'Двенадцать цилиндров и волчий вой. Быстрее — только легенда':'十二缸和狼嚎。比它快的只有传奇','Машина Тацуми с Вангана-87. Создана для заносов. Только для VIP':'辰巳在湾岸-87的座驾。为漂移而生。仅限VIP',
+ 'Автосалон «Элит Моторс»':'“精英汽车”车行','АВТОСАЛОН':'车行','«Элит Моторс»: суперкары от 1 до 50 млн.':'“精英汽车”：100万到5000万的超跑。','Поговорить с менеджером':'和经理聊聊',
+ 'Добрый вечер. Каждая машина здесь — с гарантией и без вопросов.':'晚上好。这里每辆车都有保修，而且不问来历。','«Дракон-87»? Только для гостей «Золотого дракона». Таков уговор с Тацуми-сан.':'“龙-87”？只卖给“金龙”的客人。这是和辰巳先生的约定。',
+ 'Тест-драйв бесплатный. Разбить машину на тест-драйве — тоже, но лучше не надо.':'试驾免费。试驾时撞坏也免费，不过最好别撞。','«Элит Моторс»':'“精英汽车”','Сесть за руль':'坐上驾驶座','ждёт у входа.':'在门口等你。','На ходу ✓':'正在开 ✓','Тест-драйв':'试驾',
+ 'Нужна карта VIP «Золотого дракона».':'需要“金龙”VIP卡。','Только для VIP «Золотого дракона». Тацуми-сан просил.':'仅限“金龙”VIP。辰巳先生的要求。','Машина твоя!':'车归你了！','твоя. Ждёт у входа.':'归你了。在门口等你。','«Дракон-87» — только для VIP «Золотого дракона»':'“龙-87”仅限“金龙”VIP'});
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}
