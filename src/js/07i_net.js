@@ -36,7 +36,7 @@ function netMsg(m){var r;
  case'host':NET.host=true;lobbyRender();break;
  case'full':toast('Игра заполнена');netClose();break;
  case'pong':NET.rtt=Math.round(performance.now()-m.ts);break;
- case'hi':r=remAdd(m.f);if(!r)break;r.car=clamp(m.car|0,0,CARS.length-1);r.col=clamp(m.col|0,0,BODYC.length-1);r.str=clamp(m.str|0,0,STRC.length-1);r.glow=clamp(m.glow|0,0,GLOWC.length-1);r.spr=playerSprite(r.car,BODYC[r.col],STRC[r.str]);lobbyRender();break;
+ case'hi':r=remAdd(m.f);if(!r)break;r.car=clamp(m.car|0,0,CARS.length-1);r.col=clamp(m.col|0,0,BODYC.length-1);r.str=clamp(m.str|0,0,STRC.length-1);r.glow=clamp(m.glow|0,0,GLOWC.length-1);var hx=/^#[0-9a-f]{6}$/i;r.gc=hx.test(m.gc)?m.gc:'';r.spr=playerSprite(r.car,hx.test(m.bc)?m.bc:BODYC[r.col],hx.test(m.sc)?m.sc:STRC[r.str]);lobbyRender();break;
  case's':r=remAdd(m.f);if(!r)break;if(!r.spr)r.spr=playerSprite(0,BODYC[1],STRC[0]);r.away=false;var now=performance.now(),d=now-m.ts;r.off=r.off==null?d:(d<r.off?d+(r.off-d)*.5:r.off+(d-r.off)*.02);
   r.buf.push({t:m.ts+r.off,x:+m.x,y:+m.y,a:+m.a,vx:+m.vx,vy:+m.vy,l:m.l|0,d:m.d|0,b:m.b|0,sl:+m.sl,sp:+m.sp});if(r.buf.length>40)r.buf.shift();r.sc=m.sc|0;break;
  case'g':r=remAdd(m.f);if(r){r.away=true;r.vis=false;r.buf=[]}break;
@@ -70,7 +70,7 @@ function remDraw(z){for(var id in REM){var r=REM[id];if(!r.vis||(r.l|0)!==z)cont
  var ra=Math.round(r.a/(Math.PI/32))*(Math.PI/32);cx.save();cx.translate(x+2,y+3);cx.rotate(ra);cx.fillStyle='rgba(12,8,40,.4)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();
  cx.save();cx.translate(x,y);cx.rotate(ra);cx.drawImage(sp,-w/2,-h/2);vehLights({bk:r.b,x:r.x,phy:0,tn:0,vt:-1},sp,false);cx.restore()}}
 // remote lights + underglow (called from lightPass)
-function remLight(r,lv){carLights(r.x,r.y,r.a,r.spr.width,r.spr.height,lv,!!r.b,true);if(!r.glow)return;var c0=car,s0=sprC,g0=S.glow;car=r;sprC=r.spr;S.glow=r.glow;try{underglow(lv)}finally{car=c0;sprC=s0;S.glow=g0}}
+function remLight(r,lv){carLights(r.x,r.y,r.a,r.spr.width,r.spr.height,lv,!!r.b,true);if(!r.glow)return;var c0=car,s0=sprC,g0=S.glow,cu=typeof GCUS!=='undefined'&&r.gc&&(r.glow<PG0||r.glow>=GCUS),k0=cu?GLOWC[GCUS]:0;car=r;sprC=r.spr;S.glow=r.glow;if(cu){GLOWC[GCUS]=r.gc;S.glow=GCUS}try{underglow(lv)}finally{car=c0;sprC=s0;S.glow=g0;if(cu)GLOWC[GCUS]=k0}}
 // soft contact: only our car is pushed; the friend's game pushes theirs
 function remCollide(c){var near=99;for(var id in REM){var r=REM[id];if(!r.vis||(r.l|0)!==(c.l|0))continue;var dx=wd(r.x,c.x),dy=wd(r.y,c.y);if(Math.abs(dx)>60||Math.abs(dy)>60)continue;
  var C=CARS[r.car]||CARS[0],dd=Math.hypot(dx,dy)-C.hx-c.hx*.6;if(dd<near)near=dd;satPair(c,{x:r.x,y:r.y,a:r.a,hx:C.hx,hy:C.hy,vx:r.vx,vy:r.vy,w:0,m:C.m||1},.25,.38)}return near}
