@@ -25,16 +25,16 @@ function cgRow(){var d=document.createElement('div');d.className='cgr';$('cgk').
 function cgK(v){v=Math.floor(v);if(v<1e5)return ''+v;var u=[[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']];for(var i=0;i<4;i++)if(v>=u[i][0]){var x=v/u[i][0];return (x<10?Math.floor(x*10)/10:Math.floor(x))+u[i][1]}return ''+v}
 function cgNum(t){t=String(t||'').toLowerCase().replace(/[\s,_'¥]/g,'');var m=t.match(/^(\d+(?:\.\d+)?)(k|к|m|м|b|t)?$/);if(!m)return 0;return Math.floor(parseFloat(m[1])*({k:1e3,'к':1e3,m:1e6,'м':1e6,b:1e9,t:1e12}[m[2]]||1))}
 // stake chips + own amount + all in (the chosen one is lit); room() = how much can still go on the table
-function cgStake(list,get,set,room){var r=cgRow();r.classList.add('cgst');
+function cgStake(list,get,set,room,quiet){var r=cgRow();r.classList.add('cgst');
  var ed=document.createElement('div');ed.className='cgr cged';ed.style.display='none';r.parentNode.insertBefore(ed,r.nextSibling);
  var inp=document.createElement('input');inp.type='text';inp.inputMode='numeric';inp.autocomplete='off';inp.maxLength=20;inp.placeholder=TR('Сумма, ¥','Amount, ¥');ed.appendChild(inp);
  function edit(on){ed.style.display=on?'flex':'none';if(on){inp.value=get()||'';setTimeout(function(){try{inp.focus();inp.select()}catch(e){}},0)}else inp.blur();cgFit()}
  function mark(){var v=get(),hit=false;[].forEach.call(r.children,function(x){if(x._v==null)return;var on=x._v===v;x.classList.toggle('on',on);if(on)hit=true});cb.classList.toggle('on',!hit&&v>0);cb.textContent=!hit&&v>0?cgK(v)+' ¥':TR('Своя','Custom')}
  function put(v){if(!(v>=1)){cgMsg(TR('Ставка — от 1 ¥.','A bet starts at 1 ¥.'),'l');return false}set(v);mark();return true}
- list.forEach(function(v){var b=cgBtn(v+' ¥','',function(){put(v);if(ed.style.display!=='none')edit(false)});b._v=v;r.appendChild(b)});
+ list.forEach(function(v){var b=cgBtn((v>=10000?v/1000+'K':v)+' ¥','',function(){put(v);if(ed.style.display!=='none')edit(false)});b._v=v;r.appendChild(b)});
  var cb=cgBtn(TR('Своя','Custom'),'cus',function(){edit(ed.style.display==='none')});r.appendChild(cb);
- r.appendChild(cgBtn(TR('Ва-банк','All in'),'all',function(){var v=Math.floor(room?room():S.coins);if(v<1){cgMsg(TR('Не хватает денег.','Not enough money.'),'l');return}if(put(v))cgMsg(TR('Ва-банк','All in')+': '+v+' ¥');if(ed.style.display!=='none')edit(false)}));
- ed.appendChild(cgBtn('OK','ok',function(){var v=cgNum(inp.value);if(!v){cgMsg(TR('Введи сумму числом, например 5000 или 2k.','Type a number, e.g. 5000 or 2k.'),'l');return}if(put(v)){cgMsg(TR('Ставка','Bet')+': '+v+' ¥');edit(false)}}));
+ r.appendChild(cgBtn(TR('Ва-банк','All in'),'all',function(){var v=Math.floor(room?room():S.coins);if(v<1){cgMsg(TR('Не хватает денег.','Not enough money.'),'l');return}if(put(v)&&!quiet)cgMsg(TR('Ва-банк','All in')+': '+v+' ¥');if(ed.style.display!=='none')edit(false)}));
+ ed.appendChild(cgBtn('OK','ok',function(){var v=cgNum(inp.value);if(!v){cgMsg(TR('Введи сумму числом, например 5000 или 2k.','Type a number, e.g. 5000 or 2k.'),'l');return}if(put(v)){if(!quiet)cgMsg(TR('Ставка','Bet')+': '+v+' ¥');edit(false)}}));
  mark();return r}
 function cgUi(){if($('cgm'))return;var d=document.createElement('div');d.id='cgm';
  d.innerHTML='<div class="cgw"><div class="cgh"><b id="cgt"></b><span id="cgbal"></span><button id="cgx" class="cgb">×</button></div><div class="cgbd"><div class="cgcv"><canvas id="cgc"></canvas></div><div class="cgsd"><div id="cgmsg"></div><div id="cgk"></div></div></div><div id="cgov"></div></div>';
@@ -130,23 +130,26 @@ var ROUL={cw:176,ch:226,chip:10,bets:{},hist:[],last:null,st:'idle',W:0,B:0,ball
   return this._sp=S2},
  total:function(){var t=0;for(var k in this.bets)t+=this.bets[k];return t},
  open:function(){var me=this;this.st=this.st==='spin'?'spin':'idle';
-  cgStake([10,50,100,500],function(){return me.chip},function(v){me.chip=v},function(){return S.coins-me.total()});
-  var r=cgRow();r.appendChild(cgBtn(TR('Отменить','Undo'),'',function(){me.undo(me.stack.pop())}));r.appendChild(cgBtn(TR('Очистить','Clear'),'',function(){if(me.st==='spin')return;me.bets={};me.stack=[];me.info()}));
+  cgStake([10,50,100,500],function(){return me.chip},function(v){me.chip=v;me.info()},function(){return S.coins-me.total()},true);
+  var r=cgRow();r.appendChild(cgBtn(TR('Отменить','Undo'),'',function(){me.undo(me.stack.pop())}));r.appendChild(cgBtn(TR('Очистить','Clear'),'',function(){if(me.st==='spin')return;me.bets={};me.stack=[];me.info()}));r.appendChild(cgBtn(TR('Повторить','Repeat'),'',function(){me.again()}));
   this.go=cgBtn(TR('Крутить','Spin'),'go',function(){me.spin()});r.appendChild(this.go);this.info()},
  undo:function(e){if(!e)return;if(this.st==='spin'){this.stack.push(e);return}var k=e[0],v=e[1];this.bets[k]=(this.bets[k]||0)-v;if(this.bets[k]<=0)delete this.bets[k];this.info()},
- info:function(){var t=this.total();cgMsg(t?TR('Ставка','Bet')+': '+t+' ¥':TR('Выбери фишку и нажми на поле.','Pick a chip and tap the board.'))},
+ info:function(){var t=this.total(),ch=TR('Фишка','Chip')+' '+fmtN(this.chip)+' ¥';cgMsg(t?ch+' · '+TR('на столе','on the table')+' '+fmtN(t)+' ¥':ch+'. '+TR('Нажми на поле, чтобы поставить.','Tap the board to bet.'))},
+ again:function(){if(this.st==='spin')return;var P=this.prev,t=0,k;if(!P){cgMsg(TR('Ещё не было ставок.','No bets yet.'),'l');return}for(k in P)t+=P[k];if(!t)return;if(this.total()+t>S.coins){cgMsg(TR('Не хватает денег.','Not enough money.'),'l');return}for(k in P){this.bets[k]=(this.bets[k]||0)+P[k];this.stack.push([k,P[k]])}cgS('chip');this.info()},
  busy:function(){return this.st==='spin'},
  tap:function(x,y){if(this.st==='spin')return;var sp=this.spots(),me=this;for(var i=0;i<sp.length;i++){var s=sp[i];if(x>=s.x&&x<s.x+s.w&&y>=s.y&&y<s.y+s.h){
    if(this.total()+this.chip>S.coins){cgMsg(TR('Не хватает денег.','Not enough money.'),'l');return}
    this.bets[s.k]=(this.bets[s.k]||0)+this.chip;this.stack.push([s.k,this.chip]);cgS('chip');this.info();return}}},
- spin:function(){if(this.st==='spin')return;var t=this.total();if(!t){cgMsg(TR('Сначала сделай ставку.','Place a bet first.'),'l');return}
+ spin:function(){if(this.st==='spin')return;var t=this.total();if(!t){cgMsg(this.prev?TR('Поставь фишки или нажми «Повторить».','Place chips or press “Repeat”.'):TR('Сначала сделай ставку.','Place a bet first.'),'l');return}
   if(!cgTake(t)){cgMsg(TR('Не хватает денег на эти ставки.','Not enough money for these bets.'),'l');return}
   this.st='spin';this.go.disabled=true;this.res=cgRnd(37);this.t0=CGM.t;this.dur=5.2;this.W0=this.W;this.B0=this.B;cgMsg(TR('Ставки сделаны, ставок больше нет.','No more bets.'))},
- settle:function(){var n=this.res,sp=this.spots(),won=0,me=this;sp.forEach(function(s){var b=me.bets[s.k];if(b&&s.win(n))won+=b*s.pays});
+ settle:function(){var n=this.res,sp=this.spots(),won=0,me=this,tot=this.total();sp.forEach(function(s){var b=me.bets[s.k];if(b&&s.win(n))won+=b*s.pays});
   this.hist.unshift(n);if(this.hist.length>12)this.hist.pop();this.last=n;this.st='idle';this.go.disabled=false;this.wt=CGM.t;
-  var cn=TR({r:'красное',b:'чёрное',g:'зеро'}[rCol(n)],{r:'red',b:'black',g:'zero'}[rCol(n)]);
-  if(won>0){cgPay(won);cgMsg(n+' '+cn+'. +'+won+' ¥',won>=this.total()*10?'b':'w');cgS(won>=this.total()*10?'big':'win')}else{cgMsg(n+' '+cn+'. '+TR('Ставки не сыграли.','No win.'),'l');cgS('lose')}
-  if(this.total()>S.coins){this.bets={};this.stack=[]}},
+  // the chips come off the table; «Повторить» puts the same bets back
+  this.prev=this.bets;this.bets={};this.stack=[];
+  var cn=TR({r:'красное',b:'чёрное',g:'зеро'}[rCol(n)],{r:'red',b:'black',g:'zero'}[rCol(n)]),net=won-tot;
+  if(won>0){cgPay(won);cgMsg(n+' '+cn+'. '+TR('Выплата','Payout')+' '+fmtN(won)+' ¥ ('+(net>=0?'+':'−')+fmtN(Math.abs(net))+')',won>=tot*10?'b':'w');cgS(won>=tot*10?'big':'win')}
+  else{cgMsg(n+' '+cn+'. '+TR('Мимо','No win')+': −'+fmtN(tot)+' ¥','l');cgS('lose')}},
  draw:function(g,t,dt){var me=this,K='#14101e',i;function R(a,b,w,h,col){g.fillStyle=col;g.fillRect(a,b,w,h)}
   R(0,0,176,226,'#3a2014');R(2,2,172,222,'#1e6a3e');for(i=0;i<60;i++)R(2+((i*37)%172),2+((i*71)%222),1,1,'#247a48');
   // the wheel
@@ -173,7 +176,8 @@ var ROUL={cw:176,ch:226,chip:10,bets:{},hist:[],last:null,st:'idle',W:0,B:0,ball
    else if(s.lb){if(s.h>=40){var parts=s.lb.split('-');pfc(g,parts[0],s.x+s.w/2,s.y+12,'#f4f0e8');pfc(g,'-',s.x+s.w/2,s.y+18,'#f4f0e8');pfc(g,parts[1],s.x+s.w/2,s.y+24,'#f4f0e8')}else pfc(g,s.lb,s.x+s.w/2+.5,s.y+Math.floor((s.h-5)/2)+1,'#f4f0e8')}});
   R(63,90,1,120,'#e8e0d0');R(153,80,1,140,'#e8e0d0');R(23,210,40,1,'#e8e0d0');R(63,220,91,1,'#e8e0d0');
   // chips on the board
-  spp.forEach(function(s){var b=me.bets[s.k];if(!b)return;var c=b>=500?'#9a5ad0':b>=100?'#1c1c24':b>=50?'#c8202a':'#3a6ab8',x=s.x+s.w/2,y=s.y+s.h/2;cgDisc(g,x+1,y+1,4,'rgba(0,0,0,.45)');cgDisc(g,x,y,4,'#f4f0e8');cgDisc(g,x,y,3.2,c);R(Math.round(x)-1,Math.round(y)-4,2,1,'#f4f0e8');R(Math.round(x)-1,Math.round(y)+3,2,1,'#f4f0e8');R(Math.round(x)-4,Math.round(y)-1,1,2,'#f4f0e8');R(Math.round(x)+3,Math.round(y)-1,1,2,'#f4f0e8')});
+  var shown=me.bets,ghost=false;if(!me.total()&&me.prev&&!sp){shown=me.prev;ghost=true;g.globalAlpha=.35}
+  spp.forEach(function(s){var b=shown[s.k];if(!b)return;var c=b>=10000?'#e8b840':b>=1000?'#3aa06a':b>=500?'#9a5ad0':b>=100?'#1c1c24':b>=50?'#c8202a':'#3a6ab8',x=s.x+s.w/2,y=s.y+s.h/2;cgDisc(g,x+1,y+1,4,'rgba(0,0,0,.45)');cgDisc(g,x,y,4,'#f4f0e8');cgDisc(g,x,y,3.2,c);R(Math.round(x)-1,Math.round(y)-4,2,1,'#f4f0e8');R(Math.round(x)-1,Math.round(y)+3,2,1,'#f4f0e8');R(Math.round(x)-4,Math.round(y)-1,1,2,'#f4f0e8');R(Math.round(x)+3,Math.round(y)-1,1,2,'#f4f0e8')});g.globalAlpha=1;
   var tb=this.total();R(4,214,58,9,K);pf(g,'BET '+cgK(tb),6,216,'#ffd23a')},
  key:function(c){return false}};
 
@@ -293,7 +297,7 @@ var TOTE={cw:176,ch:132,bet:50,pick:-1,R:null,st:'idle',ord:null,
   R(2,114,172,16,K);srt.forEach(function(p,k){var x=6+k*34,r=me.R[p.i];pf(g,''+(k+1),x+4,119,'#ffd23a');R(x+10,116,16,11,K);R(x+11,117,14,9,TCARS[r.k][2]);if(p.i===me.pick){R(x+9,115,18,1,'#ffd23a');R(x+9,127,18,1,'#ffd23a');R(x+9,115,1,13,'#ffd23a');R(x+26,115,1,13,'#ffd23a')}})},
  key:function(c){var n={Digit1:0,Digit2:1,Digit3:2,Digit4:3,Digit5:4}[c];if(n!=null&&this.st==='idle'){this.pick=n;this.ctl();return true}return false}};
 
-Object.assign(ZH,{'Своя':'自定','Ва-банк':'全押','Сумма, ¥':'金额，¥','Ставка — от 1 ¥.':'下注至少 1 ¥。','Введи сумму числом, например 5000 или 2k.':'请输入数字，例如 5000 或 2k。','Слоты «Дрифт-7»':'老虎机“漂移-7”','Крутить':'转动','Выплаты':'赔率表','Три одинаковых на линии — выигрыш.':'中线三个相同即中奖。','любые из гаража':'任意车库组合','Сакура считается слева направо. Нажми ещё раз, чтобы закрыть.':'樱花从左往右算。再点一次关闭。',
+Object.assign(ZH,{'Повторить':'重复下注','Фишка':'筹码','на столе':'桌上','Нажми на поле, чтобы поставить.':'点桌面下注。','Ещё не было ставок.':'还没有下过注。','Поставь фишки или нажми «Повторить».':'放筹码，或点“重复下注”。','Выплата':'派彩','Мимо':'没中','Своя':'自定','Ва-банк':'全押','Сумма, ¥':'金额，¥','Ставка — от 1 ¥.':'下注至少 1 ¥。','Введи сумму числом, например 5000 или 2k.':'请输入数字，例如 5000 或 2k。','Слоты «Дрифт-7»':'老虎机“漂移-7”','Крутить':'转动','Выплаты':'赔率表','Три одинаковых на линии — выигрыш.':'中线三个相同即中奖。','любые из гаража':'任意车库组合','Сакура считается слева направо. Нажми ещё раз, чтобы закрыть.':'樱花从左往右算。再点一次关闭。',
  'Не хватает денег на ставку.':'钱不够下这个注。','Джекпот! ':'大奖！','Мимо. Ещё разок?':'没中。再来一次？','Отменить':'撤销','Очистить':'清空','Ставка':'下注','Выбери фишку и нажми на поле.':'选好筹码，点击桌面下注。','На столе максимум 5000 ¥.':'每局最多下注 5000 ¥。','Не хватает денег.':'钱不够。',
  'Сначала сделай ставку.':'先下注。','Не хватает денег на эти ставки.':'钱不够下这些注。','Ставки сделаны, ставок больше нет.':'买定离手。','Ставки не сыграли.':'没有中奖。','красное':'红','чёрное':'黑','зеро':'零',
  'Ещё раздачу':'再来一局','Раздать':'发牌','Ставка от':'下注范围','до':'到','Ещё':'要牌','Хватит':'停牌','Удвоить':'加倍','Разделить':'分牌','Ничья — ставка вернулась.':'平局——退回本金。','Казино забирает':'庄家赢走',

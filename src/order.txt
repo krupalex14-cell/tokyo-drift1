@@ -50,6 +50,7 @@
 07zd_casino_in
 07ze_casino_games
 07zf_rooms
+07zg_vip
 08d_back
 08e_shop
 08f_radio

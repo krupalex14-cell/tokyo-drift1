@@ -133,6 +133,7 @@ function ixLeave(){if(!IX.on)return;var R=IX.r;if(IX.st)ixStationClose(true);IX.
 // keys (taken before the game's own key handler); dialogue boxes keep their own keys
 addEventListener('keydown',function(e){
  if(IX.st){if(e.code==='Escape'||e.code==='Backspace'){e.preventDefault();e.stopImmediatePropagation();ixStationClose()}return}
+ if(mode==='room'&&typeof CGM!=='undefined'&&CGM.on){var tg=e.target;if(tg&&tg.tagName==='INPUT'){if(e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();var ob=tg.parentNode.querySelector('button');if(ob)ob.click()}else if(e.code==='Escape'){e.preventDefault();tg.blur()}e.stopImmediatePropagation();return}if(typeof cgKey==='function')cgKey(e);e.preventDefault();e.stopImmediatePropagation();return}
  if(mode==='room'){if(DLG)return;var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
   if(!IX.scn){if(m)IXK[m]=1;else if(!e.repeat&&(c==='Enter'||c==='NumpadEnter'||c==='Space'||c==='KeyE'))ixAct();else if(!e.repeat&&(c==='Escape'||c==='Backspace'))ixLeave()}
   e.preventDefault();e.stopImmediatePropagation();return}
