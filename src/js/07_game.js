@@ -80,7 +80,7 @@ function loop(t){
  var cl=(S.clag==null?30:S.clag)/100,la=.3*Math.min(1,.35+cl*1.3),tx=car.x+clamp(car.vx*la,-120,120),ty=car.y+clamp(car.vy*la,-120,120),k=Math.min(1,dt*2.5*Math.pow(8,1-cl));cam.x=wrap(cam.x+wd(tx,cam.x)*k);cam.y=wrap(cam.y+wd(ty,cam.y)*k);
  if(cam.sh>0){cam.sh=Math.max(0,cam.sh-dt*12)}
  if(camRot()){var ta=car.a,spd=Math.hypot(car.vx,car.vy);if(spd>60&&cl>0){var va=Math.atan2(car.vy,car.vx);if(Math.cos(va-car.a)>0)ta=car.a+angd(va,car.a)*.5*Math.min(1,cl*2)}if(cam.a==null)cam.a=ta;cam.a+=angd(ta,cam.a)*(cl<=0?1:Math.min(1,dt*1.5*Math.pow(40,1-cl)))}else cam.a=car.a;
- var mx=Math.floor((cam.x-VW/2-CH*.6)/CH),Mx=Math.floor((cam.x+VW/2+CH*.6)/CH),my=Math.floor((cam.y-VH/2-CH*.6)/CH),My=Math.floor((cam.y+VH/2+CH*.6)/CH);for(var jj=my;jj<=My;jj++)for(var ii=mx;ii<=Mx;ii++)chunkNeed(ii,jj,false);
+ var lax=clamp(car.vx*.5,-400,400),lay=clamp(car.vy*.5,-400,400),mx=Math.floor((cam.x+Math.min(0,lax)-VW/2-CH*.6)/CH),Mx=Math.floor((cam.x+Math.max(0,lax)+VW/2+CH*.6)/CH),my=Math.floor((cam.y+Math.min(0,lay)-VH/2-CH*.6)/CH),My=Math.floor((cam.y+Math.max(0,lay)+VH/2+CH*.6)/CH);for(var jj=my;jj<=My;jj++)for(var ii=mx;ii<=Mx;ii++)chunkNeed(ii,jj,false);
  chunkPump(1);
  render();hud(dt);auUpdate(I);
  if(tutT>0)tutT-=dt;

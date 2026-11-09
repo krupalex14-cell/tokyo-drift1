@@ -6,7 +6,7 @@ function fxFlame(x,y,a,z){var ca=Math.cos(a),sa=Math.sin(a);for(var i=0;i<6&&PAR
 function fxPuff(x,y,z){if(PART.length<260)PART.push({x:x,y:y,vx:(Math.random()-.5)*10,vy:(Math.random()-.5)*10,l:1,dl:1.2,c:'rgba(150,150,170,.5)',s:3,z:z|0,fr:1,gr:1})}
 function fxUpdate(dt){for(var i=PART.length-1;i>=0;i--){var p=PART[i];p.l-=dt*p.dl;var k=Math.exp(-p.fr*dt);p.vx*=k;p.vy*=k;p.x=wrap(p.x+p.vx*dt);p.y=wrap(p.y+p.vy*dt);if(p.l<=0)PART.splice(i,1)}}
 function fxDraw(z){for(var i=0;i<PART.length;i++){var p=PART[i];if(p.z!==z)continue;var s=p.gr?Math.round(p.s+(1-p.l)*5):p.s,x=SX(p.x)-(s>>1),y=SY(p.y)-(s>>1);if(x<-8||y<-8||x>VW+8||y>VH+8)continue;cx.globalAlpha=Math.min(1,p.l*1.6);cx.fillStyle=p.c;cx.fillRect(x,y,s,s)}cx.globalAlpha=1}
-function popup(t,cls){var d=document.createElement('div');d.className='pop'+(cls?' '+cls:'');d.textContent=L(t);var r=cv.getBoundingClientRect();var q=scrXY(car.x,car.y);d.style.left=(r.left+q[0]/RVW*r.width)+'px';d.style.top=(r.top+q[1]/RVH*r.height-26)+'px';$('hud').appendChild(d);setTimeout(function(){d.remove()},1300)}
+function popup(t,cls){var d=document.createElement('div');d.className='pop'+(cls?' '+cls:'');d.textContent=L(t);var r=cvRect();var q=scrXY(car.x,car.y);d.style.left=(r.left+q[0]/RVW*r.width)+'px';d.style.top=(r.top+q[1]/RVH*r.height-26)+'px';$('hud').appendChild(d);setTimeout(function(){d.remove()},1300)}
 // birds
 function birdsUpdate(dt){
  for(var i=BIRDS.length-1;i>=0;i--){var b=BIRDS[i];if(Math.abs(wd(b.x,car.x))>700||Math.abs(wd(b.y,car.y))>700||(b.st&&b.t>5)){BIRDS.splice(i,1);continue}

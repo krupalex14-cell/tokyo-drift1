@@ -76,7 +76,7 @@ function remCollide(c){var near=99;for(var id in REM){var r=REM[id];if(!r.vis||(
  var C=CARS[r.car]||CARS[0],dd=Math.hypot(dx,dy)-C.hx-c.hx*.6;if(dd<near)near=dd;satPair(c,{x:r.x,y:r.y,a:r.a,hx:C.hx,hy:C.hy,vx:r.vx,vy:r.vy,w:0,m:C.m||1},.25,.38)}return near}
 // ---- HUD: name tags / edge arrows, friend score
 function remTags(){var box=$('ntags');if(!box)return;var seen={};
- if(NET.on&&mode==='game'){var cr=cv.getBoundingClientRect();
+ if(NET.on&&mode==='game'){var cr=cvRect();
   for(var id in REM){var r=REM[id];if(!r.vis)continue;seen[id]=1;var e=$('nt'+id);if(!e){e=document.createElement('div');e.id='nt'+id;e.className='ntag';e.innerHTML='<b></b><i></i>';box.appendChild(e)}
    var q=scrXY(r.x,r.y),X=cr.left+q[0]/RVW*cr.width,Y=cr.top+q[1]/RVH*cr.height,W=innerWidth,H=innerHeight,x0=24,x1=W-24,y0=150,y1=H-230,off=X<x0||Y<y0-60||X>x1||Y>H-60,col=netCol(+id);
    e.style.color=col;e.firstChild.textContent=netName(+id);

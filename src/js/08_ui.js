@@ -128,6 +128,7 @@ function seg(key,opts,val){return'<div class="seg">'+opts.map(function(o,i){retu
 function renderSet(){var c=S.ctl|0,q='<div class="in"><div class="sh"><h2>'+GEAR+L('Настройки')+'</h2><button class="sx" data-s="close" aria-label="'+L('Закрыть')+'">✕</button></div>';
  q+='<div class="sl2">'+L('Язык')+(S.lang==='ru'?' · Language · 语言':S.lang==='zh'?' · Language':' · 语言')+'</div>'+seg('lang',['Русский','English','中文'],S.lang==='en'?1:S.lang==='zh'?2:0);
  q+='<div class="sl2">'+L('Управление')+'</div><div class="cg">'+CTLN.map(function(t,i){return'<button class="cc'+(c===i?' on':'')+'" data-s="ctl" data-i="'+i+'">'+CTLI[i]+'<span>'+L(t[0])+'</span><small>'+L(t[1])+'</small></button>'}).join('')+'</div>';
+ if(typeof kbSet==='function')q+=kbSet();
  q+='<div class="sl2">'+L('Чувствительность руля')+'</div><div class="rg"><div class="rl"><span>'+L(c===3?'насколько сильно наклонять телефон':c===1?'как быстро руль доходит до упора':'как далеко вести палец до упора')+'</span><b id="vsens">'+S.sens+'%</b></div><input type="range" min="50" max="200" step="10" value="'+S.sens+'" data-r="sens" aria-label="'+L('Чувствительность руля')+'"></div>';
  q+='<div class="sl2">'+L('Острота поворота')+'</div><div class="rg"><div class="rl"><span>'+L('насколько круто поворачивает машина')+'</span><b id="vstp">'+S.stp+'%</b></div><input type="range" min="80" max="125" step="5" value="'+S.stp+'" data-r="stp" aria-label="'+L('Острота поворота')+'"></div>';
  if(c===0||c===2)q+='<div class="sl2">'+L(c===2?'Размер стика':'Длина слайдера')+'</div>'+seg('sll',['короткий','средний','длинный'],S.sll||0);
@@ -143,6 +144,7 @@ function renderSet(){var c=S.ctl|0,q='<div class="in"><div class="sh"><h2>'+GEAR
  q+='<div class="sl2">'+L('Звук')+'</div>'+seg('snd',['выкл','вкл'],S.snd?1:0);
  var rv=S.rvol==null?85:S.rvol;q+='<div class="sl2">'+L('Громкость радио')+'</div><div class="rg"><div class="rl"><span>'+L('кнопка радио — под мини-картой')+'</span><b id="vrvol">'+rv+'%</b></div><input type="range" min="0" max="100" step="5" value="'+rv+'" data-r="rvol" aria-label="'+L('Громкость радио')+'"></div>';
  if(navigator.vibrate)q+='<div class="sl2">'+L('Вибрация при ударах')+'</div>'+seg('vib',['выкл','вкл'],S.vib?1:0);
+ if(typeof perfSet==='function')q+=perfSet();
  q+='<div class="sl2">'+L('Код')+'</div><div class="code"><input id="devc" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="······" aria-label="'+L('Код')+'"><button data-s="code">OK</button></div>';
  if(S.dev&&typeof devPanel==='function')q+=devPanel();
  q+='<button class="go" data-s="close">'+L('Готово')+'</button><div class="ver">'+L('сборка')+' '+(typeof GAME_BUILD==='string'?GAME_BUILD:'')+'</div></div>';var el=$('set'),st=el.scrollTop;el.innerHTML=q;el.scrollTop=st}

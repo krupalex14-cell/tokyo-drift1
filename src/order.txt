@@ -42,6 +42,9 @@
 07t_fix
 07u_ch4
 07v_show
+07w_bots
 08d_back
 08e_shop
 08f_radio
+08g_keys
+08h_perf
