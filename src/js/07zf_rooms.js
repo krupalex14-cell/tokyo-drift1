@@ -9,22 +9,26 @@ CHT.head.spiky={d:['...K.KK.K...','..KHKHHKHK..','..KHHHHHhK..','..KHHHHHhK..','
 CHT.head.spikyS={d:['...K.KK.K...','..KHKHHKHK..','..KHHHHHhK..','..KHHHHHhK..','..KSSSSSSK..','..KSKSSKSK..','..KSSSSSSK..','...KKSSKK...'],
  u:['...K.KK.K...','..KHKHHKHK..','..KHHHHHhK..','..KHHHHHhK..','..KHHHHHhK..','..KHHHHHhK..','..KhHHHHhK..','...KKSSKK...'],
  s:['....K.KK....','...KHKHHK...','..KHHHHHHK..','..KHHHHHSK..','..KHHHSSSK..','..KHHHSKSK..','..KhHSSSSK..','...KKKSSK...']};
+CHT.head.hana={d:['...KKKKKK...','..KHOYYOHK..','.KHHHHHHHHK.','.KHHHSSHHHK.','.KHSSSSSSHK.','.KHSeSSeSHK.','.KHrSSSSrHK.','.KHHKSSKHHK.'],
+ u:['...KKKKKK...','..KHYYYYHK..','.KHHHHHHHhK.','.KHHHHHHHhK.','.KHHHHHHHhK.','.KHHHHHHHhK.','.KHHHHHHHhK.','..KHHHHHHK..'],
+ s:['...KKKKK....','..KHHOYOK...','.KHHHHHHHK..','.KHHHHHSSK..','.KHHHHSSSK..','.KHHHSSeSK..','.KHHHSrSSK..','.KHHKKSSK...']};
 // 6 rows of 12x18: down/up/left/right walking (3 frames), then sitting seen from behind and from the front (straight, leaning left, leaning right)
 function ixSheet(o){var c=mkCanvas(36,108),g=c.getContext('2d');
- var pal={K:'#14101e',H:o.H,h:o.h||shadeHex(o.H,.72),S:o.S||'#f2cfa8',V:o.V||'#1a1a2e',v:o.v||'#6a7ab0',T:o.T,t:o.t||shadeHex(o.T,.74),W:o.W||'#f0eef4',A:o.A||'#c8202a',P:o.P||'#22232c',p:o.p||shadeHex(o.P||'#22232c',.75),B:o.B||'#14141c',G:o.G||o.S||'#f2cfa8',Y:'#e8b840',O:'#bfe0f0'};
+ var pal={K:'#14101e',H:o.H,h:o.h||shadeHex(o.H,.72),S:o.S||'#f2cfa8',V:o.V||'#1a1a2e',v:o.v||'#6a7ab0',T:o.T,t:o.t||shadeHex(o.T,.74),W:o.W||'#f0eef4',A:o.A||'#c8202a',P:o.P||'#22232c',p:o.p||shadeHex(o.P||'#22232c',.75),B:o.B||'#14141c',G:o.G||o.S||'#f2cfa8',Y:'#e8b840',O:'#bfe0f0',e:o.e||'#1a2a6a',r:o.r||'#f4a4b0'};
  function put(rows,ox,oy,mir,hdx,hdy){for(var y=0;y<rows.length;y++)for(var x=0;x<12;x++){var ch=rows[y][x];if(ch==='.')continue;g.fillStyle=pal[ch]||'#ff00ff';var px=mir?11-x:x,yy=y+(y<8?hdy||0:0),xx=px+(y<8?hdx||0:0);if(yy<0||yy>17)continue;g.fillRect(ox+xx,oy+yy,1,1)}}
  function head(k){var h=CHT.head[o.hair||'short'][k].slice();if(o.gog){if(k==='d')h[3]='..KYOYYOYK..';else if(k==='u')h[3]='..KYYYYYYK..';else h[3]='..KHHYYOYK..'}
   if(o.shades&&k==='d')h[5]='..KSKKKKSK..';if(o.shades&&k==='s')h[5]='..KHHHKKKK..';if(o.beard&&k==='d'){h[6]='..KSHHHHSK..';h[7]='...KKHHKK...'}if(o.beard&&k==='s')h[6]='..KhHSHHHK..';return h}
  [['d',0],['u',1],['s',3]].forEach(function(q){var k=q[0],row=q[1],hd=head(k),tp=CHT.top[o.top||'plain'][k],lg=CHT.legs[o.legs||'pants'][k==='s'?'s':'d'];
   for(var f=0;f<3;f++){var rows=hd.concat(tp,lg[f]);put(rows,f*12,row*18,false);if(k==='s')put(rows,f*12,2*18,true)}});
  // sitting: three rows lower, the legs folded under the seat; leaning moves the head two pixels to a side and one down
- [['u',4],['d',5]].forEach(function(q){var k=q[0],row=q[1],hd=head(k),tp=CHT.top[o.top||'plain'][k],legs=o.legs==='dress'?['.KTTTTTTTTK.','..KKKKKKKK..']:['..KPPPPPPK..','..KPPKKPPK..'];
-  for(var f=0;f<3;f++){var dx=f===1?-2:f===2?2:0,dy=f?2:0,rows=['............','............','............'].concat(hd,tp,legs);
-   for(var y=0;y<18;y++)for(var x=0;x<12;x++){var ch=rows[y][x];if(ch==='.')continue;var inHead=y>=3&&y<11;g.fillStyle=pal[ch]||'#ff00ff';var X=x+(inHead?dx:0),Y=y+(inHead?dy:0);if(X<0||X>11||Y>17)continue;g.fillRect(f*12+X,row*18+Y,1,1)}}});
+ [['u',4],['d',5]].forEach(function(q){var k=q[0],row=q[1],hd=head(k),tp=CHT.top[o.top||'plain'][k],front=k==='d',legs=o.legs==='dress'?['.KTTTTTTTTK.','..KKKKKKKK..']:['..KPPPPPPK..','..KPPKKPPK..'];
+  if(front)legs=o.legs==='dress'?['.KTTTTTTTTK.','..KSK..KSK..','..KSK..KSK..','.KBBK..KBBK.']:['.KPPPPPPPPK.','..KpK..KpK..','..KPK..KPK..','.KBBK..KBBK.'];
+  for(var f=0;f<3;f++){var dx=f===1?-2:f===2?2:0,dy=f?(front?1:2):0,top0=front?1:3,rows=(front?['............']:['............','............','............']).concat(hd,tp,legs);
+   for(var y=0;y<18;y++)for(var x=0;x<12;x++){var ch=rows[y][x];if(ch==='.')continue;var inHead=y>=top0&&y<top0+8;g.fillStyle=pal[ch]||'#ff00ff';var X=x+(inHead?dx:0),Y=y+(inHead?dy:0);if(X<0||X>11||Y>17)continue;g.fillRect(f*12+X,row*18+Y,1,1)}}});
  return c}
 var IXP={
  hero:CIP.hero,
- hana:{H:'#3a5ad8',h:'#2a3a98',S:'#f6dcc0',T:'#e87a20',t:'#b85a14',W:'#d8c8a8',A:'#d8c8a8',P:'#2a2e3a',hair:'spiky',gog:1,top:'suit'},
+ hana:{H:'#4a6ae8',h:'#2e44a8',S:'#fbe2cc',T:'#f08a30',t:'#c86a1c',W:'#efe2c8',A:'#efe2c8',P:'#2e3a5a',B:'#3a2a24',hair:'hana',top:'suit'},
  reiko:{H:'#dcdfea',h:'#a8acc0',S:'#f6e2d0',T:'#2a3a5a',t:'#1e2a44',W:'#f0eef4',A:'#4a7ac8',P:'#2a2e3a',hair:'long',top:'vest'},
  kir:{H:'#1c1a22',S:'#f2cfa8',T:'#e8dcc0',t:'#c8bca0',P:'#3a4a6a',hair:'spikyS'},
  ryu:{H:'#141418',S:'#e3b58e',T:'#1c1c24',W:'#f0eef4',A:'#c8ccd8',P:'#1c1c24',top:'suit',beard:1}};
@@ -248,7 +252,7 @@ function ixSkyCol(f){var n=[26,36,72],d=[232,138,90],day=[150,205,240];return f<
 IXR.ramen={name:['Раменная Рэйко','Reiko’s ramen'],w:300,h:200,entry:[242,192],exitY:196,
  card:[['РАМЕННАЯ','RAMEN'],['Рэйко на месте. Пахнет бульоном.','Reiko is in. It smells of broth.'],['Зайти','Go in']],
  door:function(P){return P.ramen},doorR:40,
- ob:[[0,0,300,64],[0,0,10,200],[290,0,10,200],[0,196,226,4],[258,196,42,4],[28,64,226,16],[24,96,68,58],[188,126,38,20],[10,170,16,16],[274,40,16,30]],
+ ob:[[0,0,300,64],[0,0,10,200],[290,0,10,200],[0,196,226,4],[258,196,42,4],[28,64,226,16],[24,96,68,62],[188,126,38,20],[10,170,16,16],[274,40,16,30]],
  open:[[226,186,32,14]],
  npc:[{id:'reiko',p:'reiko',x:150,y:68,d:0,cut:13},{id:'hana',p:'hana',x:135,y:92,d:1,pose:'sit',hide:true},{id:'kir',p:'kir',x:197,y:154,d:1,pose:'sit',hide:true},{id:'ryu',p:'ryu',x:242,y:198,d:1,hide:true}],
  bowls:[],
@@ -281,7 +285,7 @@ IXR.ramen={name:['Раменная Рэйко','Reiko’s ramen'],w:300,h:200,en
   R(26,98,64,34,K);R(27,99,62,20,'#7a1624');R(27,99,62,3,'#a8283a');for(x=33;x<86;x+=8){R(x,105,2,2,'#4a0a14');R(x+4,111,2,2,'#4a0a14')}
   R(27,118,62,12,'#a8222e');R(27,118,62,1,'#5a0e18');R(27,119,62,1,'#c8404a');R(57,119,2,10,'#7a1624');R(27,129,62,2,'#6a1420');
   R(26,98,5,34,K);R(27,100,3,31,'#5a1020');R(27,100,3,1,'#8a2030');R(85,98,5,34,K);R(86,100,3,31,'#5a1020');R(86,100,3,1,'#8a2030');
-  R(30,133,56,18,K);R(31,134,54,11,'#8a5a30');R(31,134,54,2,'#a87a50');R(31,145,54,5,'#5a3420');R(36,151,3,3,K);R(77,151,3,3,K);
+  R(30,139,56,17,K);R(31,140,54,10,'#8a5a30');R(31,140,54,2,'#a87a50');R(31,150,54,5,'#5a3420');R(36,156,3,3,K);R(77,156,3,3,K);
   [[188,126]].forEach(function(p){R(p[0],p[1],38,20,K);R(p[0]+1,p[1]+1,36,14,'#8a5a30');R(p[0]+1,p[1]+1,36,2,'#a87a50');R(p[0]+1,p[1]+15,36,4,'#5a3420');[[9,-6],[29,-6],[9,26],[29,26]].forEach(function(q){R(p[0]+q[0]-4,p[1]+q[1]-2,9,7,K);R(p[0]+q[0]-3,p[1]+q[1]-1,7,5,'#6a4630')})});
   // the umbrella stand, a plant, the noren over the door
   R(10,170,16,16,K);R(11,171,14,14,'#3a5a3a');cgDisc(g,18,174,6,'#2a6a3a');R(274,40,16,30,K);R(275,41,14,28,'#6a4630');
@@ -309,7 +313,7 @@ IXR.ramen={name:['Раменная Рэйко','Reiko’s ramen'],w:300,h:200,en
 // seven stools: walk up to one (or tap it, or the counter above it) and sit
 (function(){var R=IXR.ramen,base=R.hs[1];R.hs.splice(1,1);for(var k=0;k<7;k++){var sx=60+k*25,h={};for(var q in base)h[q]=base[q];h.x=sx;h.y=100;h.r=12;h.sx=sx;h.tap=[sx-12,64,25,36];R.hs.push(h)}})();
 // talking to Reiko: walk to the counter in front of her
-IXR.ramen.hs.push({id:'booth',x:98,y:132,r:14,lb:['Сесть на диванчик у окна','Sit in the booth by the window'],tap:[24,96,68,58],act:function(){ixSit(57,131,0,0,98,132,16);setTimeout(function(){if(IX.on&&IX.pose==='sit')ixSay(TR('Тут Миша любил смотреть, как светает над перевалом.','Misha liked to watch the dawn over the pass from here.'),57,100)},800)}});
+IXR.ramen.hs.push({id:'booth',x:98,y:132,r:14,lb:['Сесть на диванчик у окна','Sit in the booth by the window'],tap:[24,96,68,62],act:function(){ixSit(57,132,0,0,98,132);setTimeout(function(){if(IX.on&&IX.pose==='sit')ixSay(TR('Тут Миша любил смотреть, как светает над перевалом.','Misha liked to watch the dawn over the pass from here.'),57,100)},800)}});
 IXR.ramen.hs.push({id:'reiko',who:'reiko',x:150,y:84,r:14,lb:['Поговорить с Рэйко','Talk to Reiko'],act:function(){var rk=ixActor('reiko'),L2=[TR('Перевал по утрам мокрый. Не геройствуй.','The pass is wet in the mornings. No heroics.'),TR('Миша сидел вот тут. Всегда на третьем табурете.','Misha sat right here. Always the third stool.'),TR('Бульон варится двенадцать часов. Как и хорошие решения.','The broth cooks for twelve hours. So do good decisions.'),TR('Хана? Хорошая девочка. Руки золотые, язык острый.','Hana? A good girl. Golden hands, a sharp tongue.')],n=IX.rn=(IX.rn||0)+1;ixSay(L2[n%L2.length],rk.x,rk.y-14)}});
 
 // ================= the scene: dawn at the ramen shop (end of chapter 4) =================
@@ -317,12 +321,12 @@ var IXSCN={};
 IXSCN.dawn=function(lines,cb){var rin=S.story.pick==='rin';
  ixEnter('ramen',{scene:1,at:[242,196]});var R=IXR.ramen;IXDAWN=.08;var h=ixActor('hana'),k=ixActor('kir'),rk=ixActor('reiko'),ry=ixActor('ryu');
  // Hana already in the booth by the window, Kir asleep at the other table, Reiko at the stove
- h.hide=false;h.pose='sit';h.x=47;h.y=131;h.d=0;h.lean=0;h.cut=16;h.em=null;k.hide=false;k.pose='sit';k.x=197;k.y=154;k.d=1;k.lean=0;k.em='zzz';rk.x=150;rk.y=68;rk.cut=13;ry.hide=true;ry.x=242;ry.y=198;ry.pose='stand';ry.d=1;
+ h.hide=false;h.pose='sit';h.x=47;h.y=132;h.d=0;h.lean=0;h.cut=null;h.em=null;k.hide=false;k.pose='sit';k.x=197;k.y=154;k.d=1;k.lean=0;k.em='zzz';rk.x=150;rk.y=68;rk.cut=13;ry.hide=true;ry.x=242;ry.y=198;ry.pose='stand';ry.d=1;
  var dawnTo=function(to,s){var f0,t0;return {fn:function(){f0=IXDAWN;t0=TIME;var tick=function(){if(!IX.on)return;var u=Math.min(1,(TIME-t0)/s);IXDAWN=f0+(to-f0)*u;if(u<1)requestAnimationFrame(tick)};tick()}}};
  // Reiko comes out of the kitchen round the end of the counter, and goes back the same way
  var out=[{cut:['reiko',0]},{via:['reiko',[[20,68],[18,86],[96,90],[98,128]]]},{face:['reiko',2]}],back=[{via:['reiko',[[96,90],[18,86],[20,68],[150,68]]]},{cut:['reiko',13]},{face:['reiko',0]}];
- var steps=[{fade:0},{go:['hero',242,184]},{go:['hero',98,132]},{sit:['hero',57,131,0,0,16,98,132]},{cam:[72,118]},{w:.6}].concat(out,[{w:.3},{fn:function(){R.bowls=[{x:46,y:137},{x:60,y:137}]}},{w:.5}],back,[dawnTo(.45,6),{w:1.4}]);
- steps.push({zoom:2},{cam:[56,140]},{w:.6});
+ var steps=[{fade:0},{go:['hero',242,184]},{go:['hero',98,132]},{sit:['hero',57,132,0,0,0,98,132]},{cam:[72,118]},{w:.6}].concat(out,[{w:.3},{fn:function(){R.bowls=[{x:46,y:143},{x:60,y:143}]}},{w:.5}],back,[dawnTo(.45,6),{w:1.4}]);
+ steps.push({zoom:2},{cam:[56,142]},{w:.6});
  if(!rin)steps=steps.concat([{em:['hana','...']},{w:1.2},{lean:['hana',1]},{em:['hana','zzz']},{w:.8},
    {say:[D('hana','Только не шевелись…','Just don’t move…')]},{em:['hero','heart']},{w:.8},{em:['hero',null]}],out,[{w:.3},
    {say:[D('reiko','(шёпотом) Береги её.','(in a whisper) Take care of her.')]},{w:.5}],back,[{zoom:1},{cam:[72,118]}],[dawnTo(.75,5),{w:1.6}]);
