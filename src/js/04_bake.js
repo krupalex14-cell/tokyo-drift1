@@ -29,9 +29,14 @@ function chunkPump(n){var t0=performance.now(),bud=n>1?Math.max(BAKEBUD,n*4):BAK
   while(!J.res){var r=J.g.next();if(r.done){J.res=r.value;break}if(performance.now()-t0>bud)break}
   if(J.res){BQ.shift();var nc=bakeChunk(k%NC,(k/NC)|0);CHK.set(k,nc);if(typeof emisBake==='function'&&typeof TODS!=='undefined'&&TODS.L>.02&&nc.e===undefined)emisBake(nc)}
   if(performance.now()-t0>bud)break}
- if(BJ.size>6)BJ.forEach(function(J,k){if(BQ.indexOf(k)<0&&FRAME-J.t>300)BJ.delete(k)});
+ // chunks that changed (wires down after a crash) are re-baked in the background and swapped in when ready
+ while(RQ.length&&performance.now()-t0<bud){var rk=RQ[0];if(!CHK.has(rk)){RQ.shift();BJ.delete(-1-rk);continue}var RJ=BJ.get(-1-rk);if(!RJ){RJ={g:bakeChunkG(rk%NC,(rk/NC)|0),res:null,t:FRAME};BJ.set(-1-rk,RJ)}
+  while(!RJ.res){var rr=RJ.g.next();if(rr.done){RJ.res=rr.value;break}if(performance.now()-t0>bud)break}
+  if(RJ.res){RQ.shift();BJ.delete(-1-rk);if(!BJ.has(rk)){BJ.set(rk,RJ);var old=CHK.get(rk),nc2=bakeChunk(rk%NC,(rk/NC)|0);if(old)nc2.age=old.age;CHK.set(rk,nc2)}}}
+ if(BJ.size>6)BJ.forEach(function(J,k){if(k>=0&&BQ.indexOf(k)<0&&FRAME-J.t>300)BJ.delete(k)});
  if(CHK.size>120){var a=[];CHK.forEach(function(v,k){a.push([v.age,k])});a.sort(function(p,q){return p[0]-q[0]});for(var i=0;i<CHK.size-100;i++)CHK.delete(a[i][1])}}
 function chD(k,fx,fy){var x=(k%NC)*CH+CH/2,y=((k/NC)|0)*CH+CH/2;return Math.abs(wd(x,fx))+Math.abs(wd(y,fy))}
+var RQ=[];function chunkSoft(x0,y0,x1,y1){var a=Math.floor(x0/CH),b=Math.floor(x1/CH),c=Math.floor(y0/CH),d=Math.floor(y1/CH);for(var y=c;y<=d;y++)for(var x=a;x<=b;x++){var k=(((y%NC)+NC)%NC)*NC+(((x%NC)+NC)%NC);if(CHK.has(k)){if(RQ.indexOf(k)<0)RQ.push(k)}}}
 function chunkDirty(x0,y0,x1,y1){var a=Math.floor(x0/CH),b=Math.floor(x1/CH),c=Math.floor(y0/CH),d=Math.floor(y1/CH);for(var y=c;y<=d;y++)for(var x=a;x<=b;x++){var k=(((y%NC)+NC)%NC)*NC+(((x%NC)+NC)%NC);CHK.delete(k)}}
 function typeAt(x,y){x=wrap(x);y=wrap(y);var cx=(x/CH)|0,cy=(y/CH)|0,c=CHK.get(cy*NC+cx);if(!c)return 1;return c.t[((y|0)-cy*CH)*CH+((x|0)-cx*CH)]}
 // district at a world point (same rule as the classifier) and smooth value noise for organic district edges

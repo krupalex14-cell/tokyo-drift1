@@ -86,10 +86,12 @@ function arenaTrib(t){var x=SX(t.x),y=SY(t.y),w=t.w,h=t.h;if(x>VW+20||y>VH+20||x
   else if(t.side==='W'){cx.fillRect(x+w-3,y+k-1,5,14);cx.fillStyle=col;cx.fillRect(x+w-2,y+k,3,12)}else{cx.fillRect(x-2,y+k-1,5,14);cx.fillStyle=col;cx.fillRect(x-1,y+k,3,12)}}}
 var FANST=null;function fanSt(h){if(!FANST||!FANST.length){FANST=[];for(var i=0;i<PST_N;i++)if(PSTY[i]&&PSTY[i].k!==3)FANST.push(i);if(!FANST.length)FANST=[0]}return FANST[Math.min(FANST.length-1,Math.floor(h*FANST.length))]}
 var FANC={p:'#ff6fae',g:'#ffd23a',r:'#ff4d5a',s:'#9a8cff',c:'#6ee7ff',w:'#f4f4f8'};
-function fanDraw(p,E,base){var x=SX(p.x),y=SY(p.y);if(x<-12||y<-20||x>VW+12||y>VH+12)return;var dI=((Math.round(p.f/(TAU/PDIR))%PDIR)+PDIR)%PDIR,j=E>0?Math.round(Math.max(0,Math.sin(TIME*9+p.ph))*2.4*E):0;
- if(base)cx.drawImage(PATL,(dI*4)*PCELL,p.st*PCELL,PCELL,PCELL,x-9,y-9-j,PCELL,PCELL);
- if(p.fl){var wv=Math.round(Math.sin(TIME*6+p.ph)*1.2);cx.fillStyle='#2a2030';cx.fillRect(x+3,y-15-j,1,9);cx.fillStyle=FANC[p.tm]||'#ff6fae';cx.fillRect(x+4,y-15-j+wv,5,3);cx.fillStyle='#14101e';cx.fillRect(x+4,y-12-j+wv,5,1)}
- else if(E>.5&&Math.sin(TIME*9+p.ph)>.3){cx.fillStyle=FANC[p.tm]||'#ffd23a';cx.fillRect(x-3,y-12-j,1,2);cx.fillRect(x+3,y-12-j,1,2)}}
+function fanDraw(p,E,base){var x=SX(p.x),y=SY(p.y);if(x<-12||y<-20||x>VW+12||y>VH+12)return;var walk=p.mv>0,fa=walk?p.wa:p.f,dI=((Math.round(fa/(TAU/PDIR))%PDIR)+PDIR)%PDIR,j=E>0&&!walk?Math.round(Math.max(0,Math.sin(TIME*9+p.ph))*2.4*E):0,fr=walk?(Math.floor(TIME*9+p.ph*4)&3):0,al=p.al==null?1:p.al;
+ if(al<=0)return;if(al<1)cx.globalAlpha=al;
+ if(base){cx.fillStyle='rgba(12,8,40,.28)';cx.fillRect(x-2,y-2,6,6);cx.drawImage(PATL,(dI*4+fr)*PCELL,p.st*PCELL,PCELL,PCELL,x-9,y-9-j,PCELL,PCELL)}
+ if(p.fl){var wv=walk?0:Math.round(Math.sin(TIME*6+p.ph)*1.2);cx.fillStyle='#2a2030';cx.fillRect(x+3,y-15-j,1,9);cx.fillStyle=FANC[p.tm]||'#ff6fae';cx.fillRect(x+4,y-15-j+wv,5,3);cx.fillStyle='#14101e';cx.fillRect(x+4,y-12-j+wv,5,1)}
+ else if(E>.5&&!walk&&Math.sin(TIME*9+p.ph)>.3){cx.fillStyle=FANC[p.tm]||'#ffd23a';cx.fillRect(x-3,y-12-j,1,2);cx.fillRect(x+3,y-12-j,1,2)}
+ if(al<1)cx.globalAlpha=1}
 function arenaBar(q){var x=SX(q.x),y=SY(q.y),w=q.w,h=q.h;if(x>VW+10||y>VH+10||x+w<-10||y+h<-10)return;cx.fillStyle='rgba(12,8,40,.35)';cx.fillRect(x+2,y+3,w,h);cx.fillStyle='#14101e';cx.fillRect(x-1,y-1,w+2,h+2);
  var L=q.hz?w:h;for(var d=0;d<L;d+=10){cx.fillStyle=((d/10)|0)%2?'#e04a4a':'#ecebf2';if(q.hz)cx.fillRect(x+d,y,Math.min(10,L-d),h);else cx.fillRect(x,y+d,w,Math.min(10,L-d))}
  cx.fillStyle='rgba(255,255,255,.35)';if(q.hz)cx.fillRect(x,y,w,1);else cx.fillRect(x,y,1,h)}
@@ -132,7 +134,19 @@ function fanTree(x,y){var t=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(t||p.h
 function fanOk(x,y,l){if(l)return true;return !ptInBld(x,y)&&!inRiver(x,y,4)&&!fanOnRoad(x,y)&&!fanTree(x,y)}
 function fanGroup(x,y,face,teams,n,l){var g={x:x,y:y,p:[],E:0,cd:0,l:l|0};for(var i=0;i<n;i++){var a=face+Math.PI/2,o=(i-(n-1)/2)*7,tm=teams[(i*7+Math.floor(Math.abs(x+y)))%teams.length],px,py,ok=false;
   for(var bk=(l?0:(i%2)*6);bk<=(l?0:20)&&!ok;bk+=7){px=wrap(x+Math.cos(a)*o-Math.cos(face)*bk);py=wrap(y+Math.sin(a)*o-Math.sin(face)*bk);ok=fanOk(px,py,l)}
-  if(!ok)continue;g.p.push({x:px,y:py,st:fanSt(hsh(px|0,py|0,3)),f:face,tm:tm,fl:tm!=='n'&&hsh(px|0,py|0,5)<.5,ph:hsh(px|0,py|0,7)*TAU})}return g.p.length?g:null}
+  if(!ok)continue;var q={x:px,y:py,hx:px,hy:py,st:fanSt(hsh(px|0,py|0,3)),f:face,tm:tm,fl:tm!=='n'&&hsh(px|0,py|0,5)<.5,ph:hsh(px|0,py|0,7)*TAU,s:'in',d:Math.random()*1.6,v:26+Math.random()*16,mv:0,wa:face,al:1};
+  if(!l){var bd=34+Math.random()*40,sx0=wrap(px-Math.cos(face)*bd+(Math.random()-.5)*16),sy0=wrap(py-Math.sin(face)*bd+(Math.random()-.5)*16);if(fanOk(sx0,sy0,0)){q.x=sx0;q.y=sy0}else q.al=0}
+  else q.al=0;
+  g.p.push(q)}return g.p.length?g:null}
+// walking to the spot / standing and watching / walking off when the run is over
+function fanStep(q,dt){if(q.s==='stand'||q.s==null){q.mv=0;return true}
+ if(q.d>0){q.d-=dt;q.mv=0;if(q.s==='in')return true}
+ var tx=q.s==='in'?q.hx:q.ox,ty=q.s==='in'?q.hy:q.oy,dx=wd(tx,q.x),dy=wd(ty,q.y),d=Math.hypot(dx,dy);
+ if(q.s==='in'&&q.al<1)q.al=Math.min(1,q.al+dt*2.5);
+ if(q.s==='out'&&q.fo)q.al-=dt*1.4;
+ if(d<1.5||q.fo&&q.al<=0){if(q.s==='in'){q.x=q.hx;q.y=q.hy;q.mv=0;if(q.al>=1)q.s='stand';return true}q.al=0;return false}
+ var st=Math.min(d,q.v*dt);q.x=wrap(q.x+dx/d*st);q.y=wrap(q.y+dy/d*st);q.wa=Math.atan2(dy,dx);q.mv=1;if(q.s==='out'&&d<18)q.fo=1;return true}
+function fanLeave(g){g.left=1;g.p.forEach(function(q){q.s='out';q.d=Math.random()*1.2;var bd=50+Math.random()*40,a=q.f+Math.PI+(Math.random()-.5)*.9;q.ox=wrap(q.x+Math.cos(a)*bd);q.oy=wrap(q.y+Math.sin(a)*bd);if(!fanOk(q.ox,q.oy,g.l)){q.ox=q.x;q.oy=q.y;q.fo=1}})}
 function fanBuild(key){var G=[],teams=fanTeams(),z=ZS&&ZS.z;
  if(z&&z.k==='course'&&z.road){var r=z.road,el=r.k==='exp'||r.k==='ramp',step=z.s1-z.s0>2500?340:260,k=0;
   for(var s=z.s0-60;s<=z.s1+80;s+=(s<z.s0+300||s>z.s1-300)?120:step){if(el&&s>z.s0+260&&s<z.s1-260)continue;var sv=((s%r.len)+r.len)%r.len;r.pt(sv,TMP);var sd=(k++%2)?1:-1,u=(el?r.hw-5:r.hw+(r.sw||0)+5)*sd,x=wrap(TMP[0]-TMP[3]*u),y=wrap(TMP[1]+TMP[2]*u),face=Math.atan2(-TMP[2]*sd,TMP[3]*sd);
@@ -142,13 +156,17 @@ function fanBuild(key){var G=[],teams=fanTeams(),z=ZS&&ZS.z;
    for(var sd2=-1;sd2<=1;sd2+=2){var u2=(hw+5)*sd2,x3=wrap(px-Math.sin(an)*u2),y3=wrap(py+Math.cos(an)*u2),g3=fanGroup(x3,y3,Math.atan2(-Math.cos(an)*sd2,Math.sin(an)*sd2),teams,5,0);if(g3)G.push(g3)}}}
  return G}
 function fanKey(){if(mode!=='game')return null;if(typeof c4Dark==='function'&&c4Dark())return null;if(ZS&&ZS.z)return 'z:'+ZS.z.id;var m=ST.act;if(ST.mode&&m&&(m.type==='srace'||m.type==='crace')&&ST.rte&&!ST.ride)return 'm:'+m.id;return null}
-function fanUpdate(dt){var k=fanKey();if(k!==C4FAN.key){C4FAN.key=k;C4FAN.g=k?fanBuild(k):[];C4FAN.rb=RIV.length}else if(k&&RIV.length!==C4FAN.rb&&TIME-(C4FAN.bt||0)>1){C4FAN.bt=TIME;C4FAN.rb=RIV.length;C4FAN.g=fanBuild(k)}
+function fanUpdate(dt){var k=fanKey();if(!C4FAN.old)C4FAN.old=[];
+ if(k!==C4FAN.key){C4FAN.g.forEach(fanLeave);C4FAN.old=C4FAN.old.concat(C4FAN.g);C4FAN.key=k;C4FAN.g=k?fanBuild(k):[];C4FAN.rb=RIV.length}
+ for(var oi=C4FAN.old.length-1;oi>=0;oi--){var og=C4FAN.old[oi];og.p=og.p.filter(function(q){return fanStep(q,dt)});og.E=Math.max(0,og.E-dt);if(!og.p.length||Math.abs(wd(og.x,car.x))>1500||Math.abs(wd(og.y,car.y))>1500)C4FAN.old.splice(oi,1)}
+ for(var gi=0;gi<C4FAN.g.length;gi++)C4FAN.g[gi].p.forEach(function(q){fanStep(q,dt)});
  for(var i=0;i<C4FAN.g.length;i++){var g=C4FAN.g[i],dP=Math.hypot(wd(g.x,car.x),wd(g.y,car.y)),hot=null;g.cd-=dt;
   if(dP<170)hot='p';else for(var j=0;j<RIV.length;j++){var R=RIV[j];if(Math.hypot(wd(g.x,R.x),wd(g.y,R.y))<150){hot=R.id;break}}
+  var watch=g.p.filter(function(q){return q.s==='stand'});if(!watch.length)hot=null;
   g.E=hot?Math.min(1,g.E+dt*4):Math.max(0,g.E-dt*.8);
-  if(hot&&g.cd<=0&&Math.random()<dt*3){g.cd=2.5;var tm=hot==='p'?'p':(hot==='rin'||hot==='shizuka'?'r':hot==='seiji'||/^sh|^b[0-9]/.test(hot)?'s':hot==='tetsu'?'t':hot==='ghost'?'h':hot==='kir'?'k':hot==='gen'?'g':'n'),pool=SHOUT[tm]||SHOUT.n;
-   c4Shout(g.x,g.y,pool[Math.floor(Math.random()*pool.length)],FANC[tm==='h'||tm==='k'?'w':tm==='t'?'g':tm]||'#fff');if(S.snd&&dP<300)auNoise(1000,.8,.05,.4)}}}
-function fanDrawAll(l){if(!PATL)return;for(var i=0;i<C4FAN.g.length;i++){var g=C4FAN.g[i];if(g.l!==l)continue;var x=SX(g.x),y=SY(g.y);if(x<-40||y<-40||x>VW+40||y>VH+40)continue;for(var j=0;j<g.p.length;j++)fanDraw(g.p[j],g.E,true)}}
+  if(hot&&g.cd<=0&&Math.random()<dt*3){var wq=watch[Math.floor(Math.random()*watch.length)];g.cd=2.5;var tm=hot==='p'?'p':(hot==='rin'||hot==='shizuka'?'r':hot==='seiji'||/^sh|^b[0-9]/.test(hot)?'s':hot==='tetsu'?'t':hot==='ghost'?'h':hot==='kir'?'k':hot==='gen'?'g':'n'),pool=SHOUT[tm]||SHOUT.n;
+   c4Shout(wq.x,wq.y,pool[Math.floor(Math.random()*pool.length)],FANC[tm==='h'||tm==='k'?'w':tm==='t'?'g':tm]||'#fff');if(S.snd&&dP<300)auNoise(1000,.8,.05,.4)}}}
+function fanDrawAll(l){if(!PATL)return;var all=C4FAN.old&&C4FAN.old.length?C4FAN.g.concat(C4FAN.old):C4FAN.g;for(var i=0;i<all.length;i++){var g=all[i];if(g.l!==l)continue;var x=SX(g.x),y=SY(g.y);if(x<-40||y<-40||x>VW+40||y>VH+40)continue;for(var j=0;j<g.p.length;j++)fanDraw(g.p[j],g.E,true)}}
 // ---- rivals that drift: their physics corners on grip, so the slide is shown — the body swings into the turn, the rear tyres smoke and leave marks
 function rivSlide(r,dt){var c=r.c;if(!c||r.wait||!r.drift){r.vo=0;return}var sp=c.sp,k=sp>85?Math.min(1,(sp-85)/90):0,tv=clamp((c.w||0)*.19,-.62,.62)*k;if(c.dr)tv=0;
  r.vo=(r.vo||0)+(tv-(r.vo||0))*Math.min(1,dt*5);var vo=Math.abs(r.vo);
@@ -189,7 +207,7 @@ var _edV=emisDraw;emisDraw=function(a){_edV(a);if(a>.05&&ARENA&&arenaOn()){var A
  A.poles.forEach(function(q){var x=SX(q.x),y=SY(q.y);gl(x+1,y-28,12,9,[255,250,230],a);gl(x+1,y-28,30,22,[255,244,220],a*.35);gl(cxs+(x-cxs)*.5,cys+(y-cys)*.5,A.w*.42,A.h*.48,[255,240,215],a*.3)});
  gl(cxs,cys,A.w*.5,A.h*.5,[255,236,214],a*.18)}
  // phones held up in the crowd at night
- if(a>.15){var ph=function(p,E){if(p.fl||hsh(p.x|0,p.y|0,21)>.28)return;var x=SX(p.x),y=SY(p.y);if(x<-10||y<-20||x>VW+10||y>VH+10)return;var j=E>0?Math.round(Math.max(0,Math.sin(TIME*9+p.ph))*2.4*E):0,f=.55+.45*Math.sin(TIME*2.3+p.ph*3);gl(x+3,y-12-j,4,4,[225,238,255],a*f)};
+ if(a>.15){var ph=function(p,E){if(p.fl||p.mv>0||(p.al!=null&&p.al<1)||hsh((p.hx||p.x)|0,(p.hy||p.y)|0,21)>.28)return;var x=SX(p.x),y=SY(p.y);if(x<-10||y<-20||x>VW+10||y>VH+10)return;var j=E>0?Math.round(Math.max(0,Math.sin(TIME*9+p.ph))*2.4*E):0,f=.55+.45*Math.sin(TIME*2.3+p.ph*3);gl(x+3,y-12-j,4,4,[225,238,255],a*f)};
   if(ARENA&&arenaOn())for(var i=0;i<ARENA.crowd.length;i++)ph(ARENA.crowd[i],ARENA.E);for(i=0;i<C4FAN.g.length;i++){var g=C4FAN.g[i];if(g.l)continue;for(var j=0;j<g.p.length;j++)ph(g.p[j],g.E)}}};
 // the show's paper lanterns hang along the open edges of the pad (the stands carry banners)
 c4ShowLan=function(){if(C4BL)return C4BL;C4BL=[];var A=ARENA;if(!A){var p=STP&&(STP.arenac||STP.bamboo);if(!p)return C4BL;for(var i=0;i<14;i++){var an=i/14*TAU,R=150+(i%2)*40,x=wrap(p.x+Math.cos(an)*R),y=wrap(p.y+Math.sin(an)*R);if(ptInBld(x,y))continue;C4BL.push({x:x,y:y,c:i%3?'#ff4d5a':'#fff1d6'})}return C4BL}
