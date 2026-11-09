@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='09.11 04:13';
+var GAME_BUILD='09.11 06:11';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -2344,6 +2344,9 @@ function* bakeChunkG(cx,cy){
  // --- specials ground
  var AN=[],lms=[];LMH.q(X0,Y0,X0+CH,Y0+CH,function(it){lms.push(it)});
  var tS=performance.now();for(var si=0;si<specs.length;si++){var s9=specs[si];drawSpecGround(g,s9,wd(s9.x,X0),wd(s9.y,Y0),AN);if(performance.now()-tS>1.2){yield 0;tS=performance.now()}}
+ // a street that runs through a square stays a street: its asphalt, markings and a narrow kerb go back over the square's paving
+ for(si=0;si<specs.length;si++){var s8=specs[si];if(!s8._rw)continue;for(var wi=0;wi<s8._rw.length;wi++){var W8=s8._rw[wi],sx8=wd(s8.x,X0),sy8=wd(s8.y,Y0),ox8=wd(W8.x0,X0),oy8=wd(W8.y0,Y0);
+  specRoadBack(g,buf,vt,Math.max(0,Math.floor(Math.max(sx8,ox8))),Math.max(0,Math.floor(Math.max(sy8,oy8))),Math.min(CH,Math.ceil(Math.min(sx8+s8.w,ox8+W8.x1-W8.x0))),Math.min(CH,Math.ceil(Math.min(sy8+s8.h,oy8+W8.y1-W8.y0))),W8,X0,Y0)}}
  lms.forEach(function(it){if(it.k==='shadow')towerShadow(g,wd(it.x,X0),wd(it.y,Y0),it.L,it.W);else lmGround(g,it,X0,Y0,AN)});
  // --- pillars, building shadows, buildings, ground props
  yield 0;var blds=[];BH.q(X0-60,Y0-60,X0+CH+60,Y0+CH+60,function(b){if(!b.hid)blds.push(b)});
@@ -2386,6 +2389,14 @@ function bakeDeck(u,dspans,X0,Y0){
   else{if((sv%18)<9)P(X,Y,[214,226,250])}}});
  u.putImageData(id,0,0);
 }
+var SRB=null;
+function specRoadBack(g,buf,vt,x0,y0,x1,y1,W,X0,Y0){if(x1<=x0||y1<=y0)return;var w=x1-x0,h=y1-y0,n=0,x,y;
+ for(y=y0;y<y1&&!n;y++)for(x=x0;x<x1;x++){var t=vt[(y+1)*MKS+x+1];if(t===0||t===1){n=1;break}}if(!n)return;
+ if(!SRB){SRB=mkCanvas(CH,CH);SRB.g=SRB.getContext('2d')}var id=SRB.g.createImageData(w,h),d=id.data;
+ // only that street's own carriageway and a 2 px kerb (not the mouth of a side street that ends there)
+ for(y=y0;y<y1;y++)for(x=x0;x<x1;x++){var t2=vt[(y+1)*MKS+x+1];if(t2>2)continue;var gp=specRoadGap(W,X0+x+.5,Y0+y+.5);if(gp>2.5||t2===2&&gp<-.5)continue;
+  var o=(y*CH+x)*4,p=((y-y0)*w+x-x0)*4;d[p]=buf[o];d[p+1]=buf[o+1];d[p+2]=buf[o+2];d[p+3]=255}
+ SRB.g.clearRect(0,0,w,h);SRB.g.putImageData(id,0,0);g.drawImage(SRB,0,0,w,h,x0,y0,w,h)}
 function drawSpecGround(g,s,x,y,AN){if(LANDK[s.k]){landGround(g,s,x,y,AN);return}
  var w=s.w,h=s.h,i,j;function R(a,b,c,d,col){g.fillStyle=col;g.fillRect(a,b,c,d)}
  if(s.k==='lot'||s.k==='gas'||s.k==='drift'||s.k==='yard'){R(x,y,w,h,s.k==='lot'?'#48506a':s.k==='gas'?'#7a7f92':'#6a7080');for(i=0;i<w;i+=3)for(j=0;j<h;j+=3)if(hsh(x+i+s.sd,y+j,3)<.15){R(x+i,y+j,1,1,'rgba(0,0,0,.15)')}R(x,y,w,1,'#9aa0b4');R(x,y+h-1,w,1,'#9aa0b4');R(x,y,1,h,'#9aa0b4');R(x+w-1,y,1,h,'#9aa0b4');
@@ -3841,6 +3852,35 @@ function gpsNear(x,y,R,artOnly){var best=null;
   if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=clamp(dx*ux+dy*uy,0,r.len),px=x0+ux*t,py=y0+uy*t,d=Math.hypot(wd(x,px),wd(y,py));if(d<R&&(!best||d<best.d))best={r:r,s:t,d:d,x:wrap(px),y:wrap(py)};return}
   for(var k=sp.i;k<=sp.j;k++){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])}}});
  return best}
+// is there room for a car at (x,y)? houses, walls and rails, water, pillars and concrete blocks are in the way
+function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===4)return false;
+ var hit=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(hit||p.hid||p.gone||p.brk||p.t===P_CAR||p.t===P_CONE||p.t===P_TORII||typeof BRKT!=='undefined'&&BRKT[p.t])return;
+  var rr=p.w&&p.r===0?5:p.t===P_BLOCK?8:p.t===P_BARR?7:(p.r||2);if(Math.hypot(wd(p.x,x),wd(p.y,y))<rr+6)hit=true});return !hit}
+// can a car drive straight from (x0,y0) to (x1,y1)?
+function gpsLos(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),L=Math.hypot(dx,dy);if(L<2)return true;var n=Math.ceil(L/5);
+ for(var k=1;k<n;k++)if(!gpsFree(x0+dx*k/n,y0+dy*k/n))return false;return true}
+// from a fenced yard: walk a coarse grid (8 px) out to the nearest carriageway, then straighten the walk into a few legs
+var GPSY=null;
+function gpsYard(x,y){if(GPSY&&TIME-GPSY.t<3&&Math.hypot(wd(x,GPSY.x),wd(y,GPSY.y))<20)return GPSY.q;
+ var G=8,R=44,N=R*2+1,par=new Int32Array(N*N).fill(-1),Q=new Int32Array(N*N),qh=0,qt=0,c0=R*N+R,found=-1,DX=[1,-1,0,0,1,1,-1,-1],DY=[0,0,1,-1,1,-1,1,-1];par[c0]=c0;Q[qt++]=c0;
+ while(qh<qt&&qh<7000){var c=Q[qh++],cx=c%N,cy=(c/N)|0,wx=x+(cx-R)*G,wy=y+(cy-R)*G;
+  if(c!==c0&&typeAt(wx,wy)===0){var rq=gpsNear(wx,wy,60);if(rq&&rq.d<Math.min(rq.r.hw-3,12)&&gpsLos(wx,wy,rq.x,rq.y)){found=c;break}}
+  for(var k=0;k<8;k++){var nx=cx+DX[k],ny=cy+DY[k];if(nx<0||ny<0||nx>=N||ny>=N)continue;var nc=ny*N+nx;if(par[nc]!==-1)continue;
+   if(k>3&&(par[cy*N+nx]===-2||par[ny*N+cx]===-2))continue;if(!gpsFree(x+(nx-R)*G,y+(ny-R)*G)){par[nc]=-2;continue}par[nc]=c;Q[qt++]=nc}}
+ var q=null;if(found>=0){var cells=[];for(var c2=found;c2!==c0;c2=par[c2])cells.push([x+(c2%N-R)*G,y+(((c2/N)|0)-R)*G]);cells.reverse();
+  var fx=cells[cells.length-1][0],fy=cells[cells.length-1][1];q=gpsNear(fx,fy,60);
+  if(q){var via=[],px=x,py=y,i=0;while(i<cells.length-1){var j=i;while(j+1<cells.length&&gpsLos(px,py,cells[j+1][0],cells[j+1][1]))j++;if(j===i)j=i+1;px=cells[j][0];py=cells[j][1];via.push([wrap(px),wrap(py)]);i=j}
+   q.via=via}}
+ GPSY={t:TIME,x:x,y:y,q:q};return q}
+// where the route starts: the nearest road you can actually drive to in a straight line (from a fenced yard, the nearest road
+// behind a row of pillars is no use), else the way out of the yard found on the grid, else the nearest road as before
+function gpsStart(x,y){var q0=gpsNear(x,y,260)||gpsNear(x,y,800);if(!q0||q0.d<q0.r.hw+6||typeof ptInBld!=='function'||!car||(car.l|0))return q0;if(gpsLos(x,y,q0.x,q0.y))return q0;
+ var C=[],R=420;RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='art'&&r.k!=='touge'&&r.k!=='loc')return;
+  if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len;for(var t=0;t<=r.len;t+=24){var px=x0+ux*t,py=y0+uy*t,d=Math.hypot(wd(px,x),wd(py,y));if(d<R)C.push({r:r,s:t,d:d,x:wrap(px),y:wrap(py)})}return}
+  for(var k=sp.i;k<=sp.j;k+=2){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R)C.push({r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])})}});
+ C.sort(function(a,b){return a.d-b.d});var seen={};
+ for(var i=0,n=0;i<C.length&&n<24;i++){var c=C[i],key=Math.round(c.x/16)+','+Math.round(c.y/16);if(seen[key])continue;seen[key]=1;n++;if(c.d>q0.d*2.2+80)break;if(gpsLos(x,y,c.x,c.y))return c}
+ return gpsYard(x,y)||q0}
 function gpsNearUp(x,y,R){var best=null;DH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if((r.k!=='exp'&&r.k!=='ramp')||!r._ch)return;
   for(var k=sp.i;k<=sp.j;k++){if(r.k==='ramp'&&r.hAt(k*r.ds)<.5)continue;var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k]),up:1}}});return best}
 function gpsEdge(a,b,c,inf){if(a===b)return null;var e1={to:b,c:c,inf:inf,f:1},e2={to:a,c:c,inf:inf,f:0};a.e.push(e1);b.e.push(e2);return[a,e1,b,e2]}
@@ -3875,7 +3915,7 @@ function gpsAttach(T,q,O,oq,tmp){var r=q.r,ch=r._ch,lo=null,hi=null,f=r.k==='loc
  if(oq&&oq.r===r){if(lo&&oq.s>lo.s&&oq.s<=q.s)lo={s:oq.s,v:O,t:1};if(hi&&oq.s>q.s&&oq.s<hi.s)hi={s:oq.s,v:O,t:1}}
  [lo,hi].forEach(function(n){if(!n)return;if(n.t&&T.k==='G')return;var e=n===lo?gpsEdge(n.v,T,Math.max(1,(q.s-n.s)*f),{t:'r',r:r,s0:n.s,s1:q.s}):gpsEdge(T,n.v,Math.max(1,(n.s-q.s)*f),{t:'r',r:r,s0:q.s,s1:n.s});if(e)tmp.push(e)})}
 function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();if(WP.up&&WP.q&&!WP.q.up){var qu=gpsNearUp(WP.x,WP.y,200);if(qu)WP.q=qu}
- var a=((car.l|0)===1?gpsNearUp(car.x,car.y,160):null)||gpsNear(car.x,car.y,260)||gpsNear(car.x,car.y,800),b=WP.q;WP.rt=TIME;WP.ofT=0;
+ var a=((car.l|0)===1?gpsNearUp(car.x,car.y,160):null)||gpsStart(car.x,car.y),b=WP.q;WP.rt=TIME;WP.ofT=0;
  var path=null;
  if(a&&b){var Sv={k:'S',x:a.x,y:a.y,e:[]},Gv={k:'G',x:b.x,y:b.y,e:[]},tmp=[];gpsAttach(Sv,a,Gv,b,tmp);gpsAttach(Gv,b,Sv,a,tmp);
   var st=++GPSST,H=new GHeap();Sv._st=st;Sv._g=0;Sv._p=null;H.push(Sv,0);var it=0;
@@ -3885,7 +3925,7 @@ function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();if(WP.up&&WP.q&&!WP.
   tmp.forEach(function(t){var i1=t[0].e.indexOf(t[1]);if(i1>=0)t[0].e.splice(i1,1);var i2=t[2].e.indexOf(t[3]);if(i2>=0)t[2].e.splice(i2,1)})}
  if(!path){WP.pts=null;WP.arr=null;WP.cum=null;WP.L=0;return}
  var pts=[],pl=[];function add(x,y,l){if(!pts.length){pts.push([x,y]);pl.push(l|0);return}var p=pts[pts.length-1],nx=p[0]+wd(x,p[0]),ny=p[1]+wd(y,p[1]);if(Math.abs(nx-p[0])+Math.abs(ny-p[1])<1.5)return;pts.push([nx,ny]);pl.push(l|0)}
- add(car.x,car.y,car.l);
+ add(car.x,car.y,car.l);if(a&&a.via)a.via.forEach(function(v){add(v[0],v[1],0)});
  if(path)path.forEach(function(e){var inf=e.inf;if(inf.t==='l')return;
   var r=inf.r,s0=e.f?inf.s0:inf.s1,s1=e.f?inf.s1:inf.s0,dir=s1>=s0?1:-1;
   if(r.k==='loc'){var off=r.hw*.42,x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,tx=ux*dir,ty=uy*dir;add(x0+ux*s0+ty*off,y0+uy*s0-tx*off);add(x0+ux*s1+ty*off,y0+uy*s1-tx*off);return}
@@ -3957,8 +3997,12 @@ function todStr(){var h=Math.floor(TODH),m=Math.floor((TODH-h)*60);return(h<10?'
 var GLWN=new Map();function glw(c){var nk=((c[0]&255)<<16)|((c[1]&255)<<8)|(c[2]&255),s=GLWN.get(nk);if(s)return s;var key=c.join(',');s=GLWC[key];if(s){GLWN.set(nk,s);return s}s=mkCanvas(32,32);var g=s.getContext('2d'),gr=g.createRadialGradient(16,16,0,16,16,16),rgb=c[0]+','+c[1]+','+c[2];gr.addColorStop(0,'rgba('+rgb+',1)');gr.addColorStop(.3,'rgba('+rgb+',.5)');gr.addColorStop(.65,'rgba('+rgb+',.14)');gr.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=gr;g.fillRect(0,0,32,32);GLWC[key]=s;GLWN.set(nk,s);return s}
 function gl(x,y,rx,ry,c,a){if(a<=.01)return;cx.globalAlpha=Math.min(1,a);cx.drawImage(glw(c),x-rx,y-ry,rx*2,ry*2)}
 function hex3(h){h=h.replace('#','');return[parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
-function hlCone(){if(HLC)return HLC;var W=72,H=44,c=mkCanvas(W,H),g=c.getContext('2d'),id=g.createImageData(W,H),d=id.data;
- for(var y=0;y<H;y++)for(var x=0;x<W;x++){var dy=y+.5-H/2,an=Math.atan2(dy,x+7),ia=Math.max(0,1-Math.abs(an)/.38);ia=ia*ia*(3-2*ia);var id2=Math.pow(Math.max(0,1-x/W),1.25),nr=Math.min(1,(x+2)/5),I=ia*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I*1.15))}
+// the low beam: it leaves the car as wide as the car and spreads out a little (a trapezoid, not a point-light triangle);
+// right at the front the two lamps still show as two brighter patches that merge a few metres ahead
+function hlCone(){if(HLC)return HLC;var W=72,H=44,c=mkCanvas(W,H),g=c.getContext('2d'),id=g.createImageData(W,H),d=id.data,w0=6.6,w1=20.8,lp=4.2;
+ for(var y=0;y<H;y++)for(var x=0;x<W;x++){var u=(x+.5)/W,dy=Math.abs(y+.5-H/2),hw=w0+(w1-w0)*u,soft=1.4+4.2*u,e=clamp((hw-dy)/soft+.5,0,1);e=e*e*(3-2*e);
+  var cw=1-.3*Math.pow(Math.min(1,dy/hw),2),m=clamp(u/.3,0,1),lob=Math.exp(-Math.pow((dy-lp)/(1.6+7*u),2));lob=lob*(1-m)+m;
+  var id2=Math.pow(Math.max(0,1-u),1.2),nr=Math.min(1,(x+1.5)/4),I=e*cw*(.45+.55*lob)*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I*1.2))}
  g.putImageData(id,0,0);HLC=c;return c}
 function carLights(x,y,a,L,Hh,lv,brk,isP){var ca=Math.cos(a),sa=Math.sin(a),hx=L/2,hy=Hh/2,sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
  var ca2=.07+.62*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}
@@ -5979,7 +6023,9 @@ function toyoBuild(){TOYO=null;var P=stPlaces(),t=P.toyo;if(!t||!t.r||t.r.k==='l
  for(var q=0;q<=640&&!best;q+=6)[q,-q].forEach(function(dq){if(best)return;var s=t.s+dq;if(s<(r.za||0)+60||s>r.len-(r.zb||0)-60)return;[t.sd||1,-(t.sd||1)].forEach(function(sd,k){if(best||(k&&q<200))return;var R=tyGeom(r,s,sd);if(tyFree(R))best=R})});
  if(!best)return;var R=best;TOYO=R;
  // clear the plot: townhouses, trees and posts on it
- var b=tyBox(R,4);BH.q(b.x0,b.y0,b.x1,b.y1,function(B){if(B.hid)return;for(var px=B.x+2;px<B.x+B.w-1;px+=4)for(var py=B.y+2;py<B.y+B.h-1;py+=4)if(tyIn(R,px,py,2)){B.hid=1;return}});
+ var b=tyBox(R,16);BH.q(b.x0,b.y0,b.x1,b.y1,function(B){if(B.hid)return;var sx=Math.max(1,B.w/Math.ceil(B.w/3)),sy=Math.max(1,B.h/Math.ceil(B.h/3));
+  // the whole footprint, edges included, with air round the shop (the tiled roof hangs over its back wall)
+  for(var px=B.x;px<=B.x+B.w+.01;px+=sx)for(var py=B.y;py<=B.y+B.h+.01;py+=sy){var l=tyLocal(R,px,py);if(l[0]>-8&&l[0]<TYW+8&&l[1]>-12&&l[1]<TYD+4){B.hid=1;return}}});
  var rm=[];PH.q(b.x0,b.y0,b.x1,b.y1,function(p){if(tyIn(R,p.x,p.y,3))rm.push(p)});rm.forEach(function(p){var m=p.t===P_CAR?20:Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);p.hid=1;p.gone=1});
  var bc=tyWorld(R,TYW/2,(TYF+14)/2);R.bld={x:bc[0],y:bc[1],hx:TYW/2-5,hy:(TYF+14)/2-2,a:Math.atan2(R.xv[1],R.xv[0])};
  var bb=tyBox(R,20);LMI.push({k:'toyo',bx0:bb.x0,by0:bb.y0-40,bx1:bb.x1,by1:bb.y1});
@@ -6068,6 +6114,36 @@ function k86Spot(){var m=STORY.findIndex(function(q){return q.id==='d4'});if(m<0
 var _dzK86=drawZones;drawZones=function(l){_dzK86(l);if(l!==0||mode!=='game')return;var k=k86Spot();if(!k)return;var x=SX(k.x),y=SY(k.y),sp=k.spr,w=sp.width,h=sp.height;if(x<-60||y<-60||x>VW+60||y>VH+60)return;
  var ra=Math.round(k.a/(Math.PI/32))*(Math.PI/32);cx.save();cx.translate(x+2,y+3);cx.rotate(ra);cx.fillStyle='rgba(12,8,40,.4)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();cx.save();cx.translate(x,y);cx.rotate(ra);cx.drawImage(sp,-w/2,-h/2);cx.restore()};
 var _coK86=collide;collide=function(c){var n=_coK86(c),k=K86&&k86Spot();if(k&&!c.l){var dx=wd(k.x,c.x),dy=wd(k.y,c.y);if(Math.abs(dx)<60&&Math.abs(dy)<60)satBox(c,dx,dy,CARS[4].hx,CARS[4].hy,k.a,.22,.35)}return n};
+// ---- a street that runs along the edge of a square or a park, with part of its carriageway under the square's paving:
+// the street wins. Only a street that runs along the edge counts (a dead end that stops at the square is its entrance and
+// stays under the paving). Kiosks, benches, lamps and little buildings on its asphalt go; the baker puts the asphalt back.
+function specRoadsAlong(s){var W=[],seen=new Set();RH.q(s.x-40,s.y-40,s.x+s.w+40,s.y+s.h+40,function(sp){var r=sp.r;if(r.k!=='art'&&r.k!=='loc'&&r.k!=='touge'||seen.has(r))return;seen.add(r);
+  var pts=[],lo,hi;if(r.k==='loc'){lo=r.hw+8;hi=r.len-r.hw-8;for(var t=0;t<=r.len;t+=4)pts.push([r.xs[0]+(r.xs[1]-r.xs[0])*t/r.len,r.ys[0]+(r.ys[1]-r.ys[0])*t/r.len,t])}
+  else{lo=(r.za||0)+r.hw;hi=r.len-(r.zb||0)-r.hw;for(var k=0;k<r.n;k++)pts.push([r.xs[k],r.ys[k],k*r.ds])}
+  var run=0,bx0=1e9,by0=1e9,bx1=-1e9,by1=-1e9,m=r.hw+3,k0=1e9,k1=-1;
+  pts.forEach(function(q,qi){if(q[2]<lo||q[2]>hi)return;var dx=wd(q[0],s.x),dy=wd(q[1],s.y),d=Math.min(dx,dy,s.w-dx,s.h-dy);if(d<=-r.hw+1)return;run+=r.k==='loc'?4:r.ds;
+   bx0=Math.min(bx0,s.x+dx-m);by0=Math.min(by0,s.y+dy-m);bx1=Math.max(bx1,s.x+dx+m);by1=Math.max(by1,s.y+dy+m);k0=Math.min(k0,qi);k1=Math.max(k1,qi)});
+  if(run>=24)W.push({r:r,x0:bx0,y0:by0,x1:bx1,y1:by1,k0:Math.max(0,k0-3),k1:Math.min(pts.length-1,k1+3)})});return W}
+// how far (x,y) is outside the carriageway of one of those streets (negative: on the asphalt)
+function specRoadGap(w,x,y){var r=w.r;if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=dx*ux+dy*uy;if(t<-2||t>r.len+2)return 1e9;return Math.abs(-dx*uy+dy*ux)-r.hw}
+ var best=1e9;for(var i=w.k0;i<w.k1;i++){var ax=r.xs[i],ay=r.ys[i],ex=wd(r.xs[i+1],ax),ey=wd(r.ys[i+1],ay),l2=ex*ex+ey*ey||1,dx2=wd(x,ax),dy2=wd(y,ay),t2=clamp((dx2*ex+dy2*ey)/l2,0,1),d=Math.hypot(dx2-ex*t2,dy2-ey*t2);if(d<best)best=d}return best-r.hw}
+function specRoadTidy(){var n=0,nb=0,by={};SPEC.forEach(function(s){var W=specRoadsAlong(s);s._rw=W.length?W:null;if(!W.length)return;
+  function onW(x,y,gap){for(var i=0;i<W.length;i++)if(specRoadGap(W[i],x,y)<gap)return true;return false}
+  var rm=[];PH.q(s.x-2,s.y-2,s.x+s.w+2,s.y+s.h+2,function(p){if(p.hid||p.t===P_CAR)return;var dx=wd(p.x,s.x),dy=wd(p.y,s.y);if(dx<-2||dy<-2||dx>s.w+2||dy>s.h+2)return;
+   if(onW(p.x,p.y,Math.max(1,(p.r||0)*.8)))rm.push(p)});
+  rm.forEach(function(p){hashRmNear(PH,p,p.x,p.y,Math.max(p.r||2,12)+2);p.hid=1;p.gone=1;n++;by['p:'+s.k]=(by['p:'+s.k]||0)+1});
+  BH.q(s.x,s.y,s.x+s.w,s.y+s.h,function(b){if(b.hid||b.ns||b.c4)return;var dx=wd(b.x,s.x),dy=wd(b.y,s.y);if(dx<-4||dy<-4||dx+b.w>s.w+4||dy+b.h>s.h+4)return;
+   for(var y=1;y<b.h;y+=4)for(var x=1;x<b.w;x+=4)if(onW(b.x+x,b.y+y,-1)){b.hid=1;nb++;by[s.k]=(by[s.k]||0)+1;return}})});
+ return {props:n,blds:nb,by:by}}
+// a street that ends at a yard, a dock or a car park is its way in: a tyre wall, cones or concrete blocks across its mouth go
+// (the Harumi docks had a row of tyres right across the street, so the navigator sent you into a wall)
+function specMouthTidy(){var n=0,BLK={};BLK[P_TIRE]=1;BLK[P_BLOCK]=1;BLK[P_BARR]=1;BLK[P_CONE]=1;BLK[P_BENCH]=1;
+ SPEC.forEach(function(s){var seen=new Set();RH.q(s.x-20,s.y-20,s.x+s.w+20,s.y+s.h+20,function(sp){var r=sp.r;if(r.k!=='loc'||seen.has(r))return;seen.add(r);
+  [0,1].forEach(function(e){var ex=r.xs[e],ey=r.ys[e],dx=wd(ex,s.x),dy=wd(ey,s.y);if(dx<-6||dy<-6||dx>s.w+6||dy>s.h+6)return;
+   var ux=wd(ex,r.xs[1-e])/r.len,uy=wd(ey,r.ys[1-e])/r.len,m=r.hw+6,rm=[];
+   PH.q(ex-m-50,ey-m-50,ex+m+50,ey+m+50,function(p){if(p.hid||!BLK[p.t])return;var px=wd(p.x,ex),py=wd(p.y,ey),al=px*ux+py*uy,ac=Math.abs(-px*uy+py*ux);if(al>-12&&al<44&&ac<m+(p.r||2))rm.push(p)});
+   rm.forEach(function(p){hashRmNear(PH,p,p.x,p.y,Math.max(p.r||2,12)+2);p.hid=1;p.gone=1;n++})})})});return n}
+var _bbSRT=buildBrk;buildBrk=function(){_bbSRT();try{window.SRTIDY=specRoadTidy();window.SRTIDY.mouth=specMouthTidy()}catch(e){console.error(e)}};
 
 // ===== chapter 4 «Призрак»: the car with no lights on Kumo, Reiko's scar, Misha's onsen garage, Kageyama's offer, the race in the dark =====
 CHAP[4]={t:{ru:'Призрак',en:'The Ghost'},tod:{ru:'глубокая ночь · перевал Кумо',en:'deep night · Kumo pass'},goal:{ru:'Найти Призрака Кумо, заслужить его доверие и получить карту той ночи',en:'Find the Ghost of Kumo, earn his trust and get the card from that night'},pay:5000};
@@ -6615,7 +6691,12 @@ function arenaBuild(){var z=null,i;for(i=0;i<ZONES.length;i++)if(ZONES[i].id==='
  for(var yy=A.y0+11;yy<=A.y1-11;yy+=13)for(var xx=A.x0+11;xx<=A.x1-11;xx+=13)brush(xx,yy,11);
  // the way in: from the nearest road straight to the edge of the pad
  var ex2=clamp(ac.px,A.x0+12,A.x1-12),ey2=clamp(ac.py,A.y0+12,A.y1-12),L0=Math.hypot(ac.px-ex2,ac.py-ey2),n0=Math.ceil(L0/10);
- for(i=0;i<=n0;i++)brush(ex2+(ac.px-ex2)*i/n0,ey2+(ac.py-ey2)*i/n0,15);
+ for(i=0;i<=n0;i++)brush(ex2+(ac.px-ex2)*i/n0,ey2+(ac.py-ey2)*i/n0,18);
+ // the guard rail of the pass is open where the way in leaves it (it used to run straight across, so you could not get in)
+ (function(){var R=ac.o.r;if(!R.gl&&!R.gr)return;var ux=(ex2-ac.px)/(L0||1),uy=(ey2-ac.py)/(L0||1);
+  ['gl','gr'].forEach(function(key){var G2=R[key];if(!G2)return;var c0=Math.floor(ac.o.s/R.ds),g0=-1,g1=-1;
+   for(var k=Math.max(0,c0-40);k<=Math.min(R.n-1,c0+40);k++){var dx=wd(G2.xs[k],ac.px),dy=wd(G2.ys[k],ac.py),al=dx*ux+dy*uy,ac2=Math.abs(-dx*uy+dy*ux);if(al>2&&al<L0+12&&ac2<24){if(g0<0)g0=k;g1=k}}
+   if(g0>=0)RAILGAP.push({r:R,key:key,g0:Math.max(0,g0-1),g1:Math.min(R.n-1,g1+1)})})})();
  var side=ac.px<A.x0?'W':ac.px>A.x1?'E':ac.py<A.y0?'N':'S',opp={N:'S',S:'N',W:'E',E:'W'}[side],adj=(side==='N'||side==='S')?(Math.abs(wd(BC.x,A.x0))<Math.abs(wd(BC.x,A.x1))?'E':'W'):(Math.abs(wd(BC.y,A.y0))<Math.abs(wd(BC.y,A.y1))?'S':'N');
  A.open=side;A.ent={x:wrap(ex2),y:wrap(ey2)};
  // a red-and-white barrier closes the pad all round, with a gap for the way in
@@ -6636,7 +6717,7 @@ function arenaBuild(){var z=null,i;for(i=0;i<ZONES.length;i++)if(ZONES[i].id==='
    var tm=hq<.55?'p':hq<.75?'g':'n';A.crowd.push({x:wrap(px2+(hsh(k,row,5)-.5)*2),y:wrap(py2),st:fanSt(hsh(k,row+ti*9,11)),f:face,tm:tm,fl:tm!=='n'&&hsh(k,row,13)<.35,ph:hsh(k,row,17)*TAU,row:row})}});
  A.crowd.sort(function(a,b){return wd(a.y,b.y)});
  [[A.x0-12,A.y0-12],[A.x1+12,A.y0-12],[A.x0-12,A.y1+12],[A.x1+12,A.y1+12]].forEach(function(q){var x=wrap(q[0]),y=wrap(q[1]);clr(x-8,y-8,x+8,y+8);A.poles.push({x:x,y:y})});
- clr(A.x0,A.y0,A.x1,A.y1);for(i=0;i<=n0;i++){var qx=ex2+(ac.px-ex2)*i/n0,qy=ey2+(ac.py-ey2)*i/n0;clr(qx-16,qy-16,qx+16,qy+16)}
+ clr(A.x0,A.y0,A.x1,A.y1);for(i=0;i<=n0;i++){var qx=ex2+(ac.px-ex2)*i/n0,qy=ey2+(ac.py-ey2)*i/n0;clr(qx-26,qy-26,qx+26,qy+26)}
  for(i=0;i<PH.c.length;i++){var l=PH.c[i];if(l&&l.some(function(p){return p._ar}))PH.c[i]=l.filter(function(p){return !p._ar})}
  A.x0=wrap(A.x0);A.y0=wrap(A.y0);A.x1=A.x0+A.w;A.y1=A.y0+A.h;A.cx=wrap(A.cx);A.cy=wrap(A.cy);
  ARENA=A}
@@ -6713,11 +6794,17 @@ function fanOnRoad(x,y){var on=false;RH.q(x-80,y-80,x+80,y+80,function(sp){if(on
   if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=clamp(dx*ux+dy*uy,0,r.len);if(Math.hypot(dx-ux*t,dy-uy*t)<m)on=true;return}
   for(var k=Math.max(0,sp.i-1);k<=Math.min(r.n-1,sp.j+1);k++)if(Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y))<m){on=true;return}});return on}
 function fanTree(x,y){var t=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(t||p.hid)return;if((p.t===P_TREE||p.t===P_SAKURA||p.t===P_LAMP||p.t===P_POLE)&&Math.hypot(wd(p.x,x),wd(p.y,y))<(p.t===P_TREE||p.t===P_SAKURA?12:5))t=true});return t}
-function fanOk(x,y,l){if(l)return true;return !ptInBld(x,y)&&!inRiver(x,y,4)&&!fanOnRoad(x,y)&&!fanTree(x,y)}
+function fanBld(x,y){return ptInBld(x,y)||ptInBld(x+3,y+3)||ptInBld(x-3,y+3)||ptInBld(x+3,y-3)||ptInBld(x-3,y-3)}
+function fanOk(x,y,l){if(l)return true;return !fanBld(x,y)&&!inRiver(x,y,4)&&!fanOnRoad(x,y)&&!fanTree(x,y)}
+// the walk to or from the spot must not go over a house or through the river (they used to walk straight over roofs)
+function fanPath(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),n=Math.ceil(Math.hypot(dx,dy)/5);for(var k=1;k<n;k++){var x=x0+dx*k/n,y=y0+dy*k/n;if(fanBld(x,y)||inRiver(x,y,2))return false}return true}
+// a spot to walk from / off to: behind the fan first, then more and more to the sides
+function fanAway(x,y,a0,d0,d1){var offs=[0,.45,-.45,.9,-.9,1.4,-1.4,1.9,-1.9];for(var k=0;k<offs.length;k++){var a=a0+offs[k]+(Math.random()-.5)*.3,d=d0+Math.random()*(d1-d0);
+  for(var t=0;t<2;t++,d*=.62){var x2=wrap(x+Math.cos(a)*d),y2=wrap(y+Math.sin(a)*d);if(fanOk(x2,y2,0)&&fanPath(x,y,x2,y2))return[x2,y2]}}return null}
 function fanGroup(x,y,face,teams,n,l){var g={x:x,y:y,p:[],E:0,cd:0,l:l|0};for(var i=0;i<n;i++){var a=face+Math.PI/2,o=(i-(n-1)/2)*7,tm=teams[(i*7+Math.floor(Math.abs(x+y)))%teams.length],px,py,ok=false;
   for(var bk=(l?0:(i%2)*6);bk<=(l?0:20)&&!ok;bk+=7){px=wrap(x+Math.cos(a)*o-Math.cos(face)*bk);py=wrap(y+Math.sin(a)*o-Math.sin(face)*bk);ok=fanOk(px,py,l)}
   if(!ok)continue;var q={x:px,y:py,hx:px,hy:py,st:fanSt(hsh(px|0,py|0,3)),f:face,tm:tm,fl:tm!=='n'&&hsh(px|0,py|0,5)<.5,ph:hsh(px|0,py|0,7)*TAU,s:'in',d:Math.random()*1.6,v:26+Math.random()*16,mv:0,wa:face,al:1};
-  if(!l){var bd=34+Math.random()*40,sx0=wrap(px-Math.cos(face)*bd+(Math.random()-.5)*16),sy0=wrap(py-Math.sin(face)*bd+(Math.random()-.5)*16);if(fanOk(sx0,sy0,0)){q.x=sx0;q.y=sy0}else q.al=0}
+  if(!l){var sp0=fanAway(px,py,face+Math.PI,34,74);if(sp0){q.x=sp0[0];q.y=sp0[1]}else q.al=0}
   else q.al=0;
   g.p.push(q)}return g.p.length?g:null}
 // walking to the spot / standing and watching / walking off when the run is over
@@ -6728,7 +6815,7 @@ function fanStep(q,dt){if(q.s==='stand'||q.s==null){q.mv=0;return true}
  if(q.s==='out'&&q.fo)q.al-=dt*1.4;
  if(d<1.5||q.fo&&q.al<=0){if(q.s==='in'){q.x=q.hx;q.y=q.hy;q.mv=0;if(q.al>=1)q.s='stand';return true}q.al=0;return false}
  var st=Math.min(d,q.v*dt);q.x=wrap(q.x+dx/d*st);q.y=wrap(q.y+dy/d*st);q.wa=Math.atan2(dy,dx);q.mv=1;if(q.s==='out'&&d<18)q.fo=1;return true}
-function fanLeave(g){g.left=1;g.p.forEach(function(q){q.s='out';q.d=Math.random()*1.2;var bd=50+Math.random()*40,a=q.f+Math.PI+(Math.random()-.5)*.9;q.ox=wrap(q.x+Math.cos(a)*bd);q.oy=wrap(q.y+Math.sin(a)*bd);if(!fanOk(q.ox,q.oy,g.l)){q.ox=q.x;q.oy=q.y;q.fo=1}})}
+function fanLeave(g){g.left=1;g.p.forEach(function(q){q.s='out';q.d=Math.random()*1.2;var t=g.l?null:fanAway(q.x,q.y,q.f+Math.PI,50,90);if(t){q.ox=t[0];q.oy=t[1]}else{q.ox=q.x;q.oy=q.y;q.fo=1}})}
 function fanBuild(key){var G=[],teams=fanTeams(),z=ZS&&ZS.z;
  if(z&&z.k==='course'&&z.road){var r=z.road,el=r.k==='exp'||r.k==='ramp',step=z.s1-z.s0>2500?340:260,k=0;
   for(var s=z.s0-60;s<=z.s1+80;s+=(s<z.s0+300||s>z.s1-300)?120:step){if(el&&s>z.s0+260&&s<z.s1-260)continue;var sv=((s%r.len)+r.len)%r.len;r.pt(sv,TMP);var sd=(k++%2)?1:-1,u=(el?r.hw-5:r.hw+(r.sw||0)+5)*sd,x=wrap(TMP[0]-TMP[3]*u),y=wrap(TMP[1]+TMP[2]*u),face=Math.atan2(-TMP[2]*sd,TMP[3]*sd);

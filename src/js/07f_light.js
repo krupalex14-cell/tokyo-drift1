@@ -10,8 +10,12 @@ function todStr(){var h=Math.floor(TODH),m=Math.floor((TODH-h)*60);return(h<10?'
 var GLWN=new Map();function glw(c){var nk=((c[0]&255)<<16)|((c[1]&255)<<8)|(c[2]&255),s=GLWN.get(nk);if(s)return s;var key=c.join(',');s=GLWC[key];if(s){GLWN.set(nk,s);return s}s=mkCanvas(32,32);var g=s.getContext('2d'),gr=g.createRadialGradient(16,16,0,16,16,16),rgb=c[0]+','+c[1]+','+c[2];gr.addColorStop(0,'rgba('+rgb+',1)');gr.addColorStop(.3,'rgba('+rgb+',.5)');gr.addColorStop(.65,'rgba('+rgb+',.14)');gr.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=gr;g.fillRect(0,0,32,32);GLWC[key]=s;GLWN.set(nk,s);return s}
 function gl(x,y,rx,ry,c,a){if(a<=.01)return;cx.globalAlpha=Math.min(1,a);cx.drawImage(glw(c),x-rx,y-ry,rx*2,ry*2)}
 function hex3(h){h=h.replace('#','');return[parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
-function hlCone(){if(HLC)return HLC;var W=72,H=44,c=mkCanvas(W,H),g=c.getContext('2d'),id=g.createImageData(W,H),d=id.data;
- for(var y=0;y<H;y++)for(var x=0;x<W;x++){var dy=y+.5-H/2,an=Math.atan2(dy,x+7),ia=Math.max(0,1-Math.abs(an)/.38);ia=ia*ia*(3-2*ia);var id2=Math.pow(Math.max(0,1-x/W),1.25),nr=Math.min(1,(x+2)/5),I=ia*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I*1.15))}
+// the low beam: it leaves the car as wide as the car and spreads out a little (a trapezoid, not a point-light triangle);
+// right at the front the two lamps still show as two brighter patches that merge a few metres ahead
+function hlCone(){if(HLC)return HLC;var W=72,H=44,c=mkCanvas(W,H),g=c.getContext('2d'),id=g.createImageData(W,H),d=id.data,w0=6.6,w1=20.8,lp=4.2;
+ for(var y=0;y<H;y++)for(var x=0;x<W;x++){var u=(x+.5)/W,dy=Math.abs(y+.5-H/2),hw=w0+(w1-w0)*u,soft=1.4+4.2*u,e=clamp((hw-dy)/soft+.5,0,1);e=e*e*(3-2*e);
+  var cw=1-.3*Math.pow(Math.min(1,dy/hw),2),m=clamp(u/.3,0,1),lob=Math.exp(-Math.pow((dy-lp)/(1.6+7*u),2));lob=lob*(1-m)+m;
+  var id2=Math.pow(Math.max(0,1-u),1.2),nr=Math.min(1,(x+1.5)/4),I=e*cw*(.45+.55*lob)*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I*1.2))}
  g.putImageData(id,0,0);HLC=c;return c}
 function carLights(x,y,a,L,Hh,lv,brk,isP){var ca=Math.cos(a),sa=Math.sin(a),hx=L/2,hy=Hh/2,sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
  var ca2=.07+.62*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}

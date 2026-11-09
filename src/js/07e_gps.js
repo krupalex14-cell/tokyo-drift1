@@ -6,6 +6,35 @@ function gpsNear(x,y,R,artOnly){var best=null;
   if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=clamp(dx*ux+dy*uy,0,r.len),px=x0+ux*t,py=y0+uy*t,d=Math.hypot(wd(x,px),wd(y,py));if(d<R&&(!best||d<best.d))best={r:r,s:t,d:d,x:wrap(px),y:wrap(py)};return}
   for(var k=sp.i;k<=sp.j;k++){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])}}});
  return best}
+// is there room for a car at (x,y)? houses, walls and rails, water, pillars and concrete blocks are in the way
+function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===4)return false;
+ var hit=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(hit||p.hid||p.gone||p.brk||p.t===P_CAR||p.t===P_CONE||p.t===P_TORII||typeof BRKT!=='undefined'&&BRKT[p.t])return;
+  var rr=p.w&&p.r===0?5:p.t===P_BLOCK?8:p.t===P_BARR?7:(p.r||2);if(Math.hypot(wd(p.x,x),wd(p.y,y))<rr+6)hit=true});return !hit}
+// can a car drive straight from (x0,y0) to (x1,y1)?
+function gpsLos(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),L=Math.hypot(dx,dy);if(L<2)return true;var n=Math.ceil(L/5);
+ for(var k=1;k<n;k++)if(!gpsFree(x0+dx*k/n,y0+dy*k/n))return false;return true}
+// from a fenced yard: walk a coarse grid (8 px) out to the nearest carriageway, then straighten the walk into a few legs
+var GPSY=null;
+function gpsYard(x,y){if(GPSY&&TIME-GPSY.t<3&&Math.hypot(wd(x,GPSY.x),wd(y,GPSY.y))<20)return GPSY.q;
+ var G=8,R=44,N=R*2+1,par=new Int32Array(N*N).fill(-1),Q=new Int32Array(N*N),qh=0,qt=0,c0=R*N+R,found=-1,DX=[1,-1,0,0,1,1,-1,-1],DY=[0,0,1,-1,1,-1,1,-1];par[c0]=c0;Q[qt++]=c0;
+ while(qh<qt&&qh<7000){var c=Q[qh++],cx=c%N,cy=(c/N)|0,wx=x+(cx-R)*G,wy=y+(cy-R)*G;
+  if(c!==c0&&typeAt(wx,wy)===0){var rq=gpsNear(wx,wy,60);if(rq&&rq.d<Math.min(rq.r.hw-3,12)&&gpsLos(wx,wy,rq.x,rq.y)){found=c;break}}
+  for(var k=0;k<8;k++){var nx=cx+DX[k],ny=cy+DY[k];if(nx<0||ny<0||nx>=N||ny>=N)continue;var nc=ny*N+nx;if(par[nc]!==-1)continue;
+   if(k>3&&(par[cy*N+nx]===-2||par[ny*N+cx]===-2))continue;if(!gpsFree(x+(nx-R)*G,y+(ny-R)*G)){par[nc]=-2;continue}par[nc]=c;Q[qt++]=nc}}
+ var q=null;if(found>=0){var cells=[];for(var c2=found;c2!==c0;c2=par[c2])cells.push([x+(c2%N-R)*G,y+(((c2/N)|0)-R)*G]);cells.reverse();
+  var fx=cells[cells.length-1][0],fy=cells[cells.length-1][1];q=gpsNear(fx,fy,60);
+  if(q){var via=[],px=x,py=y,i=0;while(i<cells.length-1){var j=i;while(j+1<cells.length&&gpsLos(px,py,cells[j+1][0],cells[j+1][1]))j++;if(j===i)j=i+1;px=cells[j][0];py=cells[j][1];via.push([wrap(px),wrap(py)]);i=j}
+   q.via=via}}
+ GPSY={t:TIME,x:x,y:y,q:q};return q}
+// where the route starts: the nearest road you can actually drive to in a straight line (from a fenced yard, the nearest road
+// behind a row of pillars is no use), else the way out of the yard found on the grid, else the nearest road as before
+function gpsStart(x,y){var q0=gpsNear(x,y,260)||gpsNear(x,y,800);if(!q0||q0.d<q0.r.hw+6||typeof ptInBld!=='function'||!car||(car.l|0))return q0;if(gpsLos(x,y,q0.x,q0.y))return q0;
+ var C=[],R=420;RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='art'&&r.k!=='touge'&&r.k!=='loc')return;
+  if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len;for(var t=0;t<=r.len;t+=24){var px=x0+ux*t,py=y0+uy*t,d=Math.hypot(wd(px,x),wd(py,y));if(d<R)C.push({r:r,s:t,d:d,x:wrap(px),y:wrap(py)})}return}
+  for(var k=sp.i;k<=sp.j;k+=2){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R)C.push({r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])})}});
+ C.sort(function(a,b){return a.d-b.d});var seen={};
+ for(var i=0,n=0;i<C.length&&n<24;i++){var c=C[i],key=Math.round(c.x/16)+','+Math.round(c.y/16);if(seen[key])continue;seen[key]=1;n++;if(c.d>q0.d*2.2+80)break;if(gpsLos(x,y,c.x,c.y))return c}
+ return gpsYard(x,y)||q0}
 function gpsNearUp(x,y,R){var best=null;DH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if((r.k!=='exp'&&r.k!=='ramp')||!r._ch)return;
   for(var k=sp.i;k<=sp.j;k++){if(r.k==='ramp'&&r.hAt(k*r.ds)<.5)continue;var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k]),up:1}}});return best}
 function gpsEdge(a,b,c,inf){if(a===b)return null;var e1={to:b,c:c,inf:inf,f:1},e2={to:a,c:c,inf:inf,f:0};a.e.push(e1);b.e.push(e2);return[a,e1,b,e2]}
@@ -40,7 +69,7 @@ function gpsAttach(T,q,O,oq,tmp){var r=q.r,ch=r._ch,lo=null,hi=null,f=r.k==='loc
  if(oq&&oq.r===r){if(lo&&oq.s>lo.s&&oq.s<=q.s)lo={s:oq.s,v:O,t:1};if(hi&&oq.s>q.s&&oq.s<hi.s)hi={s:oq.s,v:O,t:1}}
  [lo,hi].forEach(function(n){if(!n)return;if(n.t&&T.k==='G')return;var e=n===lo?gpsEdge(n.v,T,Math.max(1,(q.s-n.s)*f),{t:'r',r:r,s0:n.s,s1:q.s}):gpsEdge(T,n.v,Math.max(1,(n.s-q.s)*f),{t:'r',r:r,s0:q.s,s1:n.s});if(e)tmp.push(e)})}
 function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();if(WP.up&&WP.q&&!WP.q.up){var qu=gpsNearUp(WP.x,WP.y,200);if(qu)WP.q=qu}
- var a=((car.l|0)===1?gpsNearUp(car.x,car.y,160):null)||gpsNear(car.x,car.y,260)||gpsNear(car.x,car.y,800),b=WP.q;WP.rt=TIME;WP.ofT=0;
+ var a=((car.l|0)===1?gpsNearUp(car.x,car.y,160):null)||gpsStart(car.x,car.y),b=WP.q;WP.rt=TIME;WP.ofT=0;
  var path=null;
  if(a&&b){var Sv={k:'S',x:a.x,y:a.y,e:[]},Gv={k:'G',x:b.x,y:b.y,e:[]},tmp=[];gpsAttach(Sv,a,Gv,b,tmp);gpsAttach(Gv,b,Sv,a,tmp);
   var st=++GPSST,H=new GHeap();Sv._st=st;Sv._g=0;Sv._p=null;H.push(Sv,0);var it=0;
@@ -50,7 +79,7 @@ function gpsRoute(){if(!WP||!car)return;if(!GPSG)gpsBuild();if(WP.up&&WP.q&&!WP.
   tmp.forEach(function(t){var i1=t[0].e.indexOf(t[1]);if(i1>=0)t[0].e.splice(i1,1);var i2=t[2].e.indexOf(t[3]);if(i2>=0)t[2].e.splice(i2,1)})}
  if(!path){WP.pts=null;WP.arr=null;WP.cum=null;WP.L=0;return}
  var pts=[],pl=[];function add(x,y,l){if(!pts.length){pts.push([x,y]);pl.push(l|0);return}var p=pts[pts.length-1],nx=p[0]+wd(x,p[0]),ny=p[1]+wd(y,p[1]);if(Math.abs(nx-p[0])+Math.abs(ny-p[1])<1.5)return;pts.push([nx,ny]);pl.push(l|0)}
- add(car.x,car.y,car.l);
+ add(car.x,car.y,car.l);if(a&&a.via)a.via.forEach(function(v){add(v[0],v[1],0)});
  if(path)path.forEach(function(e){var inf=e.inf;if(inf.t==='l')return;
   var r=inf.r,s0=e.f?inf.s0:inf.s1,s1=e.f?inf.s1:inf.s0,dir=s1>=s0?1:-1;
   if(r.k==='loc'){var off=r.hw*.42,x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,tx=ux*dir,ty=uy*dir;add(x0+ux*s0+ty*off,y0+uy*s0-tx*off);add(x0+ux*s1+ty*off,y0+uy*s1-tx*off);return}

@@ -24,7 +24,9 @@ function toyoBuild(){TOYO=null;var P=stPlaces(),t=P.toyo;if(!t||!t.r||t.r.k==='l
  for(var q=0;q<=640&&!best;q+=6)[q,-q].forEach(function(dq){if(best)return;var s=t.s+dq;if(s<(r.za||0)+60||s>r.len-(r.zb||0)-60)return;[t.sd||1,-(t.sd||1)].forEach(function(sd,k){if(best||(k&&q<200))return;var R=tyGeom(r,s,sd);if(tyFree(R))best=R})});
  if(!best)return;var R=best;TOYO=R;
  // clear the plot: townhouses, trees and posts on it
- var b=tyBox(R,4);BH.q(b.x0,b.y0,b.x1,b.y1,function(B){if(B.hid)return;for(var px=B.x+2;px<B.x+B.w-1;px+=4)for(var py=B.y+2;py<B.y+B.h-1;py+=4)if(tyIn(R,px,py,2)){B.hid=1;return}});
+ var b=tyBox(R,16);BH.q(b.x0,b.y0,b.x1,b.y1,function(B){if(B.hid)return;var sx=Math.max(1,B.w/Math.ceil(B.w/3)),sy=Math.max(1,B.h/Math.ceil(B.h/3));
+  // the whole footprint, edges included, with air round the shop (the tiled roof hangs over its back wall)
+  for(var px=B.x;px<=B.x+B.w+.01;px+=sx)for(var py=B.y;py<=B.y+B.h+.01;py+=sy){var l=tyLocal(R,px,py);if(l[0]>-8&&l[0]<TYW+8&&l[1]>-12&&l[1]<TYD+4){B.hid=1;return}}});
  var rm=[];PH.q(b.x0,b.y0,b.x1,b.y1,function(p){if(tyIn(R,p.x,p.y,3))rm.push(p)});rm.forEach(function(p){var m=p.t===P_CAR?20:Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);p.hid=1;p.gone=1});
  var bc=tyWorld(R,TYW/2,(TYF+14)/2);R.bld={x:bc[0],y:bc[1],hx:TYW/2-5,hy:(TYF+14)/2-2,a:Math.atan2(R.xv[1],R.xv[0])};
  var bb=tyBox(R,20);LMI.push({k:'toyo',bx0:bb.x0,by0:bb.y0-40,bx1:bb.x1,by1:bb.y1});

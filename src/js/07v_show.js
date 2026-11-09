@@ -33,7 +33,12 @@ function arenaBuild(){var z=null,i;for(i=0;i<ZONES.length;i++)if(ZONES[i].id==='
  for(var yy=A.y0+11;yy<=A.y1-11;yy+=13)for(var xx=A.x0+11;xx<=A.x1-11;xx+=13)brush(xx,yy,11);
  // the way in: from the nearest road straight to the edge of the pad
  var ex2=clamp(ac.px,A.x0+12,A.x1-12),ey2=clamp(ac.py,A.y0+12,A.y1-12),L0=Math.hypot(ac.px-ex2,ac.py-ey2),n0=Math.ceil(L0/10);
- for(i=0;i<=n0;i++)brush(ex2+(ac.px-ex2)*i/n0,ey2+(ac.py-ey2)*i/n0,15);
+ for(i=0;i<=n0;i++)brush(ex2+(ac.px-ex2)*i/n0,ey2+(ac.py-ey2)*i/n0,18);
+ // the guard rail of the pass is open where the way in leaves it (it used to run straight across, so you could not get in)
+ (function(){var R=ac.o.r;if(!R.gl&&!R.gr)return;var ux=(ex2-ac.px)/(L0||1),uy=(ey2-ac.py)/(L0||1);
+  ['gl','gr'].forEach(function(key){var G2=R[key];if(!G2)return;var c0=Math.floor(ac.o.s/R.ds),g0=-1,g1=-1;
+   for(var k=Math.max(0,c0-40);k<=Math.min(R.n-1,c0+40);k++){var dx=wd(G2.xs[k],ac.px),dy=wd(G2.ys[k],ac.py),al=dx*ux+dy*uy,ac2=Math.abs(-dx*uy+dy*ux);if(al>2&&al<L0+12&&ac2<24){if(g0<0)g0=k;g1=k}}
+   if(g0>=0)RAILGAP.push({r:R,key:key,g0:Math.max(0,g0-1),g1:Math.min(R.n-1,g1+1)})})})();
  var side=ac.px<A.x0?'W':ac.px>A.x1?'E':ac.py<A.y0?'N':'S',opp={N:'S',S:'N',W:'E',E:'W'}[side],adj=(side==='N'||side==='S')?(Math.abs(wd(BC.x,A.x0))<Math.abs(wd(BC.x,A.x1))?'E':'W'):(Math.abs(wd(BC.y,A.y0))<Math.abs(wd(BC.y,A.y1))?'S':'N');
  A.open=side;A.ent={x:wrap(ex2),y:wrap(ey2)};
  // a red-and-white barrier closes the pad all round, with a gap for the way in
@@ -54,7 +59,7 @@ function arenaBuild(){var z=null,i;for(i=0;i<ZONES.length;i++)if(ZONES[i].id==='
    var tm=hq<.55?'p':hq<.75?'g':'n';A.crowd.push({x:wrap(px2+(hsh(k,row,5)-.5)*2),y:wrap(py2),st:fanSt(hsh(k,row+ti*9,11)),f:face,tm:tm,fl:tm!=='n'&&hsh(k,row,13)<.35,ph:hsh(k,row,17)*TAU,row:row})}});
  A.crowd.sort(function(a,b){return wd(a.y,b.y)});
  [[A.x0-12,A.y0-12],[A.x1+12,A.y0-12],[A.x0-12,A.y1+12],[A.x1+12,A.y1+12]].forEach(function(q){var x=wrap(q[0]),y=wrap(q[1]);clr(x-8,y-8,x+8,y+8);A.poles.push({x:x,y:y})});
- clr(A.x0,A.y0,A.x1,A.y1);for(i=0;i<=n0;i++){var qx=ex2+(ac.px-ex2)*i/n0,qy=ey2+(ac.py-ey2)*i/n0;clr(qx-16,qy-16,qx+16,qy+16)}
+ clr(A.x0,A.y0,A.x1,A.y1);for(i=0;i<=n0;i++){var qx=ex2+(ac.px-ex2)*i/n0,qy=ey2+(ac.py-ey2)*i/n0;clr(qx-26,qy-26,qx+26,qy+26)}
  for(i=0;i<PH.c.length;i++){var l=PH.c[i];if(l&&l.some(function(p){return p._ar}))PH.c[i]=l.filter(function(p){return !p._ar})}
  A.x0=wrap(A.x0);A.y0=wrap(A.y0);A.x1=A.x0+A.w;A.y1=A.y0+A.h;A.cx=wrap(A.cx);A.cy=wrap(A.cy);
  ARENA=A}
@@ -131,11 +136,17 @@ function fanOnRoad(x,y){var on=false;RH.q(x-80,y-80,x+80,y+80,function(sp){if(on
   if(r.k==='loc'){var x0=r.xs[0],y0=r.ys[0],ux=(r.xs[1]-x0)/r.len,uy=(r.ys[1]-y0)/r.len,dx=wd(x,x0),dy=wd(y,y0),t=clamp(dx*ux+dy*uy,0,r.len);if(Math.hypot(dx-ux*t,dy-uy*t)<m)on=true;return}
   for(var k=Math.max(0,sp.i-1);k<=Math.min(r.n-1,sp.j+1);k++)if(Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y))<m){on=true;return}});return on}
 function fanTree(x,y){var t=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(t||p.hid)return;if((p.t===P_TREE||p.t===P_SAKURA||p.t===P_LAMP||p.t===P_POLE)&&Math.hypot(wd(p.x,x),wd(p.y,y))<(p.t===P_TREE||p.t===P_SAKURA?12:5))t=true});return t}
-function fanOk(x,y,l){if(l)return true;return !ptInBld(x,y)&&!inRiver(x,y,4)&&!fanOnRoad(x,y)&&!fanTree(x,y)}
+function fanBld(x,y){return ptInBld(x,y)||ptInBld(x+3,y+3)||ptInBld(x-3,y+3)||ptInBld(x+3,y-3)||ptInBld(x-3,y-3)}
+function fanOk(x,y,l){if(l)return true;return !fanBld(x,y)&&!inRiver(x,y,4)&&!fanOnRoad(x,y)&&!fanTree(x,y)}
+// the walk to or from the spot must not go over a house or through the river (they used to walk straight over roofs)
+function fanPath(x0,y0,x1,y1){var dx=wd(x1,x0),dy=wd(y1,y0),n=Math.ceil(Math.hypot(dx,dy)/5);for(var k=1;k<n;k++){var x=x0+dx*k/n,y=y0+dy*k/n;if(fanBld(x,y)||inRiver(x,y,2))return false}return true}
+// a spot to walk from / off to: behind the fan first, then more and more to the sides
+function fanAway(x,y,a0,d0,d1){var offs=[0,.45,-.45,.9,-.9,1.4,-1.4,1.9,-1.9];for(var k=0;k<offs.length;k++){var a=a0+offs[k]+(Math.random()-.5)*.3,d=d0+Math.random()*(d1-d0);
+  for(var t=0;t<2;t++,d*=.62){var x2=wrap(x+Math.cos(a)*d),y2=wrap(y+Math.sin(a)*d);if(fanOk(x2,y2,0)&&fanPath(x,y,x2,y2))return[x2,y2]}}return null}
 function fanGroup(x,y,face,teams,n,l){var g={x:x,y:y,p:[],E:0,cd:0,l:l|0};for(var i=0;i<n;i++){var a=face+Math.PI/2,o=(i-(n-1)/2)*7,tm=teams[(i*7+Math.floor(Math.abs(x+y)))%teams.length],px,py,ok=false;
   for(var bk=(l?0:(i%2)*6);bk<=(l?0:20)&&!ok;bk+=7){px=wrap(x+Math.cos(a)*o-Math.cos(face)*bk);py=wrap(y+Math.sin(a)*o-Math.sin(face)*bk);ok=fanOk(px,py,l)}
   if(!ok)continue;var q={x:px,y:py,hx:px,hy:py,st:fanSt(hsh(px|0,py|0,3)),f:face,tm:tm,fl:tm!=='n'&&hsh(px|0,py|0,5)<.5,ph:hsh(px|0,py|0,7)*TAU,s:'in',d:Math.random()*1.6,v:26+Math.random()*16,mv:0,wa:face,al:1};
-  if(!l){var bd=34+Math.random()*40,sx0=wrap(px-Math.cos(face)*bd+(Math.random()-.5)*16),sy0=wrap(py-Math.sin(face)*bd+(Math.random()-.5)*16);if(fanOk(sx0,sy0,0)){q.x=sx0;q.y=sy0}else q.al=0}
+  if(!l){var sp0=fanAway(px,py,face+Math.PI,34,74);if(sp0){q.x=sp0[0];q.y=sp0[1]}else q.al=0}
   else q.al=0;
   g.p.push(q)}return g.p.length?g:null}
 // walking to the spot / standing and watching / walking off when the run is over
@@ -146,7 +157,7 @@ function fanStep(q,dt){if(q.s==='stand'||q.s==null){q.mv=0;return true}
  if(q.s==='out'&&q.fo)q.al-=dt*1.4;
  if(d<1.5||q.fo&&q.al<=0){if(q.s==='in'){q.x=q.hx;q.y=q.hy;q.mv=0;if(q.al>=1)q.s='stand';return true}q.al=0;return false}
  var st=Math.min(d,q.v*dt);q.x=wrap(q.x+dx/d*st);q.y=wrap(q.y+dy/d*st);q.wa=Math.atan2(dy,dx);q.mv=1;if(q.s==='out'&&d<18)q.fo=1;return true}
-function fanLeave(g){g.left=1;g.p.forEach(function(q){q.s='out';q.d=Math.random()*1.2;var bd=50+Math.random()*40,a=q.f+Math.PI+(Math.random()-.5)*.9;q.ox=wrap(q.x+Math.cos(a)*bd);q.oy=wrap(q.y+Math.sin(a)*bd);if(!fanOk(q.ox,q.oy,g.l)){q.ox=q.x;q.oy=q.y;q.fo=1}})}
+function fanLeave(g){g.left=1;g.p.forEach(function(q){q.s='out';q.d=Math.random()*1.2;var t=g.l?null:fanAway(q.x,q.y,q.f+Math.PI,50,90);if(t){q.ox=t[0];q.oy=t[1]}else{q.ox=q.x;q.oy=q.y;q.fo=1}})}
 function fanBuild(key){var G=[],teams=fanTeams(),z=ZS&&ZS.z;
  if(z&&z.k==='course'&&z.road){var r=z.road,el=r.k==='exp'||r.k==='ramp',step=z.s1-z.s0>2500?340:260,k=0;
   for(var s=z.s0-60;s<=z.s1+80;s+=(s<z.s0+300||s>z.s1-300)?120:step){if(el&&s>z.s0+260&&s<z.s1-260)continue;var sv=((s%r.len)+r.len)%r.len;r.pt(sv,TMP);var sd=(k++%2)?1:-1,u=(el?r.hw-5:r.hw+(r.sw||0)+5)*sd,x=wrap(TMP[0]-TMP[3]*u),y=wrap(TMP[1]+TMP[2]*u),face=Math.atan2(-TMP[2]*sd,TMP[3]*sd);

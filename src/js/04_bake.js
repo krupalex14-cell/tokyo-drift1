@@ -163,6 +163,9 @@ function* bakeChunkG(cx,cy){
  // --- specials ground
  var AN=[],lms=[];LMH.q(X0,Y0,X0+CH,Y0+CH,function(it){lms.push(it)});
  var tS=performance.now();for(var si=0;si<specs.length;si++){var s9=specs[si];drawSpecGround(g,s9,wd(s9.x,X0),wd(s9.y,Y0),AN);if(performance.now()-tS>1.2){yield 0;tS=performance.now()}}
+ // a street that runs through a square stays a street: its asphalt, markings and a narrow kerb go back over the square's paving
+ for(si=0;si<specs.length;si++){var s8=specs[si];if(!s8._rw)continue;for(var wi=0;wi<s8._rw.length;wi++){var W8=s8._rw[wi],sx8=wd(s8.x,X0),sy8=wd(s8.y,Y0),ox8=wd(W8.x0,X0),oy8=wd(W8.y0,Y0);
+  specRoadBack(g,buf,vt,Math.max(0,Math.floor(Math.max(sx8,ox8))),Math.max(0,Math.floor(Math.max(sy8,oy8))),Math.min(CH,Math.ceil(Math.min(sx8+s8.w,ox8+W8.x1-W8.x0))),Math.min(CH,Math.ceil(Math.min(sy8+s8.h,oy8+W8.y1-W8.y0))),W8,X0,Y0)}}
  lms.forEach(function(it){if(it.k==='shadow')towerShadow(g,wd(it.x,X0),wd(it.y,Y0),it.L,it.W);else lmGround(g,it,X0,Y0,AN)});
  // --- pillars, building shadows, buildings, ground props
  yield 0;var blds=[];BH.q(X0-60,Y0-60,X0+CH+60,Y0+CH+60,function(b){if(!b.hid)blds.push(b)});
@@ -205,6 +208,14 @@ function bakeDeck(u,dspans,X0,Y0){
   else{if((sv%18)<9)P(X,Y,[214,226,250])}}});
  u.putImageData(id,0,0);
 }
+var SRB=null;
+function specRoadBack(g,buf,vt,x0,y0,x1,y1,W,X0,Y0){if(x1<=x0||y1<=y0)return;var w=x1-x0,h=y1-y0,n=0,x,y;
+ for(y=y0;y<y1&&!n;y++)for(x=x0;x<x1;x++){var t=vt[(y+1)*MKS+x+1];if(t===0||t===1){n=1;break}}if(!n)return;
+ if(!SRB){SRB=mkCanvas(CH,CH);SRB.g=SRB.getContext('2d')}var id=SRB.g.createImageData(w,h),d=id.data;
+ // only that street's own carriageway and a 2 px kerb (not the mouth of a side street that ends there)
+ for(y=y0;y<y1;y++)for(x=x0;x<x1;x++){var t2=vt[(y+1)*MKS+x+1];if(t2>2)continue;var gp=specRoadGap(W,X0+x+.5,Y0+y+.5);if(gp>2.5||t2===2&&gp<-.5)continue;
+  var o=(y*CH+x)*4,p=((y-y0)*w+x-x0)*4;d[p]=buf[o];d[p+1]=buf[o+1];d[p+2]=buf[o+2];d[p+3]=255}
+ SRB.g.clearRect(0,0,w,h);SRB.g.putImageData(id,0,0);g.drawImage(SRB,0,0,w,h,x0,y0,w,h)}
 function drawSpecGround(g,s,x,y,AN){if(LANDK[s.k]){landGround(g,s,x,y,AN);return}
  var w=s.w,h=s.h,i,j;function R(a,b,c,d,col){g.fillStyle=col;g.fillRect(a,b,c,d)}
  if(s.k==='lot'||s.k==='gas'||s.k==='drift'||s.k==='yard'){R(x,y,w,h,s.k==='lot'?'#48506a':s.k==='gas'?'#7a7f92':'#6a7080');for(i=0;i<w;i+=3)for(j=0;j<h;j+=3)if(hsh(x+i+s.sd,y+j,3)<.15){R(x+i,y+j,1,1,'rgba(0,0,0,.15)')}R(x,y,w,1,'#9aa0b4');R(x,y+h-1,w,1,'#9aa0b4');R(x,y,1,h,'#9aa0b4');R(x+w-1,y,1,h,'#9aa0b4');
