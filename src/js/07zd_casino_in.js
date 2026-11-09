@@ -184,7 +184,7 @@ function ciLines(){return {
  deal1:[TR('Малые ставки. Стол откроется скоро.','Small stakes. The table opens soon.')],
  deal2:[TR('Здесь играют по-крупному. Стол откроется скоро.','High stakes here. The table opens soon.')],
  race:[TR('Тотализатор готовят. Скоро можно будет ставить на заезды.','The tote isn’t ready yet. Soon you can bet on the races.')],
- cash:[TR('На счету','Balance')+' '+Math.floor(S.coins)+' ¥. '+TR('Фишки скоро будут.','Chips are coming soon.')],
+ cash:[TR('На счету','Balance')+' '+Math.floor(S.coins)+' ¥. '+TR('Ставки у нас прямо в иенах. Удачи!','We take bets straight in yen. Good luck!')],
  office:[TR('Заперто. За дверью кто-то говорит по телефону.','Locked. Someone behind the door is on the phone.')],
  bounc:[TR('VIP — только по приглашению.','VIP is by invitation only.'),TR('Выиграй по-крупному — тогда поговорим.','Win big, then we’ll talk.')]}}
 var CIH_=[
@@ -284,7 +284,7 @@ function casUi(on){var G=$('game');var u=$('casui');
 function casCanEnter(){return mode==='game'&&!!CAS&&!!car&&!ZS&&!DLG&&!(typeof ST!=='undefined'&&ST.act)&&!(typeof NET!=='undefined'&&NET.on)&&!(typeof TD!=='undefined'&&TD.on)}
 function casDoor(){return {x:CAS.x+164,y:CAS.y+CAS.h+8}}
 function casEnter(){if(CI.on||!casCanEnter())return;try{if(run)bank()}catch(e){}
- if(!window._tdbCas&&window.tdBack){var ob=window.tdBack;window.tdBack=function(){if(mode==='cas'){casExit();return true}return ob()};window._tdbCas=1}
+ if(!window._tdbCas&&window.tdBack){var ob=window.tdBack;window.tdBack=function(){if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){cgClose();return true}casExit();return true}return ob()};window._tdbCas=1}
  CI.on=true;mode='cas';K.l=K.r=K.t=K.b=K.h=0;CK.l=CK.r=CK.u=CK.d=0;auStop();var cq=$('csq');if(cq)cq.classList.remove('on');
  $('hud').style.display='none';$('ctl').style.display='none';casUi(true);
  CI.x=180;CI.y=224;CI.cx=CI.x;CI.cy=CI.y;CI.d=1;CI.path=null;CI.auto=null;CI.bub=null;CI.hs=null;CI.fade=1;CI.mv=false;$('cap').style.display='none';
@@ -293,13 +293,13 @@ function casEnter(){if(CI.on||!casCanEnter())return;try{if(run)bank()}catch(e){}
  if(!CI.seen){hn.style.display='block';CI.hint=5;CI.seen=true}
  setTimeout(function(){if(CI.on)ciSay('guard')},450);
  CI.last=performance.now();requestAnimationFrame(ciLoop)}
-function casExit(){if(!CI.on)return;CI.on=false;casUi(false);mode='game';CK.l=CK.r=CK.u=CK.d=0;
+function casExit(){if(!CI.on)return;if(typeof CGM!=='undefined'&&CGM.on){if(CGM.g.busy&&CGM.g.busy())return;cgClose()}CI.on=false;casUi(false);mode='game';CK.l=CK.r=CK.u=CK.d=0;
  var d=casDoor();car.x=d.x;car.y=d.y+4;car.a=0;car.vx=car.vy=car.w=0;car.sp=0;car.l=0;cam.x=car.x;cam.y=car.y;CI.away=false;
  $('hud').style.display='block';$('ctl').style.display='block';applyCtl();resize();MMCX=null;if(S.snd)auStart();last=performance.now();requestAnimationFrame(loop)}
 addEventListener('resize',function(){if(mode==='cas')ciResize()});
 // keys: walk, act, leave (taken before the game's own key handler, which would swallow them)
 addEventListener('keydown',function(e){
- if(mode==='cas'){var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
+ if(mode==='cas'){if(typeof CGM!=='undefined'&&CGM.on){if(typeof cgKey==='function')cgKey(e);e.preventDefault();e.stopImmediatePropagation();return}var c=e.code,m={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'}[c];
   if(m){CK[m]=1}else if(!e.repeat&&(c==='Enter'||c==='NumpadEnter'||c==='Space'||c==='KeyE'))ciAct();else if(!e.repeat&&(c==='Escape'||c==='Backspace'))casExit();
   e.preventDefault();e.stopImmediatePropagation();return}
  if(mode==='game'&&(e.code==='Enter'||e.code==='NumpadEnter')&&!e.repeat){var q=$('csq');if(q&&q.classList.contains('on')&&!document.querySelector('#zp.on,#sq.on')&&!DLG){e.preventDefault();e.stopImmediatePropagation();casEnter()}}},true);
@@ -320,5 +320,5 @@ Object.assign(ZH,{'КАЗИНО':'赌场','«Золотой дракон»':'“
  'Выйти на улицу':'到外面去','Поговорить с барменом':'和酒保聊聊','Слоты':'老虎机','Ставки на заезды':'赛车投注','Рулетка':'轮盘','Блэкджек · малые ставки':'二十一点 · 小注','Блэкджек · крупные ставки':'二十一点 · 大注','Касса':'收银台','Кабинет хозяина':'老板办公室','Лестница в VIP':'通往VIP的楼梯',
  'Добро пожаловать в «Золотой дракон».':'欢迎光临“金龙”。','Без драк и без фото. Удачи за столами.':'不准打架，不准拍照。祝你好运。','Что будешь? За рулём — значит, сок.':'喝点什么？开车的话，就喝果汁吧。','Слышал, по ночам на С1 опять гоняют.':'听说晚上又有人在C1上飙车了。','Хозяин сегодня не в духе. Лучше не стучи к нему.':'老板今天心情不好。最好别去敲他的门。',
  'Автоматы ещё настраивают. Скоро заработают.':'机器还在调试，很快就能玩了。','Стол откроется совсем скоро. Приходите с фишками.':'这张桌子马上就开。请带着筹码来。','Малые ставки. Стол откроется скоро.':'小注桌，很快开放。','Здесь играют по-крупному. Стол откроется скоро.':'这里玩的是大注。很快开放。',
- 'Тотализатор готовят. Скоро можно будет ставить на заезды.':'投注站还在准备，很快就能押比赛了。','На счету':'账户余额','Фишки скоро будут.':'筹码很快就有。','Заперто. За дверью кто-то говорит по телефону.':'锁着。门后有人在打电话。','VIP — только по приглашению.':'VIP仅限受邀。','Выиграй по-крупному — тогда поговорим.':'赢一大笔，我们再谈。'});
+ 'Тотализатор готовят. Скоро можно будет ставить на заезды.':'投注站还在准备，很快就能押比赛了。','На счету':'账户余额','Ставки у нас прямо в иенах. Удачи!':'这里直接用日元下注。祝你好运！','Заперто. За дверью кто-то говорит по телефону.':'锁着。门后有人在打电话。','VIP — только по приглашению.':'VIP仅限受邀。','Выиграй по-крупному — тогда поговорим.':'赢一大笔，我们再谈。'});
 Object.assign(EN,{'Казино':'Casino'});
