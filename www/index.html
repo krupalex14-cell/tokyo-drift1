@@ -257,7 +257,7 @@ body.dlgon #tut{display:none !important}.mb3 em{position:absolute;right:4px;top:
 <div id="set"></div>
 <div id="toast"></div>
 <script>
-var GAME_BUILD='09.11 06:11';
+var GAME_BUILD='09.11 08:34';
 'use strict';
 var WS=10240,CH=256,NC=WS/CH,OC=8,ON=WS/OC,HC=128,HN=WS/HC,TAU=Math.PI*2;
 function wrap(a){a%=WS;return a<0?a+WS:a}
@@ -3853,7 +3853,7 @@ function gpsNear(x,y,R,artOnly){var best=null;
   for(var k=sp.i;k<=sp.j;k++){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])}}});
  return best}
 // is there room for a car at (x,y)? houses, walls and rails, water, pillars and concrete blocks are in the way
-function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===4)return false;
+function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===5)return false;
  var hit=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(hit||p.hid||p.gone||p.brk||p.t===P_CAR||p.t===P_CONE||p.t===P_TORII||typeof BRKT!=='undefined'&&BRKT[p.t])return;
   var rr=p.w&&p.r===0?5:p.t===P_BLOCK?8:p.t===P_BARR?7:(p.r||2);if(Math.hypot(wd(p.x,x),wd(p.y,y))<rr+6)hit=true});return !hit}
 // can a car drive straight from (x0,y0) to (x1,y1)?
@@ -4002,10 +4002,10 @@ function hex3(h){h=h.replace('#','');return[parseInt(h.substr(0,2),16),parseInt(
 function hlCone(){if(HLC)return HLC;var W=72,H=44,c=mkCanvas(W,H),g=c.getContext('2d'),id=g.createImageData(W,H),d=id.data,w0=6.6,w1=20.8,lp=4.2;
  for(var y=0;y<H;y++)for(var x=0;x<W;x++){var u=(x+.5)/W,dy=Math.abs(y+.5-H/2),hw=w0+(w1-w0)*u,soft=1.4+4.2*u,e=clamp((hw-dy)/soft+.5,0,1);e=e*e*(3-2*e);
   var cw=1-.3*Math.pow(Math.min(1,dy/hw),2),m=clamp(u/.3,0,1),lob=Math.exp(-Math.pow((dy-lp)/(1.6+7*u),2));lob=lob*(1-m)+m;
-  var id2=Math.pow(Math.max(0,1-u),1.2),nr=Math.min(1,(x+1.5)/4),I=e*cw*(.45+.55*lob)*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I*1.2))}
+  var id2=Math.pow(Math.max(0,1-u),1.2),nr=Math.min(1,(x+1.5)/4),I=e*cw*(.45+.55*lob)*id2*nr,o=(y*W+x)*4;d[o]=255;d[o+1]=242;d[o+2]=208;d[o+3]=Math.round(255*Math.min(1,I))}
  g.putImageData(id,0,0);HLC=c;return c}
 function carLights(x,y,a,L,Hh,lv,brk,isP){var ca=Math.cos(a),sa=Math.sin(a),hx=L/2,hy=Hh/2,sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
- var ca2=.07+.62*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}
+ var ca2=.05+.42*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}
  var hl=.25+.6*lv;[-1,1].forEach(function(s){var fx=sx+ca*(hx-1)-sa*s*(hy-2.5),fy=sy+sa*(hx-1)+ca*s*(hy-2.5);gl(fx,fy,5,5,[255,246,214],hl);
   var rx=sx-ca*(hx-.5)-sa*s*(hy-2.5),ry=sy-sa*(hx-.5)+ca*s*(hy-2.5);gl(rx,ry,brk?8:5,brk?8:5,[255,40,60],(brk?.85:.18+.5*lv))})}
 function underglow(lv){if(!S.glow||!sprC)return;var col=hex3(GLOWC[S.glow]),w=sprC.width,h=sprC.height,N=112;if(!UGC)UGC=mkCanvas(N,N);var g=UGC.getContext('2d');
@@ -4047,19 +4047,22 @@ function litCut(g,bx,by,bw,bh){var ox=cam.ox,oy=cam.oy;g.globalCompositeOperatio
  for(var j=Math.floor((oy+by)/CH);j<=Math.floor((oy+by+bh)/CH);j++)for(var i=Math.floor((ox+bx)/CH);i<=Math.floor((ox+bx+bw)/CH);i++){var ch=chunkGet(i,j);if(!ch||!ch.u)continue;
   var dx=i*CH-ox,dy=j*CH-oy,sx=Math.max(0,bx-dx),sy=Math.max(0,by-dy),ex=Math.min(CH,bx+bw-dx),ey=Math.min(CH,by+bh-dy);if(ex<=sx||ey<=sy)continue;g.drawImage(ch.u,sx,sy,ex-sx,ey-sy,dx+sx,dy+sy,ex-sx,ey-sy)}
  g.globalCompositeOperation='source-over';g.globalAlpha=1}
+// how high the deck is over a car and the ground its headlights reach: where a ramp is still almost at street level the
+// beam lights the ramp (it used to vanish "under the bridge" right where the ramp leaves the street)
+function beamHigh(x,y,a){var c=Math.cos(a),s=Math.sin(a),hm=0;for(var d=0;d<=72;d+=18)for(var o=-12;o<=12;o+=12){var di=deckInfo(wrap(x+c*d-s*o),wrap(y+s*d+c*o));if(di.inside&&di.h>hm){hm=di.h;if(hm>.6)return hm}}return hm}
 function lightPass(){var lv=TODS.L,m=TODS.m;
  if(m[0]<255||m[1]<255||m[2]<255){cx.globalCompositeOperation='multiply';cx.globalAlpha=1;cx.fillStyle='rgb('+m[0]+','+m[1]+','+m[2]+')';cx.fillRect(0,0,VW,VH)}
  if(TODS.lift>.005){cx.globalCompositeOperation='screen';cx.globalAlpha=1;var lc=TODS.lc||[255,246,226];cx.fillStyle='rgba('+lc[0]+','+lc[1]+','+lc[2]+','+TODS.lift.toFixed(3)+')';cx.fillRect(0,0,VW,VH)}
  cx.globalCompositeOperation='lighter';cx.imageSmoothingEnabled=true;
  emisDraw(lv);cx.imageSmoothingEnabled=true;animGlows(lv);lmGlows(lv);
- if(lv>.02){for(var i=0;i<BKL.length;i++){var p=BKL[i];if(p.hid||p.brk)continue;if(p.t===P_LAMP){var x=SX(p.x),y=SY(p.y);if(x<-50||y<-50||x>VW+50||y>VH+50)continue;var dx=Math.round(Math.cos(p.a)*5),dy=Math.round(Math.sin(p.a)*5),hx=x+dx,hy=y+dy-3;gl(hx,hy+5,34,26,[255,196,120],lv*.34);gl(hx,hy,7,7,[255,240,200],lv*.95)}
+ if(lv>.02){for(var i=0;i<BKL.length;i++){var p=BKL[i];if(p.hid||p.brk)continue;if(p.t===P_LAMP){var x=SX(p.x),y=SY(p.y);if(x<-50||y<-50||x>VW+50||y>VH+50)continue;var dx=Math.round(Math.cos(p.a)*5),dy=Math.round(Math.sin(p.a)*5),hx=x+dx,hy=y+dy-3;gl(hx,hy+7,52,40,[255,190,115],lv*.46);gl(hx,hy+5,24,18,[255,222,170],lv*.34);gl(hx,hy,7,7,[255,240,200],lv*.95)}
    else if(p.t===P_VEND){gl(SX(p.x),SY(p.y)+2,14,12,[170,225,255],lv*.5)}}
   for(i=0;i<TLGL.length;i+=3){var cc=TLGL[i+2]===0?[61,240,176]:TLGL[i+2]===1?[255,210,58]:[255,58,58];gl(TLGL[i],TLGL[i+1],12,12,cc,.25+lv*.7)}}
  // lights of ground-level cars near an overpass/bridge go through a masked layer; the rest draw straight on
  TMB=2;var LR=84,mk=[],bx0=1e9,by0=1e9,bx1=-1e9,by1=-1e9;
  function one(v,isP){if(v&&v.rem){remLight(v,lv);return}if(isP)carLights(car.x,car.y,car.a,sprC?sprC.width:28,sprC?sprC.height:15,lv,K.b&&car.fw>0&&mode==='game',true);else{var V=VTY[v.vt];carLights(v.x,v.y,v.a,V.L,V.H+1,lv,(v.bk||0)>.3,false)}if(isP)underglow(lv)}
  function route(v,isP){var x=isP?car.x:v.x,y=isP?car.y:v.y,l=isP?(car.l|0):(v.l|0),sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
-  if(l===0&&underTop(x,y,LR)){mk.push([v,isP]);bx0=Math.min(bx0,sx-LR);by0=Math.min(by0,sy-LR);bx1=Math.max(bx1,sx+LR);by1=Math.max(by1,sy+LR)}else one(v,isP)}
+  if(l===0&&underTop(x,y,LR)&&beamHigh(x,y,isP?car.a:(v.a||0))>.6){mk.push([v,isP]);bx0=Math.min(bx0,sx-LR);by0=Math.min(by0,sy-LR);bx1=Math.max(bx1,sx+LR);by1=Math.max(by1,sy+LR)}else one(v,isP)}
  for(i=0;i<AI.length;i++){if(!AI[i].fd)route(AI[i],false)}if(car)route(null,true);if(typeof NET!=='undefined'&&NET.on&&mode==='game')for(var rid in REM){if(REM[rid].vis)route(REM[rid],false)}if(typeof RIV!=='undefined'&&mode==='game')for(var ri2=0;ri2<RIV.length;ri2++)route(RIV[ri2],false)
  if(mk.length){var bx=Math.max(0,Math.floor(bx0)),by=Math.max(0,Math.floor(by0)),bw=Math.min(VW,Math.ceil(bx1))-bx,bh=Math.min(VH,Math.ceil(by1))-by;
   if(bw>0&&bh>0){var mc=cx,lc=litLayer(bx,by,bw,bh);cx=lc;cx.globalCompositeOperation='lighter';cx.imageSmoothingEnabled=true;mk.forEach(function(e){one(e[0],e[1])});litCut(lc,bx,by,bw,bh);cx=mc;cx.globalCompositeOperation='lighter';cx.globalAlpha=1;cx.drawImage(LITC,bx,by,bw,bh,bx,by,bw,bh)}}
@@ -5049,6 +5052,8 @@ function dlgNext(skip){var d=DLG;if(!d)return;
 function chapterCard(top,title,sub,cb){var e=$('chap');e.innerHTML='<div class="cc1">'+top+'</div><div class="cc2">'+title+'</div><div class="cc3">'+sub+'</div>';e.style.display='flex';e.className='';void e.offsetWidth;e.className='on';
  var done=false;function fin(){if(done)return;done=true;e.style.display='none';e.onclick=null;if(cb)cb()}e.onclick=fin;setTimeout(fin,3200)}
 // ---- start / finish
+// "again": back to where the mission starts (if you are not there already), so it runs from its first point
+function stRetryPlace(c){try{var p=stPlace(c.at);if(!p||Math.hypot(wd(p.x,car.x),wd(p.y,car.y))<150)return;stPlaceCar(c.at);car.vx=car.vy=car.w=0;car.dr=false;car.l=0;cam.x=car.x;cam.y=car.y;preload();WP=null}catch(e){}}
 function stPlaceCar(k){var p=stPlace(k),q=p.a!=null?null:gpsNear(p.x,p.y,300,true);if(p.a!=null){car.x=p.x;car.y=p.y;car.a=p.a}else if(q){q.r.pt(q.s,TMP);var u=q.r.k==='loc'?q.r.hw*.42:(q.r.m||0)+.5*(q.r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=p.x;car.y=p.y}
  car.vx=car.vy=car.w=0;car.sp=0;car.l=0;car.dr=false;cam.x=car.x;cam.y=car.y;cam.a=car.a;preload()}
 function stRoute(x,y){var q=gpsNear(x,y,90)||gpsNear(x,y,200,true)||gpsNear(x,y,600);if(!q)return;WP={x:x,y:y,q:q,st:1};ST.rt=TIME;gpsRoute()}
@@ -5060,7 +5065,8 @@ function stStart(m,quick){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amou
  dlgOpen(quick?[]:m.pre,function(){
   if(m.type==='scene'){stDone(true);return}
   if(m.type==='pay'){if(S.coins>=m.amount){S.coins-=m.amount;S.story.debt-=m.amount;save();stDone(true)}else{ST.act=null;toast(L('Нужно')+' '+m.amount+' ¥');return}return}
-  if(m.ride&&!quick){ST.ride=true;var rp=stPlace(m.ride);stRoute(rp.x,rp.y);return}
+  // a retry starts from the beginning too: first the drive to the start point (it used to skip it and send you straight to the next point)
+  ST.quick=!!quick;if(m.ride){ST.ride=true;var rp=stPlace(m.ride);stRoute(rp.x,rp.y);return}
   stMain(m)})}
 function stMain(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;ST.hid=0;ST.pin=0;ST.rams=0;
  if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
@@ -5114,7 +5120,7 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
   if((d<70||(!c.ride&&stInZone(c)))&&!ZS&&!ZFADE)stPromptShow(c);else stPromptHide();return}
  if(ST.ride){var rp=P[m.ride],rd=Math.hypot(wd(rp.x,car.x),wd(rp.y,car.y));stTraffic(rp,0);
   if(rd<62||stInZoneId(m.rideZone||m.zone)){ST.ride=false;ST.arr=true;WP=null;car.vx*=.15;car.vy*=.15;car.w=0;car.dr=false;popup(LT(rp.name)+' ✓','mul');
-   dlgOpen(m.arrive||[],function(){ST.arr=false;if(ST.act===m)stMain(m)});return}
+   dlgOpen(ST.quick?[]:m.arrive||[],function(){ST.arr=false;if(ST.act===m)stMain(m)});return}
   if((!WP||!WP.pts)&&rd>80&&TIME-(ST.rt||0)>1.5)stRoute(rp.x,rp.y);return}
  if(ST.arr)return;
  if(isZR(m)&&!ZS&&!ZFADE){stAbort();return}
@@ -5165,7 +5171,7 @@ function stPromptShow(c){if(ST.prompt===c.id)return;ST.prompt=c.id;var e=$('sq')
 function stPromptHide(){if(!ST.prompt)return;ST.prompt=false;$('sq').classList.remove('on')}
 function stEsc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='go'){var c=stCur();if(c)stStart(c)}
- if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game')stStart(c2,true)}
+ if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game'){stRetryPlace(c2);stStart(c2,true)}}
  if(b.dataset.st==='reset'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent=L('точно?');setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent=L('заново')}},2500);return}
   if(S.story.debt<30000){S.coins+=30000-S.story.debt;S.story.debt=30000}S.story.m=0;S.story.started=1;ST.act=null;ST.routed='';save();
   chapterCard(chLbl(1),LT(CHAP[1].t),LT(CHAP[1].tod),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}});
@@ -6144,6 +6150,29 @@ function specMouthTidy(){var n=0,BLK={};BLK[P_TIRE]=1;BLK[P_BLOCK]=1;BLK[P_BARR]
    PH.q(ex-m-50,ey-m-50,ex+m+50,ey+m+50,function(p){if(p.hid||!BLK[p.t])return;var px=wd(p.x,ex),py=wd(p.y,ey),al=px*ux+py*uy,ac=Math.abs(-px*uy+py*ux);if(al>-12&&al<44&&ac<m+(p.r||2))rm.push(p)});
    rm.forEach(function(p){hashRmNear(PH,p,p.x,p.y,Math.max(p.r||2,12)+2);p.hid=1;p.gone=1;n++})})})});return n}
 var _bbSRT=buildBrk;buildBrk=function(){_bbSRT();try{window.SRTIDY=specRoadTidy();window.SRTIDY.mouth=specMouthTidy()}catch(e){console.error(e)}};
+// ---- how far (x,y) is from any drivable asphalt: streets, the ground-level ends of expressway ramps, crossing arms,
+// roundabouts and side-street joins (negative = on the asphalt). The kerb tidy above only knew the streets themselves, so trees
+// were left standing where a ramp comes down to the street or in the corner of a crossing
+function roadSurfGap(x,y,R){R=R||80;var g=1e9,e=roadEdgeNear(x,y,R);if(e)g=e.gap;
+ RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='ramp'||!r.h)return;for(var i=Math.max(0,sp.i-1);i<Math.min(r.n-1,sp.j+1);i++){if(r.h[i]>.32&&r.h[i+1]>.32)continue;
+  var x0=r.xs[i],y0=r.ys[i],ex=wd(r.xs[i+1],x0),ey=wd(r.ys[i+1],y0),l2=ex*ex+ey*ey||1,dx=wd(x,x0),dy=wd(y,y0),t=clamp((dx*ex+dy*ey)/l2,0,1),d=Math.hypot(dx-ex*t,dy-ey*t)-r.hw;if(d<g)g=d}});
+ NH.q(x-R,y-R,x+R,y+R,function(n){var dx=wd(x,n.x),dy=wd(y,n.y);
+  if(n.t==='round'){var d=Math.hypot(dx,dy)-(n.R||n.rJ||0);if(d<g)g=d;return}
+  (n.ed||[]).forEach(function(ed){var r=ed.r;if(r.k==='ramp'||r.k==='exp')return;if(ed.e===0)r.pt(0,TMP);else r.pt(r.len,TMP);var ux=ed.e===0?TMP[2]:-TMP[2],uy=ed.e===0?TMP[3]:-TMP[3],L=nodeTrimD(r)+8,al=dx*ux+dy*uy,ac=Math.abs(-dx*uy+dy*ux),d=Math.max(-al,al-L,ac-r.hw);if(d<g)g=d})});
+ LJH.q(x-R,y-R,x+R,y+R,function(j){var dx=wd(x,j.x),dy=wd(y,j.y),hw=j.hw,d;
+  if(j.mouth&&j.dir){var e0=-13*j.dir,f=e0+j.dir*34,a=Math.min(e0,f),b=Math.max(e0,f);if(j.o)d=Math.max(a-dx,dx-b,Math.abs(dy)-hw);else d=Math.max(a-dy,dy-b,Math.abs(dx)-hw)}
+  else d=Math.max(Math.abs(dx)-hw,Math.abs(dy)-hw);if(d<g)g=d});
+ return g}
+// trees, sakura, lamps, benches and vending machines on (or hanging over) that asphalt: step them back onto the pavement or take them away
+function propTidy2(){var seen=new Set(),L=[],moved=0,gone=0,K={};K[P_TREE]=4;K[P_SAKURA]=4;K[P_LAMP]=1.5;K[P_BENCH]=2;K[P_VEND]=2;K[P_PLANT]=2;K[P_TRASH]=1.5;K[P_MAIL]=1.5;
+ PH.q(0,0,WS,WS,function(p){if(seen.has(p))return;seen.add(p);if(p.hid||p.gone||!K[p.t])return;L.push(p)});
+ L.forEach(function(p){var need=K[p.t];if(roadSurfGap(p.x,p.y)>=need)return;var best=null;
+  for(var d=6;d<=22&&!best;d+=4)for(var k=0;k<12&&!best;k++){var a=k/12*TAU,nx=wrap(p.x+Math.cos(a)*d),ny=wrap(p.y+Math.sin(a)*d);if(roadSurfGap(nx,ny)<need+4||ptInBld(nx,ny)||inRiver(nx,ny,4))continue;
+   var ok=true;PH.q(nx-12,ny-12,nx+12,ny+12,function(q){if(q!==p&&!q.hid&&Math.hypot(wd(q.x,nx),wd(q.y,ny))<(q.r||2)+(p.r||2)+3)ok=false});if(ok)best=[nx,ny]}
+  var m=Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);if(best&&p.t!==P_LAMP){p.x=best[0];p.y=best[1];PH.add(p,p.x-m,p.y-m,p.x+m,p.y+m);moved++}else{p.hid=1;p.gone=1;gone++}});
+ return {moved:moved,gone:gone}}
+// (runs once the crossing and join indexes exist)
+var _biTidy2=baseIdx;baseIdx=function(){_biTidy2();try{window.TIDY2=propTidy2()}catch(e){console.error(e)}};
 
 // ===== chapter 4 «Призрак»: the car with no lights on Kumo, Reiko's scar, Misha's onsen garage, Kageyama's offer, the race in the dark =====
 CHAP[4]={t:{ru:'Призрак',en:'The Ghost'},tod:{ru:'глубокая ночь · перевал Кумо',en:'deep night · Kumo pass'},goal:{ru:'Найти Призрака Кумо, заслужить его доверие и получить карту той ночи',en:'Find the Ghost of Kumo, earn his trust and get the card from that night'},pay:5000};
@@ -6403,7 +6432,7 @@ var C4PASS={kir:'Кир в машине',hana:'Хана в машине',reiko:'
 function c4Dark(){var m=ST.act;if(!ST.mode||!m||!m.dark||ST.ride||ST.arr||mode!=='game')return false;if(m.type==='shake')return ST.ph!==1;if(C4Z[m.type])return !!ZS;return true}
 var C4LF=null,C4PL=false;
 function c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f){var ca=Math.cos(a),sa=Math.sin(a),hx=Ln/2,hy=Hh/2,sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
- if(f.f){var ca2=.07+.62*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}}
+ if(f.f){var ca2=.05+.42*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}}
  [-1,1].forEach(function(s){if(f.f){var fx=sx+ca*(hx-1)-sa*s*(hy-2.5),fy=sy+sa*(hx-1)+ca*s*(hy-2.5);gl(fx,fy,5,5,[255,246,214],.25+.6*lv)}
   if(f.r){var rx=sx-ca*(hx-.5)-sa*s*(hy-2.5),ry=sy-sa*(hx-.5)+ca*s*(hy-2.5);gl(rx,ry,brk?8:5,brk?8:5,[255,40,60],(brk?.85:.18+.5*lv))}})}
 var _clC4=carLights;carLights=function(x,y,a,Ln,Hh,lv,brk,isP){var f=C4LF;if(!f&&C4PL&&isP&&car&&x===car.x&&y===car.y)f={f:0,r:1};if(!f)return _clC4(x,y,a,Ln,Hh,lv,brk,isP);c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f)};
@@ -6961,6 +6990,130 @@ function rivUnstick(r,dt){var c=r.c;if(!c||r.wait||r.out||r.stun>0||!ST.act){r.s
   c.x=T[0];c.y=T[1];c.a=T[2];c.vx=c.vy=c.w=0;c.dr=false;r.x=c.x;r.y=c.y;r.a=c.a;r.P=d;r.stT=0;r.unN=0;r.unst=0;r.tpN=(r.tpN||0)+1}
  if(c.sp>60)r.unN=0}
 var _ruW=rivUpdate;rivUpdate=function(dt){_ruW(dt);for(var i=0;i<RIV.length;i++)rivUnstick(RIV[i],dt)};
+
+// ===== the old cranes of the docks (Misha's stash is "under the old crane", and there was no crane anywhere)
+// and the three garages behind the onsen (Hana: "«3» is a garage, there are three of them") =====
+function pxDirty(x0,y0,x1,y1){chunkDirty(x0,y0,x1,y1);var a=Math.floor(x0/CH),b=Math.floor(x1/CH),c=Math.floor(y0/CH),d=Math.floor(y1/CH);
+ for(var y=c;y<=d;y++)for(var x=a;x<=b;x++){var k=(((y%NC)+NC)%NC)*NC+(((x%NC)+NC)%NC);if(typeof BJ!=='undefined')BJ.delete(k)}}
+function pxGlyph(g,G,x,y,col){g.fillStyle=col;for(var r=0;r<5;r++)for(var q=0;q<3;q++)if(G[r][q]==='#')g.fillRect(x+q,y+r,1,1)}
+var GNUM={1:['.#.','##.','.#.','.#.','###'],2:['###','..#','###','#..','###'],3:['###','..#','.##','..#','###']};
+
+// ---------------- garages
+var GARS=[];
+// a row of three garages built into the onsen's wall on the side that faces a street, doors to the street
+function garPlace(s){var L=54,D=24,best=null;
+ [['e',1,0],['w',-1,0],['s',0,1],['n',0,-1]].forEach(function(sd){var f=sd[0],nx=sd[1],ny=sd[2],along=nx?s.h:s.w;
+  for(var t=10;t+L<=along-10;t+=4){if(f==='s'&&Math.abs(t+L/2-s.w/2)<L/2+22)continue;
+   var r=f==='e'?{x:s.x+s.w-D,y:s.y+t,w:D,h:L}:f==='w'?{x:s.x,y:s.y+t,w:D,h:L}:f==='s'?{x:s.x+t,y:s.y+s.h-D,w:L,h:D}:{x:s.x+t,y:s.y,w:L,h:D};
+   var bad=false;BH.q(r.x-3,r.y-3,r.x+r.w+3,r.y+r.h+3,function(b){if(bad||b.hid||b.w<=4||b.h<=4)return;var ox=Math.min(r.x+r.w+3,b.x+b.w)-Math.max(r.x-3,b.x),oy=Math.min(r.y+r.h+3,b.y+b.h)-Math.max(r.y-3,b.y);if(ox>0&&oy>0)bad=true});if(bad)continue;
+   PH.q(r.x,r.y,r.x+r.w,r.y+r.h,function(p){if(bad||p.hid||p.gone)return;if((p.t===P_TREE||p.t===P_SAKURA)&&wd(p.x,r.x)>-2&&wd(p.y,r.y)>-2&&wd(p.x,r.x)<r.w+2&&wd(p.y,r.y)<r.h+2)bad=true});if(bad)continue;
+   // from each door straight out to the asphalt, with nothing in the way
+   var cx0=r.x+r.w/2,cy0=r.y+r.h/2,tx=-ny,ty=nx,reach=0;
+   for(var k=-1;k<=1&&!bad;k++){var fx=cx0+nx*(D/2+1)+tx*k*17,fy=cy0+ny*(D/2+1)+ty*k*17,got=false;
+    for(var o=2;o<=74;o+=3){var x=fx+nx*o,y=fy+ny*o;if(ptInBld(x,y)||ptInBld(x+tx*6,y+ty*6)||ptInBld(x-tx*6,y-ty*6)){bad=true;break}var e=roadEdgeNear(x,y,80);if(e&&e.gap<-4){got=true;reach=Math.max(reach,o);break}}
+    if(!got)bad=true}
+   if(bad)continue;var sc=reach+Math.abs(t+L/2-along/2)*.05;if(!best||sc<best.sc)best={sc:sc,r:r,f:f,nx:nx,ny:ny,s:s}}});
+ return best}
+function garBuild(){GARS=[];SPEC.forEach(function(s){if(s.k!=='onsen')return;var g=garPlace(s);if(!g)return;var r=g.r;
+  // open the wall where the garages stand (the garages are the wall there)
+  var cut=[];BH.q(r.x-1,r.y-1,r.x+r.w+1,r.y+r.h+1,function(b){if(b.hid||!(b.w<=4||b.h<=4))return;var ox=Math.min(r.x+r.w,b.x+b.w)-Math.max(r.x,b.x),oy=Math.min(r.y+r.h,b.y+b.h)-Math.max(r.y,b.y);if(ox>0&&oy>0&&cut.indexOf(b)<0)cut.push(b)});
+  cut.forEach(function(b){b.hid=1;var o={st:b.st,ht:b.ht,d:b.d,sd:b.sd};function piece(x,y,w,h){if(w<1||h<1)return;var q={x:x,y:y,w:w,h:h};for(var k in o)q[k]=o[k];addB(q)}
+   if(b.w<=4){piece(b.x,b.y,b.w,r.y-b.y);piece(b.x,r.y+r.h,b.w,b.y+b.h-(r.y+r.h))}else{piece(b.x,b.y,r.x-b.x,b.h);piece(r.x+r.w,b.y,b.x+b.w-(r.x+r.w),b.h)}});
+  PH.q(r.x-2,r.y-2,r.x+r.w+2,r.y+r.h+2,function(p){if(p.hid||p.gone)return;if(wd(p.x,r.x)>-3&&wd(p.y,r.y)>-3&&wd(p.x,r.x)<r.w+3&&wd(p.y,r.y)<r.h+3){p.hid=1;p.gone=1}});
+  var B={x:r.x,y:r.y,w:r.w,h:r.h,st:5,ht:1,ns:1,d:s.d,sd:s.sd,gar:1};addB(B);
+  var G={b:B,s:s,f:g.f,nx:g.nx,ny:g.ny,cx:r.x+r.w/2,cy:r.y+r.h/2,L:54,D:24};
+  // door №3 (the right one, seen from the street) and the kerb in front of it
+  G.d3={x:G.cx+g.nx*(G.D/2+2)+g.ny*17,y:G.cy+g.ny*(G.D/2+2)-g.nx*17};GARS.push(G)})}
+var GARS_OK=0,_bbGar=buildBrk;buildBrk=function(){_bbGar();try{garBuild()}catch(e){console.error(e)}GARS_OK=1};
+var _dBGar=drawB;drawB=function(g,b,x,y,an){if(b.gar)return;return _dBGar(g,b,x,y,an)};
+// the stop on the street in front of door №3
+function garStop(G){var x=G.d3.x,y=G.d3.y,e=null,o;for(o=4;o<=80;o+=4){e=roadEdgeNear(x+G.nx*o,y+G.ny*o,80);if(e&&e.gap<-6)break}if(!e)return null;var r=e.r,s;
+ if(r.k==='loc'){var ux=(r.xs[1]-r.xs[0])/r.len,uy=(r.ys[1]-r.ys[0])/r.len;s=clamp(wd(x,r.xs[0])*ux+wd(y,r.ys[0])*uy,8,r.len-8)}
+ else{var bk=0,bd=1e9;for(var k=0;k<r.n;k++){var d=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d<bd){bd=d;bk=k}}s=bk*r.ds}
+ r.pt(s,TMP);var sd=((-TMP[3])*wd(x,TMP[0])+TMP[2]*wd(y,TMP[1]))>0?1:-1,u=(r.k==='loc'?r.hw*.42:r.hw-18)*sd;
+ return {x:wrap(TMP[0]-TMP[3]*u),y:wrap(TMP[1]+TMP[2]*u),a:Math.atan2(TMP[3]*sd,TMP[2]*sd),r:r,s:s,sd:sd,d:0}}
+function garDraw(G){var x=SX(G.cx),y=SY(G.cy);if(x<-60||y<-60||x>VW+60||y>VH+60)return;var L=G.L,D=G.D,open=typeof c4After==='function'&&c4After('e5'),k,i;
+ var bx=SX(G.b.x),by=SY(G.b.y);cx.fillStyle='rgba(18,10,52,.32)';cx.fillRect(Math.round(bx+3),Math.round(by+4),G.b.w,G.b.h);
+ cx.save();cx.translate(Math.round(x),Math.round(y));cx.rotate(Math.atan2(G.nx,-G.ny));
+ // corrugated roof, the front wall with the three doors along local y=-D/2
+ cx.fillStyle='#14101e';cx.fillRect(-L/2-1,-D/2-1,L+2,D+2);cx.fillStyle='#5c5a6c';cx.fillRect(-L/2,-D/2+9,L,D-9);cx.fillStyle='#4a4858';for(k=-L/2+1;k<L/2;k+=3)cx.fillRect(k,-D/2+10,1,D-11);
+ cx.fillStyle='#6e6c80';cx.fillRect(-L/2,-D/2+9,L,1);cx.fillStyle='#3a3646';cx.fillRect(-L/2,-D/2,L,9);
+ for(i=0;i<3;i++){var gx=(1-i)*17-7;cx.fillStyle='#14101e';cx.fillRect(gx-1,-D/2,16,9);
+  if(i===2&&open){cx.fillStyle='#0c0a14';cx.fillRect(gx,-D/2,14,8);cx.fillStyle='#b9bccb';cx.fillRect(gx+2,-D/2,10,5);cx.fillStyle='#d6d8e2';cx.fillRect(gx+3,-D/2+1,8,1)}
+  else{cx.fillStyle=i===2?'#b2b8ca':'#8e93a4';cx.fillRect(gx,-D/2,14,8);cx.fillStyle='#5e6374';for(k=-D/2+1;k<-D/2+8;k+=2)cx.fillRect(gx,k,14,1)}}
+ // a little lamp over №3
+ cx.fillStyle='#ffe2a0';cx.fillRect(-17-1,-D/2+9,3,2);cx.restore();
+ // the plates 1 2 3 over the doors, kept upright; №3 is the brass one
+ var a=Math.atan2(G.nx,-G.ny),ca=Math.cos(a),sa=Math.sin(a);for(i=0;i<3;i++){var lx=(1-i)*17,ly=-D/2+14,px=Math.round(x+lx*ca-ly*sa)-5,py=Math.round(y+lx*sa+ly*ca)-4;
+  cx.fillStyle='#14101e';cx.fillRect(px,py,11,9);cx.fillStyle=i===2?'#e0b060':'#9a98a8';cx.fillRect(px+1,py+1,9,7);pxGlyph(cx,GNUM[i+1],px+4,py+2,'#2a1a0a')}}
+function garGlow(G,lv){var x=SX(G.cx),y=SY(G.cy);if(x<-80||y<-80||x>VW+80||y>VH+80)return;var a=Math.atan2(G.nx,-G.ny),ca=Math.cos(a),sa=Math.sin(a),lx=-17,ly=-G.D/2+8,px=x+lx*ca-ly*sa,py=y+lx*sa+ly*ca;
+ gl(px,py,6,6,[255,230,170],lv*.9);gl(px+G.nx*10,py+G.ny*10,30,24,[255,200,130],lv*.42)}
+
+// ---------------- cranes
+var CRANES=[];
+// a rusty portal crane on the yard side of a stop, its jib swung out over the street (so the stop really is "under the crane")
+function craneAt(q,an0){if(!q)return null;var bestY=null,bd=1e9;SPEC.forEach(function(s){if(s.k!=='yard'&&s.k!=='drift')return;var dx=Math.max(wd(s.x,q.x),0,wd(q.x,s.x+s.w));var dy=Math.max(wd(s.y,q.y),0,wd(q.y,s.y+s.h)),d=Math.hypot(dx,dy);if(d<bd){bd=d;bestY=s}});
+ var tries=[];if(bestY&&bd<140){var s=bestY,px=clamp(q.x+wd(clamp(q.x,s.x,s.x+s.w),q.x),s.x+24,s.x+s.w-24),py=clamp(q.y+wd(clamp(q.y,s.y,s.y+s.h),q.y),s.y+24,s.y+s.h-24),nx=wd(px,q.x),ny=wd(py,q.y),nl=Math.hypot(nx,ny)||1;nx/=nl;ny/=nl;
+  for(var sh=0;sh<=60;sh+=20)for(var sg=-1;sg<=1;sg+=2){var tx=-ny*sh*sg,ty=nx*sh*sg;tries.push({x:px+tx,y:py+ty,nx:nx,ny:ny})}}
+ for(var k=0;k<16;k++){var a=k/16*TAU;tries.push({x:q.x+Math.cos(a)*62,y:q.y+Math.sin(a)*62,nx:Math.cos(a),ny:Math.sin(a)})}
+ for(var i=0;i<tries.length;i++){var c=tries[i],ok=true,tx2=-c.ny,ty2=c.nx,legs=[];
+  for(var a1=-1;a1<=1&&ok;a1+=2)for(var b1=-1;b1<=1;b1+=2){var lx=c.x+c.nx*16*a1+tx2*16*b1,ly=c.y+c.ny*16*a1+ty2*16*b1;legs.push([wrap(lx),wrap(ly)]);if(roadSurfGap(lx,ly)<4||inRiver(lx,ly,4)){ok=false;break}
+   var other=false;BH.q(lx-6,ly-6,lx+6,ly+6,function(b){if(!b.hid&&b.st!==16&&wd(lx,b.x)>-6&&wd(ly,b.y)>-6&&wd(lx,b.x)<b.w+6&&wd(ly,b.y)<b.h+6)other=true});if(other){ok=false;break}}
+  if(!ok)continue;
+  // the jib reaches over the stop
+  var jx=wd(q.x,c.x),jy=wd(q.y,c.y),jl=Math.hypot(jx,jy);return {x:wrap(c.x),y:wrap(c.y),nx:c.nx,ny:c.ny,legs:legs,ja:Math.atan2(jy,jx)+(an0||.28),jl:Math.max(60,jl+28)}}
+ return null}
+function craneBuild(C){
+ // the containers it stands among make room; the legs stand on concrete feet
+ BH.q(C.x-30,C.y-30,C.x+30,C.y+30,function(b){if(b.hid||b.st!==16)return;C.legs.forEach(function(l){if(wd(l[0],b.x)>-8&&wd(l[1],b.y)>-8&&wd(l[0],b.x)<b.w+8&&wd(l[1],b.y)<b.h+8)b.hid=1})});
+ C.legs.forEach(function(l){PH.q(l[0]-12,l[1]-12,l[0]+12,l[1]+12,function(p){if(!p.hid&&!p.crane&&Math.hypot(wd(p.x,l[0]),wd(p.y,l[1]))<(p.r||4)+8){hashRmNear(PH,p,p.x,p.y,Math.max(p.r||2,12)+2);p.hid=1;p.gone=1}});
+  var f={x:l[0],y:l[1],w:6,h:6,r:0,crane:1};PH.add(f,f.x-10,f.y-10,f.x+10,f.y+10)});
+ pxDirty(C.x-60,C.y-60,C.x+60,C.y+60);CRANES.push(C)}
+function craneDraw(C,top){var x=SX(C.x),y=SY(C.y),R=C.jl+50;if(x<-R||y<-R||x>VW+R||y>VH+R)return;var ja=C.ja,jc=Math.cos(ja),js=Math.sin(ja),pa=Math.atan2(C.nx,-C.ny),k,Lj=C.jl;
+ function jib(g,sh){// the lattice jib, tapering to the tip, and the counter-jib with its weight behind the machinery house
+  g.fillStyle=sh?sh:'#14101e';g.beginPath();g.moveTo(8,-6);g.lineTo(Lj,-3);g.lineTo(Lj,3);g.lineTo(8,6);g.closePath();g.fill();g.fillRect(-30,-5,22,10);g.fillRect(-36,-8,10,16);if(sh)return;
+  g.fillStyle='#c4642c';for(k=10;k<Lj;k++){var w=Math.round(5-(k-10)/(Lj-10)*2.6);g.fillRect(k,-w,1,1);g.fillRect(k,w-1,1,1)}
+  g.fillStyle='#e8954e';for(k=10;k<Lj-2;k+=6){var w2=Math.round(5-(k-10)/(Lj-10)*2.6);g.fillRect(k,-w2,1,w2*2)}
+  g.fillStyle='#8e4422';for(k=12;k<Lj-4;k+=6){var w3=Math.round(5-(k-10)/(Lj-10)*2.6)-1;for(var q=0;q<w3*2;q++)g.fillRect(k+Math.round(q*3/(w3*2)),-w3+q,1,1)}
+  g.fillStyle='#f4f0e8';g.fillRect(Lj-7,-3,3,6);g.fillStyle='#d83a3a';g.fillRect(Lj-4,-3,3,6);
+  g.fillStyle='#b25a28';g.fillRect(-29,-4,20,8);g.fillStyle='#8e4422';for(k=-28;k<-10;k+=4)g.fillRect(k,-3,2,6);
+  g.fillStyle='#4e4e5c';g.fillRect(-35,-7,8,14);g.fillStyle='#6a6a78';g.fillRect(-34,-6,6,4);g.fillStyle='#3a3a46';g.fillRect(-34,3,6,3)}
+ if(!top){
+  // shadows on the ground (it is tall: thrown well down and to the right)
+  cx.save();cx.translate(Math.round(x+16),Math.round(y+20));cx.save();cx.rotate(pa);cx.fillStyle='rgba(18,10,52,.24)';cx.fillRect(-19,-19,38,4);cx.fillRect(-19,15,38,4);cx.fillRect(-19,-15,4,30);cx.fillRect(15,-15,4,30);cx.restore();
+  cx.rotate(ja);jib(cx,'rgba(18,10,52,.24)');cx.fillRect(-12,-10,24,20);cx.restore();return}
+ cx.save();cx.translate(Math.round(x),Math.round(y));
+ // the portal: a square frame on four legs, cross-braced
+ cx.save();cx.rotate(pa); cx.fillStyle='#14101e';cx.fillRect(-19,-19,38,5);cx.fillRect(-19,14,38,5);cx.fillRect(-19,-19,5,38);cx.fillRect(14,-19,5,38);
+ cx.fillStyle='#b85e2a';cx.fillRect(-18,-18,36,3);cx.fillRect(-18,15,36,3);cx.fillRect(-18,-18,3,36);cx.fillRect(15,-18,3,36);
+ cx.fillStyle='#d98a44';cx.fillRect(-18,-18,36,1);cx.fillRect(-18,15,36,1);
+ cx.fillStyle='#7a3a1a';for(k=-14;k<=14;k+=2){cx.fillRect(k,k,2,2);cx.fillRect(k,-k,2,2)}
+ for(var a1=-1;a1<=1;a1+=2)for(var b1=-1;b1<=1;b1+=2){cx.fillStyle='#14101e';cx.fillRect(b1*16-4,a1*16-4,8,8);cx.fillStyle='#5e2a14';cx.fillRect(b1*16-3,a1*16-3,6,6);cx.fillStyle='#8e4422';cx.fillRect(b1*16-3,a1*16-3,6,1)}
+ cx.restore();
+ cx.rotate(ja);jib(cx,null);
+ // the machinery house and the driver's cab on the turntable
+ cx.fillStyle='#14101e';cx.fillRect(-13,-11,26,22);cx.fillStyle='#c26a2e';cx.fillRect(-12,-10,24,20);cx.fillStyle='#e29a52';cx.fillRect(-12,-10,24,3);cx.fillStyle='#9a4e24';for(k=-10;k<10;k+=4)cx.fillRect(k,-6,2,14);
+ cx.fillStyle='#1e2a3a';cx.fillRect(6,4,6,6);cx.fillStyle='#4a6a8a';cx.fillRect(7,5,4,2);cx.fillStyle='#6e3418';cx.fillRect(-8,7,4,2);cx.fillRect(2,-8,3,2);
+ cx.restore();
+ // the hook hangs off the tip on its cable
+ var hx=Math.round(x+jc*(Lj-6)),hy=Math.round(y+js*(Lj-6)),sw=Math.round(Math.sin(TIME*.9+C.x)*1);cx.fillStyle='#2a2a34';cx.fillRect(hx,hy,1,12);cx.fillStyle='#14101e';cx.fillRect(hx-3+sw,hy+12,7,5);cx.fillStyle='#ffd23a';cx.fillRect(hx-2+sw,hy+13,5,3);cx.fillStyle='#14101e';cx.fillRect(hx+sw,hy+17,1,2)}
+function craneGlow(C,lv){var x=SX(C.x),y=SY(C.y),R=C.jl+40;if(x<-R||y<-R||x>VW+R||y>VH+R)return;var on=Math.sin(TIME*2.4+C.x)>.2;
+ if(on){var tx=x+Math.cos(C.ja)*(C.jl-2),ty=y+Math.sin(C.ja)*(C.jl-2);gl(tx,ty,5,5,[255,60,60],.4+lv*.5);gl(tx,ty,16,16,[255,40,40],.28+lv*.2)}gl(x,y-2,5,5,[255,70,70],(on?.7:.25)*(.4+lv*.6))}
+var _spPX=stPlaces;stPlaces=function(){var P=_spPX();if(P._px||!GARS_OK||!NH)return P;P._px=1;
+ try{
+  // the onsen: Misha's garage №3
+  if(GARS.length){var on=P.onsen,G=null,bd=1e9;GARS.forEach(function(g){var d=Math.hypot(wd(g.cx,on.x),wd(g.cy,on.y));if(d<bd){bd=d;G=g}});
+   if(G&&bd<700){var st=garStop(G);if(st){st.name=P.onsen.name;P.onsen=st;G.main=1;C4G=null}}}
+  // the old cranes: at the crane itself, at the stash and at the yards of the docks race
+  var seen=[];['crane','yd2','yd1','yardfar'].forEach(function(k,i){var q=P[k];if(!q)return;for(var j=0;j<seen.length;j++)if(Math.hypot(wd(seen[j].x,q.x),wd(seen[j].y,q.y))<160)return;var C=craneAt(q,i%2?-.3:.28);if(C){C.k=k;craneBuild(C);seen.push(q)}})
+ }catch(e){console.error(e)}
+ return P};
+var _dzPX=drawZones;drawZones=function(l){_dzPX(l);if(!window.worldReady)return;var i;
+ if(l===0){for(i=0;i<GARS.length;i++)garDraw(GARS[i]);for(i=0;i<CRANES.length;i++)craneDraw(CRANES[i],false)}
+ else for(i=0;i<CRANES.length;i++)craneDraw(CRANES[i],true)};
+var _edPX=emisDraw;emisDraw=function(a){_edPX(a);var i;for(i=0;i<CRANES.length;i++)craneGlow(CRANES[i],a);if(a>.05)for(i=0;i<GARS.length;i++)garGlow(GARS[i],a)};
+// the old shed / borrowed-building garage are not needed where the real ones stand
+var _c4SD=c4ShedDraw;c4ShedDraw=function(){if(GARS.some(function(g){return g.main}))return;_c4SD()};
 
 // ===== Android "back" + the app going to the background =====
 function _vis(id){var e=$(id);return!!e&&!!e.style.display&&e.style.display!=='none'}

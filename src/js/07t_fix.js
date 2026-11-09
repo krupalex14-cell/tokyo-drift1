@@ -53,3 +53,26 @@ function specMouthTidy(){var n=0,BLK={};BLK[P_TIRE]=1;BLK[P_BLOCK]=1;BLK[P_BARR]
    PH.q(ex-m-50,ey-m-50,ex+m+50,ey+m+50,function(p){if(p.hid||!BLK[p.t])return;var px=wd(p.x,ex),py=wd(p.y,ey),al=px*ux+py*uy,ac=Math.abs(-px*uy+py*ux);if(al>-12&&al<44&&ac<m+(p.r||2))rm.push(p)});
    rm.forEach(function(p){hashRmNear(PH,p,p.x,p.y,Math.max(p.r||2,12)+2);p.hid=1;p.gone=1;n++})})})});return n}
 var _bbSRT=buildBrk;buildBrk=function(){_bbSRT();try{window.SRTIDY=specRoadTidy();window.SRTIDY.mouth=specMouthTidy()}catch(e){console.error(e)}};
+// ---- how far (x,y) is from any drivable asphalt: streets, the ground-level ends of expressway ramps, crossing arms,
+// roundabouts and side-street joins (negative = on the asphalt). The kerb tidy above only knew the streets themselves, so trees
+// were left standing where a ramp comes down to the street or in the corner of a crossing
+function roadSurfGap(x,y,R){R=R||80;var g=1e9,e=roadEdgeNear(x,y,R);if(e)g=e.gap;
+ RH.q(x-R,y-R,x+R,y+R,function(sp){var r=sp.r;if(r.k!=='ramp'||!r.h)return;for(var i=Math.max(0,sp.i-1);i<Math.min(r.n-1,sp.j+1);i++){if(r.h[i]>.32&&r.h[i+1]>.32)continue;
+  var x0=r.xs[i],y0=r.ys[i],ex=wd(r.xs[i+1],x0),ey=wd(r.ys[i+1],y0),l2=ex*ex+ey*ey||1,dx=wd(x,x0),dy=wd(y,y0),t=clamp((dx*ex+dy*ey)/l2,0,1),d=Math.hypot(dx-ex*t,dy-ey*t)-r.hw;if(d<g)g=d}});
+ NH.q(x-R,y-R,x+R,y+R,function(n){var dx=wd(x,n.x),dy=wd(y,n.y);
+  if(n.t==='round'){var d=Math.hypot(dx,dy)-(n.R||n.rJ||0);if(d<g)g=d;return}
+  (n.ed||[]).forEach(function(ed){var r=ed.r;if(r.k==='ramp'||r.k==='exp')return;if(ed.e===0)r.pt(0,TMP);else r.pt(r.len,TMP);var ux=ed.e===0?TMP[2]:-TMP[2],uy=ed.e===0?TMP[3]:-TMP[3],L=nodeTrimD(r)+8,al=dx*ux+dy*uy,ac=Math.abs(-dx*uy+dy*ux),d=Math.max(-al,al-L,ac-r.hw);if(d<g)g=d})});
+ LJH.q(x-R,y-R,x+R,y+R,function(j){var dx=wd(x,j.x),dy=wd(y,j.y),hw=j.hw,d;
+  if(j.mouth&&j.dir){var e0=-13*j.dir,f=e0+j.dir*34,a=Math.min(e0,f),b=Math.max(e0,f);if(j.o)d=Math.max(a-dx,dx-b,Math.abs(dy)-hw);else d=Math.max(a-dy,dy-b,Math.abs(dx)-hw)}
+  else d=Math.max(Math.abs(dx)-hw,Math.abs(dy)-hw);if(d<g)g=d});
+ return g}
+// trees, sakura, lamps, benches and vending machines on (or hanging over) that asphalt: step them back onto the pavement or take them away
+function propTidy2(){var seen=new Set(),L=[],moved=0,gone=0,K={};K[P_TREE]=4;K[P_SAKURA]=4;K[P_LAMP]=1.5;K[P_BENCH]=2;K[P_VEND]=2;K[P_PLANT]=2;K[P_TRASH]=1.5;K[P_MAIL]=1.5;
+ PH.q(0,0,WS,WS,function(p){if(seen.has(p))return;seen.add(p);if(p.hid||p.gone||!K[p.t])return;L.push(p)});
+ L.forEach(function(p){var need=K[p.t];if(roadSurfGap(p.x,p.y)>=need)return;var best=null;
+  for(var d=6;d<=22&&!best;d+=4)for(var k=0;k<12&&!best;k++){var a=k/12*TAU,nx=wrap(p.x+Math.cos(a)*d),ny=wrap(p.y+Math.sin(a)*d);if(roadSurfGap(nx,ny)<need+4||ptInBld(nx,ny)||inRiver(nx,ny,4))continue;
+   var ok=true;PH.q(nx-12,ny-12,nx+12,ny+12,function(q){if(q!==p&&!q.hid&&Math.hypot(wd(q.x,nx),wd(q.y,ny))<(q.r||2)+(p.r||2)+3)ok=false});if(ok)best=[nx,ny]}
+  var m=Math.max(p.r||2,12);hashRmNear(PH,p,p.x,p.y,m+2);if(best&&p.t!==P_LAMP){p.x=best[0];p.y=best[1];PH.add(p,p.x-m,p.y-m,p.x+m,p.y+m);moved++}else{p.hid=1;p.gone=1;gone++}});
+ return {moved:moved,gone:gone}}
+// (runs once the crossing and join indexes exist)
+var _biTidy2=baseIdx;baseIdx=function(){_biTidy2();try{window.TIDY2=propTidy2()}catch(e){console.error(e)}};

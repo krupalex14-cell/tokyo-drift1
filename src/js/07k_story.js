@@ -351,6 +351,8 @@ function dlgNext(skip){var d=DLG;if(!d)return;
 function chapterCard(top,title,sub,cb){var e=$('chap');e.innerHTML='<div class="cc1">'+top+'</div><div class="cc2">'+title+'</div><div class="cc3">'+sub+'</div>';e.style.display='flex';e.className='';void e.offsetWidth;e.className='on';
  var done=false;function fin(){if(done)return;done=true;e.style.display='none';e.onclick=null;if(cb)cb()}e.onclick=fin;setTimeout(fin,3200)}
 // ---- start / finish
+// "again": back to where the mission starts (if you are not there already), so it runs from its first point
+function stRetryPlace(c){try{var p=stPlace(c.at);if(!p||Math.hypot(wd(p.x,car.x),wd(p.y,car.y))<150)return;stPlaceCar(c.at);car.vx=car.vy=car.w=0;car.dr=false;car.l=0;cam.x=car.x;cam.y=car.y;preload();WP=null}catch(e){}}
 function stPlaceCar(k){var p=stPlace(k),q=p.a!=null?null:gpsNear(p.x,p.y,300,true);if(p.a!=null){car.x=p.x;car.y=p.y;car.a=p.a}else if(q){q.r.pt(q.s,TMP);var u=q.r.k==='loc'?q.r.hw*.42:(q.r.m||0)+.5*(q.r.lw||20);car.x=wrap(TMP[0]+TMP[3]*u);car.y=wrap(TMP[1]-TMP[2]*u);car.a=Math.atan2(TMP[3],TMP[2])}else{car.x=p.x;car.y=p.y}
  car.vx=car.vy=car.w=0;car.sp=0;car.l=0;car.dr=false;cam.x=car.x;cam.y=car.y;cam.a=car.a;preload()}
 function stRoute(x,y){var q=gpsNear(x,y,90)||gpsNear(x,y,200,true)||gpsNear(x,y,600);if(!q)return;WP={x:x,y:y,q:q,st:1};ST.rt=TIME;gpsRoute()}
@@ -362,7 +364,8 @@ function stStart(m,quick){if(!m||ST.act)return;if(m.type==='pay'&&S.coins<m.amou
  dlgOpen(quick?[]:m.pre,function(){
   if(m.type==='scene'){stDone(true);return}
   if(m.type==='pay'){if(S.coins>=m.amount){S.coins-=m.amount;S.story.debt-=m.amount;save();stDone(true)}else{ST.act=null;toast(L('Нужно')+' '+m.amount+' ¥');return}return}
-  if(m.ride&&!quick){ST.ride=true;var rp=stPlace(m.ride);stRoute(rp.x,rp.y);return}
+  // a retry starts from the beginning too: first the drive to the start point (it used to skip it and send you straight to the next point)
+  ST.quick=!!quick;if(m.ride){ST.ride=true;var rp=stPlace(m.ride);stRoute(rp.x,rp.y);return}
   stMain(m)})}
 function stMain(m){ST.t=0;ST.ride=false;ST.close=0;ST.tot=0;ST.touch=0;ST.tcd=0;ST.far=0;ST.fail='';ST.sv=null;ST.esc=0;ST.hid=0;ST.pin=0;ST.rams=0;
  if(m.type==='deliv'){var s=stPlace(m.stops[0]);stRoute(s.x,s.y)}
@@ -416,7 +419,7 @@ function stUpdate(dt){if(!ST.mode)return;var m=ST.act,P=stPlaces();
   if((d<70||(!c.ride&&stInZone(c)))&&!ZS&&!ZFADE)stPromptShow(c);else stPromptHide();return}
  if(ST.ride){var rp=P[m.ride],rd=Math.hypot(wd(rp.x,car.x),wd(rp.y,car.y));stTraffic(rp,0);
   if(rd<62||stInZoneId(m.rideZone||m.zone)){ST.ride=false;ST.arr=true;WP=null;car.vx*=.15;car.vy*=.15;car.w=0;car.dr=false;popup(LT(rp.name)+' ✓','mul');
-   dlgOpen(m.arrive||[],function(){ST.arr=false;if(ST.act===m)stMain(m)});return}
+   dlgOpen(ST.quick?[]:m.arrive||[],function(){ST.arr=false;if(ST.act===m)stMain(m)});return}
   if((!WP||!WP.pts)&&rd>80&&TIME-(ST.rt||0)>1.5)stRoute(rp.x,rp.y);return}
  if(ST.arr)return;
  if(isZR(m)&&!ZS&&!ZFADE){stAbort();return}
@@ -467,7 +470,7 @@ function stPromptShow(c){if(ST.prompt===c.id)return;ST.prompt=c.id;var e=$('sq')
 function stPromptHide(){if(!ST.prompt)return;ST.prompt=false;$('sq').classList.remove('on')}
 function stEsc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='go'){var c=stCur();if(c)stStart(c)}
- if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game')stStart(c2,true)}
+ if(b.dataset.st==='retry'){$('res').style.display='none';var c2=stCur();if(c2&&!ST.act&&mode==='game'){stRetryPlace(c2);stStart(c2,true)}}
  if(b.dataset.st==='reset'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent=L('точно?');setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent=L('заново')}},2500);return}
   if(S.story.debt<30000){S.coins+=30000-S.story.debt;S.story.debt=30000}S.story.m=0;S.story.started=1;ST.act=null;ST.routed='';save();
   chapterCard(chLbl(1),LT(CHAP[1].t),LT(CHAP[1].tod),function(){startGame(false);stPlaceCar('station');setTimeout(function(){stStart(stCur())},350)})}});

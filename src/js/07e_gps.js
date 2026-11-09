@@ -7,7 +7,7 @@ function gpsNear(x,y,R,artOnly){var best=null;
   for(var k=sp.i;k<=sp.j;k++){var d2=Math.hypot(wd(r.xs[k],x),wd(r.ys[k],y));if(d2<R&&(!best||d2<best.d))best={r:r,s:k*r.ds,d:d2,x:wrap(r.xs[k]),y:wrap(r.ys[k])}}});
  return best}
 // is there room for a car at (x,y)? houses, walls and rails, water, pillars and concrete blocks are in the way
-function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===4)return false;
+function gpsFree(x,y){if(ptInBld(x,y)||ptInBld(x-6,y)||ptInBld(x+6,y)||ptInBld(x,y-6)||ptInBld(x,y+6))return false;var t=typeAt(x,y);if(t===6||t===5)return false;
  var hit=false;PH.q(x-14,y-14,x+14,y+14,function(p){if(hit||p.hid||p.gone||p.brk||p.t===P_CAR||p.t===P_CONE||p.t===P_TORII||typeof BRKT!=='undefined'&&BRKT[p.t])return;
   var rr=p.w&&p.r===0?5:p.t===P_BLOCK?8:p.t===P_BARR?7:(p.r||2);if(Math.hypot(wd(p.x,x),wd(p.y,y))<rr+6)hit=true});return !hit}
 // can a car drive straight from (x0,y0) to (x1,y1)?

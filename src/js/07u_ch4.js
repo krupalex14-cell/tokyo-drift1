@@ -256,7 +256,7 @@ var C4PASS={kir:'Кир в машине',hana:'Хана в машине',reiko:'
 function c4Dark(){var m=ST.act;if(!ST.mode||!m||!m.dark||ST.ride||ST.arr||mode!=='game')return false;if(m.type==='shake')return ST.ph!==1;if(C4Z[m.type])return !!ZS;return true}
 var C4LF=null,C4PL=false;
 function c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f){var ca=Math.cos(a),sa=Math.sin(a),hx=Ln/2,hy=Hh/2,sx=SX(x),sy=SY(y);if(sx<-90||sy<-90||sx>VW+90||sy>VH+90)return;
- if(f.f){var ca2=.07+.62*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}}
+ if(f.f){var ca2=.05+.42*lv;if(ca2>.03){var cn=hlCone();cx.globalAlpha=Math.min(1,ca2);cx.save();cx.translate(sx,sy);cx.rotate(a);cx.drawImage(cn,hx-2,-hy-15,60*(isP?1.12:1),hy*2+30);cx.restore()}}
  [-1,1].forEach(function(s){if(f.f){var fx=sx+ca*(hx-1)-sa*s*(hy-2.5),fy=sy+sa*(hx-1)+ca*s*(hy-2.5);gl(fx,fy,5,5,[255,246,214],.25+.6*lv)}
   if(f.r){var rx=sx-ca*(hx-.5)-sa*s*(hy-2.5),ry=sy-sa*(hx-.5)+ca*s*(hy-2.5);gl(rx,ry,brk?8:5,brk?8:5,[255,40,60],(brk?.85:.18+.5*lv))}})}
 var _clC4=carLights;carLights=function(x,y,a,Ln,Hh,lv,brk,isP){var f=C4LF;if(!f&&C4PL&&isP&&car&&x===car.x&&y===car.y)f={f:0,r:1};if(!f)return _clC4(x,y,a,Ln,Hh,lv,brk,isP);c4Lights(x,y,a,Ln,Hh,lv,brk,isP,f)};
