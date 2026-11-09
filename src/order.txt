@@ -46,6 +46,8 @@
 07x_port
 07y_ch5
 07z_ch5_i18n
+07zc_casino
+07zd_casino_in
 08d_back
 08e_shop
 08f_radio
