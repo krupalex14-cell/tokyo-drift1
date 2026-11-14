@@ -1,0 +1,51 @@
+# Builds the pixel chess Android app and publishes it under one fixed link:
+# https://github.com/krupalex14-cell/tokyo-drift1/releases/download/chess-apk/pixel-chess.apk
+name: Chess APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ 'apps/chess/**', 'web/p/**', '.github/workflows/chess-android.yml' ]
+permissions:
+  contents: write
+concurrency:
+  group: chess-apk
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build APK
+        shell: bash
+        run: bash apps/chess/ci-build.sh 2>&1 | tee ci.log
+      - name: Publish under the fixed link
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete chess-apk --yes --cleanup-tag || true
+          gh release create chess-apk apps/chess/pixel-chess.apk \
+            --title "Пиксельные шахматы — Android" \
+            --notes "Скачай pixel-chess.apk на телефоне и установи. Новая сборка ставится поверх старой." \
+            --latest=false
+      - name: Keep the build log on the ci-out-chess branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/out
+          cp ci.log /tmp/out/ 2>/dev/null || true
+          echo "${{ job.status }} run ${{ github.run_number }} ${{ github.sha }}" > /tmp/out/STATUS
+          cd /tmp/out
+          git init -q -b ci-out-chess
+          git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "chess ci run ${{ github.run_number }}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" ci-out-chess
