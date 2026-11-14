@@ -43,6 +43,7 @@ jobs:
         run: |
           mkdir -p /tmp/out
           cp ci.log /tmp/out/ 2>/dev/null || true
+          cp apps/chess/www/stockfish.js /tmp/out/ 2>/dev/null || true
           echo "${{ job.status }} run ${{ github.run_number }} ${{ github.sha }}" > /tmp/out/STATUS
           cd /tmp/out
           git init -q -b ci-out-chess
