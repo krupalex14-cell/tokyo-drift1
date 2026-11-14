@@ -4,8 +4,8 @@
 set -euo pipefail
 rm -rf site && mkdir -p site
 cp web/manifest.webmanifest web/icon-180.png web/icon-192.png web/icon-512.png site/
-# Pixel chess, a separate page: https://krupalex14-cell.github.io/tokyo-drift1/chess/
-if [ -d web/chess ]; then mkdir -p site/chess && cp -r web/chess/. site/chess/; fi
+# Extra pages, each in its own folder: web/chess -> /chess/, web/p -> /p/
+for d in chess p; do if [ -d "web/$d" ]; then mkdir -p "site/$d" && cp -r "web/$d/." "site/$d/"; fi; done
 python3 - <<'PY'
 src=open('www/index.html',encoding='utf-8').read()
 tags=('<meta name="apple-mobile-web-app-capable" content="yes">\n'

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-    paths-ignore: [ 'web/chess/**' ]   # the chess web page doesn't change the app
+    paths-ignore: [ 'web/chess/**', 'web/p/**' ]   # extra web pages don't change the app
 permissions:
   contents: write
 concurrency:
