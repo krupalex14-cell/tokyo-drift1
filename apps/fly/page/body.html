@@ -1,0 +1,63 @@
+<div id="app">
+ <header id="head">
+  <div class="ttl"><span class="logo">🪰</span><div><b>Муха</b><small>настоящий мозг · коннектом FlyWire</small></div></div>
+  <div class="hb"><button id="bCam" title="Камера">🔭</button><button id="bReset" title="Сбросить стол">↺</button><button id="bInfo" title="Что тут настоящее">ⓘ</button></div>
+ </header>
+ <main id="stage">
+  <canvas id="c3d"></canvas>
+  <div id="chip">гуляет</div>
+  <div id="toast"></div>
+  <div id="tint"></div>
+  <div id="nogl">Не получилось запустить 3D (WebGL). Попробуй открыть страницу в Safari или Chrome.</div>
+ </main>
+ <section id="brain">
+  <div class="bhead"><span><b>Мозг мухи</b> · реальные нейроны</span><span id="nact"></span><button id="bFold" title="Свернуть">▾</button></div>
+  <div id="bbody">
+   <div id="cbw"><canvas id="cb"></canvas></div>
+   <div id="bars">
+    <div class="mg" style="--c:var(--sugar)"><span class="l">сахар</span><div class="b"><i id="i_sugar"></i></div><span class="v" id="v_sugar">0</span></div>
+    <div class="mg" style="--c:var(--bitter)"><span class="l">горькое</span><div class="b"><i id="i_bitter"></i></div><span class="v" id="v_bitter">0</span></div>
+    <div class="mg" style="--c:var(--water)"><span class="l">вода</span><div class="b"><i id="i_water"></i></div><span class="v" id="v_water">0</span></div>
+    <div class="mg" style="--c:var(--jon)"><span class="l">усики</span><div class="b"><i id="i_jon"></i></div><span class="v" id="v_jon">0</span></div>
+    <div class="sep"></div>
+    <div class="mg" style="--c:var(--mn9)"><span class="l">хоботок</span><div class="b"><i id="i_mn9"></i></div><span class="v" id="v_mn9">0</span></div>
+    <div class="mg" style="--c:var(--abn)"><span class="l">груминг</span><div class="b"><i id="i_abn"></i></div><span class="v" id="v_abn">0</span></div>
+    <div class="mg" style="--c:var(--dn)"><span class="l">испуг</span><div class="b"><i id="i_dn"></i></div><span class="v" id="v_dn">0</span></div>
+   </div>
+  </div>
+ </section>
+ <section id="dock">
+  <div id="sub"><div id="hint"></div>
+   <div id="teach">
+    <button id="bRew">🍬 Награда</button><button id="bPun">🧪 Наказание</button><button id="bForget">↺ Забыть всё</button>
+    <div class="st"><span><i class="dot pam" id="dPam"></i>награда</span><span><i class="dot ppl" id="dPpl"></i>наказание</span><span id="pref"></span></div>
+   </div>
+  </div>
+  <nav id="tools">
+   <button class="tool on" data-t="sugar"><span>🍬</span>сахар</button>
+   <button class="tool" data-t="water"><span>💧</span>вода</button>
+   <button class="tool" data-t="bitter"><span>🧪</span>горькое</button>
+   <button class="tool" data-t="wind"><span>🌬️</span>ветер</button>
+   <button class="tool" data-t="swat"><span>🪰</span>хлопушка</button>
+   <button class="tool" data-t="touch"><span>👆</span>трогать</button>
+   <button class="tool" data-t="teach"><span>🎓</span>учить</button>
+  </nav>
+ </section>
+</div>
+<div id="info"><div class="card">
+ <h3>Что здесь настоящее</h3>
+ <ul>
+  <li>Связи нейронов — настоящий <b>коннектом</b> взрослой самки дрозофилы (FlyWire, версия 630): 127 400 нейронов и 14,7 млн синапсов.</li>
+  <li>Модель нейрона — «накопил заряд и выстрелил» из работы Shiu et al., <i>Nature</i> 2024 (код: <a href="https://github.com/philshiu/Drosophila_brain_model" target="_blank" rel="noopener">philshiu/Drosophila_brain_model</a>).</li>
+  <li>Реакции всего мозга на сахар, горькое, воду и «ветер на усики» (и на их смеси) я посчитал заранее своей быстрой реализацией этой модели; в страницу вшиты таблицы результатов. На экране — 700 самых отзывчивых нейронов, яркость = их частота. Для смесей яркость — сумма реакций, а вот выходные нейроны (хоботок, груминг, испуг) взяты из отдельных расчётов на смесях.</li>
+  <li>Выходные нейроны: MN9 — вытягивание хоботка (еда), aBN1 — груминг усиков (по статье). DN1/DN2 как «испуг» — моя трактовка.</li>
+ </ul>
+ <h3>Что придумал я</h3>
+ <ul>
+  <li>Тело, походка, «подойти к капле», «отшатнуться от горького», «взлететь» — простые правила, которые смотрят на частоты выходных нейронов. Модель сама по себе не умеет ходить.</li>
+  <li>Ветер, хлопушка и тычок — один и тот же входной сигнал на механосенсорные нейроны усиков (в модели нет ни зрения, ни осязания ног).</li>
+  <li>Учить запахам коннектом не умеет (его веса фиксированы), поэтому обучение — упрощённая модель грибовидных тел с дофамином. Награда — настоящий сахар на лапки, наказание — настоящий хинин, но запоминание — моя игрушечная схема.</li>
+  <li>Реакции посчитаны как средние за 0,3 с, на странице они сглажены. Сверку своей реализации с оригинальным кодом на Brian2 я не делал — совпадение только по порядку величин со статьёй.</li>
+ </ul>
+ <button class="x" id="bInfoX">Понятно</button>
+</div></div>
