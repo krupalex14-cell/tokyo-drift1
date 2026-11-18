@@ -214,7 +214,7 @@ const FR = 3.0;                 // fly walking radius
 const MOUTH = 0.78 * S;         // head front from body centre
 const ODORS = { A: { x: -1.9, z: -1.8, col: 0xff5fa2, name: 'А' }, B: { x: 1.9, z: -1.8, col: 0x3fe0c5, name: 'Б' } };
 
-const F = { x: 0, z: 0.6, h: 0.3, v: 0, y: 0, state: 'idle', t: 0, timer: 1, target: null, walk: 0, omega: 0,
+const F = { om: 0, ph1: Math.random() * 6.28, ph2: Math.random() * 6.28, ph3: Math.random() * 6.28, pauseT: 0, headYaw: 0, lastDa: 0, micro: null, x: 0, z: 0.6, h: 0.3, v: 0, y: 0, state: 'idle', t: 0, timer: 1, target: null, walk: 0, omega: 0,
   flight: null, flinch: null, retreat: null, contact: 0, cool: 0, groomT: 0, eatT: 0, threat: { x: 0, z: -3 }, sniffOd: null, goOd: null, lastOd: null };
 const O = { mn9_L: 0, mn9_R: 0, aBN1: 0, dn1_1: 0, dn2_l: 0, nact: 0 };     // smoothed outputs (Hz)
 const inp = { sugar: 0, bitter: 0, water: 0, jon: 0 };
@@ -266,40 +266,89 @@ function puffTexture(inner) {
 const PUFF = puffTexture();
 
 /* ---- fly mesh ---- */
-const matCache = {};
 const mat = (col, o) => new THREE.MeshPhongMaterial(Object.assign({ color: col, shininess: 40 }, o || {}));
 const SPH = new THREE.SphereGeometry(1, 20, 14);
 function ell(col, sx, sy, sz, x, y, z, o) { const m = new THREE.Mesh(SPH, mat(col, o)); m.scale.set(sx, sy, sz); m.position.set(x, y, z); return m; }
 const root = new THREE.Group(); root.scale.setScalar(S); scene.add(root);
 const body = new THREE.Group(); root.add(body);
-body.add(ell(0x4d3c2d, 0.36, 0.34, 0.44, 0, 0.64, 0.05));
-for (let i = 0; i < 5; i++) body.add(ell(i % 2 ? 0x2b231c : 0xc9ac72, 0.31 - 0.025 * i, 0.28 - 0.02 * i, 0.2, 0, 0.58 - 0.025 * i, -0.5 - 0.17 * i));
-body.add(ell(0x6b5440, 0.26, 0.25, 0.24, 0, 0.6, 0.58));
-body.add(ell(0xc4182a, 0.15, 0.2, 0.17, 0.17, 0.65, 0.62, { shininess: 90, emissive: 0x2a0306 }));
-body.add(ell(0xc4182a, 0.15, 0.2, 0.17, -0.17, 0.65, 0.62, { shininess: 90, emissive: 0x2a0306 }));
-for (const sd of [-1, 1]) { const a = ell(0x3a2c20, 0.045, 0.045, 0.09, sd * 0.075, 0.72, 0.8); body.add(a); }
-// proboscis
-const prob = new THREE.Group(); prob.position.set(0, 0.5, 0.74); body.add(prob);
+// thorax with dark stripes and a small scutellum
+const THX = { y: 0.64, z: 0.05, sx: 0.36, sy: 0.34, sz: 0.44 };
+body.add(ell(0x6a5238, THX.sx, THX.sy, THX.sz, 0, THX.y, THX.z));
+for (const x of [-0.11, 0, 0.11]) body.add(ell(0x1f1812, 0.03, 0.03, 0.3, x, THX.y + THX.sy * Math.sqrt(1 - (x / THX.sx) ** 2) - 0.012, THX.z + 0.02));
+body.add(ell(0x3b2d20, 0.15, 0.11, 0.13, 0, 0.7, -0.33));
+// abdomen: tan segments with dark rear bands, breathes
+const abd = new THREE.Group(); abd.position.set(0, 0.6, -0.38); body.add(abd);
+for (let i = 0; i < 6; i++) {
+  const k = i / 5, sx = 0.3 - 0.08 * k, sy = 0.27 - 0.08 * k, z = -0.12 - 0.15 * i, y = -0.025 * i;
+  abd.add(ell(i === 0 ? 0x8b7350 : 0xd2b57a, sx, sy, 0.17, 0, y, z));
+  abd.add(ell(0x2a2119, sx * 1.015, sy * 1.015, 0.075, 0, y, z - 0.1));
+}
+// head on a neck pivot, so it can turn independently of the body
+const head = new THREE.Group(); head.position.set(0, 0.58, 0.4); body.add(head);
+head.add(ell(0x6b5440, 0.26, 0.25, 0.24, 0, 0.02, 0.18));
+for (const sd of [-1, 1]) {
+  head.add(ell(0xb3121f, 0.15, 0.2, 0.17, sd * 0.17, 0.06, 0.22, { shininess: 120, specular: 0xffc8c8, emissive: 0x24040a }));
+  head.add(ell(0xe8922a, 0.025, 0.025, 0.025, sd * 0.05, 0.25, 0.14));
+}
+head.add(ell(0xe8922a, 0.025, 0.025, 0.025, 0, 0.26, 0.2));
+const ants = [];
+for (const sd of [-1, 1]) {
+  const g = new THREE.Group(); g.position.set(sd * 0.075, 0.13, 0.4); head.add(g);
+  g.add(ell(0x3a2c20, 0.04, 0.04, 0.05, 0, 0, 0));
+  g.add(ell(0x4a3a2c, 0.05, 0.075, 0.04, 0, -0.07, 0.03));
+  const ar = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.009, 0.2, 4).rotateZ(Math.PI / 2).translate(sd * 0.1, -0.06, 0.04), mat(0x2a2119)); g.add(ar);
+  ants.push(g);
+}
+// proboscis (rostrum + labellum), hangs from the head
+const prob = new THREE.Group(); prob.position.set(0, -0.08, 0.34); head.add(prob);
 const rostGeo = new THREE.CylinderGeometry(0.035, 0.05, 1, 8); rostGeo.rotateX(Math.PI / 2); rostGeo.translate(0, 0, 0.5);
 const rost = new THREE.Mesh(rostGeo, mat(0xe0b98a)); prob.add(rost);
 const label = ell(0xf0a8a0, 0.11, 0.07, 0.11, 0, 0, 0.1); prob.add(label);
-// wings
+// bristles
+function fuzz(parent, n, cx, cy, cz, sx, sy, sz, minY) {
+  const geo = new THREE.ConeGeometry(0.01, 0.07, 4); geo.translate(0, 0.035, 0);
+  const im = new THREE.InstancedMesh(geo, mat(0x1a1410, { shininess: 5 }), n); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), nv = new THREE.Vector3(), sc = new THREE.Vector3(1, 1, 1);
+  for (let i = 0; i < n; i++) {
+    do { v.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1); } while (v.lengthSq() > 1 || v.lengthSq() < 0.1 || v.y / v.length() < minY);
+    v.normalize(); nv.set(v.x / sx, v.y / sy, v.z / sz).normalize();
+    q.setFromUnitVectors(UP0, nv); m4.compose(new THREE.Vector3(cx + v.x * sx, cy + v.y * sy, cz + v.z * sz), q, sc); im.setMatrixAt(i, m4);
+  }
+  parent.add(im);
+}
+const UP0 = new THREE.Vector3(0, 1, 0);
+fuzz(body, 70, 0, THX.y, THX.z, THX.sx, THX.sy, THX.sz, -0.2);
+fuzz(abd, 90, 0, -0.06, -0.52, 0.27, 0.23, 0.62, -0.1);
+// wings: tapered, with veins
+function wingTexture() {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 256; const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 150, 10, 64, 150, 140); g.addColorStop(0, 'rgba(225,238,255,0.30)'); g.addColorStop(1, 'rgba(205,225,255,0.5)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 256);
+  x.strokeStyle = 'rgba(45,40,36,.8)'; x.lineCap = 'round';
+  const pts = [[8, 120], [22, 40], [50, 6], [84, 6], [112, 50], [122, 130]];
+  pts.forEach((p, i) => { x.lineWidth = i === 0 ? 3.4 : 1.8; x.beginPath(); x.moveTo(64, 252); x.quadraticCurveTo((64 + p[0]) / 2 + (i % 2 ? 6 : -6), (252 + p[1]) / 2, p[0], p[1]); x.stroke(); });
+  x.lineWidth = 1.4; x.beginPath(); x.moveTo(30, 150); x.lineTo(100, 150); x.moveTo(36, 90); x.lineTo(92, 96); x.stroke();
+  const t = new THREE.CanvasTexture(x.canvas); return t;
+}
+const WTEX = wingTexture();
 const wings = [];
 for (const sd of [-1, 1]) {
-  const pv = new THREE.Group(); pv.position.set(sd * 0.17, 0.84, 0.1); pv.rotation.order = 'ZYX';
-  const wg = new THREE.CircleGeometry(0.5, 24).rotateX(-Math.PI / 2); wg.scale(0.7, 1, 2.0); wg.translate(0, 0, -0.95);
-  const w = new THREE.Mesh(wg, new THREE.MeshPhongMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.38, side: THREE.DoubleSide, depthWrite: false, shininess: 90 }));
+  const pv = new THREE.Group(); pv.position.set(sd * 0.17, 0.8, 0.1); pv.rotation.order = 'ZYX';
+  const wg = new THREE.CircleGeometry(0.5, 28); const pa = wg.attributes.position;
+  for (let i = 0; i < pa.count; i++) { const t = pa.getY(i) + 0.5; pa.setX(i, pa.getX(i) * (0.3 + 0.7 * Math.pow(t, 0.7))); }
+  wg.rotateX(-Math.PI / 2); wg.scale(0.85, 1, 2.1); wg.translate(0, 0, -1.0);
+  const w = new THREE.Mesh(wg, new THREE.MeshPhongMaterial({ map: WTEX, transparent: true, side: THREE.DoubleSide, depthWrite: false, shininess: 100, specular: 0xaabbee }));
   pv.add(w); body.add(pv); wings.push({ pv, sd });
 }
-// legs
-const legMat = mat(0x1d1813);
-const femGeo = new THREE.CylinderGeometry(0.032, 0.034, 1, 6), tibGeo = new THREE.CylinderGeometry(0.024, 0.03, 1, 6);
+// legs: coxa -> femur -> tibia -> tarsus
+const legMat = mat(0x2b2119), legMat2 = mat(0x3d2f23);
+const femGeo = new THREE.CylinderGeometry(0.042, 0.065, 1, 7), tibGeo = new THREE.CylinderGeometry(0.03, 0.042, 1, 6), tarGeo = new THREE.CylinderGeometry(0.016, 0.026, 1, 5);
 const legs = [];
 for (const row of [0, 1, 2]) for (const sd of [-1, 1]) {
-  const hipZ = [0.3, 0.06, -0.2][row], footZ = [0.66, 0.08, -0.66][row], footX = [0.62, 0.82, 0.66][row];
-  const fem = new THREE.Mesh(femGeo, legMat), tib = new THREE.Mesh(tibGeo, legMat);
-  root.add(fem); root.add(tib);
-  legs.push({ row, sd, hip: new THREE.Vector3(sd * 0.15, 0.5, hipZ), rest: new THREE.Vector3(sd * footX, 0, footZ), fem, tib, group: (row + (sd > 0 ? 0 : 1)) % 2, foot: new THREE.Vector3(sd * footX, 0, footZ) });
+  const hipZ = [0.3, 0.06, -0.2][row], footZ = [0.62, 0.08, -0.6][row], footX = [0.52, 0.7, 0.56][row];
+  const fem = new THREE.Mesh(femGeo, legMat2), tib = new THREE.Mesh(tibGeo, legMat), tar = new THREE.Mesh(tarGeo, legMat), knee = ell(0x2b2119, 0.062, 0.062, 0.062, 0, 0, 0), ankle = ell(0x2b2119, 0.04, 0.04, 0.04, 0, 0, 0);
+  root.add(fem); root.add(tib); root.add(tar); root.add(knee); root.add(ankle);
+  body.add(ell(0x3d2f23, 0.06, 0.06, 0.06, sd * 0.15, 0.5, hipZ));
+  legs.push({ row, sd, hip: new THREE.Vector3(sd * 0.15, 0.5, hipZ), rest: new THREE.Vector3(sd * footX, 0, footZ), fem, tib, tar, knee, ankle, group: (row + (sd > 0 ? 0 : 1)) % 2, foot: new THREE.Vector3(sd * footX, 0, footZ) });
 }
 const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.8, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false }));
 shadow.scale.set(S * 1.0, 1, S * 1.5); shadow.position.y = 0.006; scene.add(shadow);
@@ -385,7 +434,7 @@ const camPos = new THREE.Vector3(0, 4.6, 5.6), camLook = new THREE.Vector3(0, 0,
 function updateCamera(dt, snap) {
   const k = snap ? 1 : 1 - Math.exp(-dt * 3);
   let tp, tl;
-  if (T.cam === 'follow') { tl = new THREE.Vector3(F.x * 0.9, 0.25 + F.y * 0.5, F.z * 0.9); tp = new THREE.Vector3(F.x * 0.9, 4.1 + F.y * 0.3, F.z * 0.9 + 4.7); }
+  if (T.cam === 'follow') { tl = new THREE.Vector3(F.x * 0.95, 0.3 + F.y * 0.5, F.z * 0.95); tp = new THREE.Vector3(F.x * 0.95, 3.1 + F.y * 0.3, F.z * 0.95 + 3.9); }
   else { tl = new THREE.Vector3(0, 0, 0.2); tp = new THREE.Vector3(0, 8.6, 6.6); }
   camPos.lerp(tp, k); camLook.lerp(tl, k); camera.position.copy(camPos); camera.lookAt(camLook);
 }
@@ -406,15 +455,22 @@ function nearestOdor() { let best = null, bd = 1.25; for (const k in ODORS) { co
 
 function steer(tx, tz, dt, vmax) {
   const dx = tx - F.x, dz = tz - F.z, dist = Math.hypot(dx, dz);
-  const want = Math.atan2(dx, dz), da = wrapA(want - F.h);
-  const turn = clamp(da, -6 * dt, 6 * dt); F.h += turn; F.omega = turn / Math.max(dt, 1e-4);
+  let want = Math.atan2(dx, dz);
+  // a real fly never walks a ruler-straight line: gentle wobble far from the goal
+  if (dist > 0.9) want += (0.28 * Math.sin(1.7 * T.time + F.ph1) + 0.14 * Math.sin(3.3 * T.time + F.ph2)) * Math.min(1, (dist - 0.9) / 1.2);
+  const da = wrapA(want - F.h); F.lastDa = da;
+  const wantOm = clamp(da * 6, -5.5, 5.5);
+  F.om += (wantOm - F.om) * Math.min(1, dt * 9); F.h += F.om * dt; F.omega = F.om;
+  // stop-and-go: short pauses and speed bursts
+  if (F.pauseT > 0) F.pauseT -= dt; else if (dist > 0.9 && Math.random() < dt * 0.22) F.pauseT = rnd(0.2, 0.6);
+  const burst = 0.72 + 0.28 * Math.sin(2.6 * T.time + F.ph3);
   const align = Math.max(0, Math.cos(da)) ** 2;
-  const vt = vmax * align * Math.min(1, dist / 0.5);
-  F.v += (vt - F.v) * Math.min(1, dt * 8);
+  const vt = (F.pauseT > 0 ? 0 : vmax * burst) * align * Math.min(1, dist / 0.5);
+  F.v += (vt - F.v) * Math.min(1, dt * 7);
   F.x += Math.sin(F.h) * F.v * dt; F.z += Math.cos(F.h) * F.v * dt;
   return dist;
 }
-function halt(dt) { F.v += (0 - F.v) * Math.min(1, dt * 10); F.omega *= 0.8; F.x += Math.sin(F.h) * F.v * dt; F.z += Math.cos(F.h) * F.v * dt; }
+function halt(dt) { F.v += (0 - F.v) * Math.min(1, dt * 10); F.om *= 0.8; F.omega = F.om; F.x += Math.sin(F.h) * F.v * dt; F.z += Math.cos(F.h) * F.v * dt; }
 function clampPos() { const d = Math.hypot(F.x, F.z); if (d > FR) { F.x *= FR / d; F.z *= FR / d; } }
 
 function setState(s) { if (F.state !== s) { F.state = s; F.timer = 0; } }
@@ -441,7 +497,7 @@ function decide() {
   if (Math.random() < clamp(0.6 * (vA + vB), 0, 0.9)) { F.goOd = Math.random() < vA / (vA + vB) ? 'A' : 'B'; setState('odor'); return; }
   const r = rnd(0, 1);
   if (r < 0.55) { const a = rnd(0, 6.28), d = rnd(0.8, FR - 0.3); F.target = { x: Math.cos(a) * d, z: Math.sin(a) * d, wander: true }; setState('wander'); }
-  else { setState('idle'); F.timer = -rnd(0.5, 2.5); }
+  else { setState('idle'); F.timer = -rnd(1.5, 4.5); }
 }
 
 function update(dt) {
@@ -542,18 +598,28 @@ function update(dt) {
         if (F.timer > Math.max(z < -0.8 ? 0.6 : stay, F.callHold || 0)) { F.callHold = 0; setState('idle'); F.timer = -0.2; if (z < -0.8) { const od = ODORS[F.sniffOd]; F.target = { x: od.x * 0.2, z: od.z * 0.2 + 0.5, wander: true }; setState('wander'); } }
       } else { // idle
         halt(dt);
+        if (!F.micro && F.timer < 0 && Math.random() < dt * 0.5) F.micro = { type: ['rubHind', 'wingFlick', 'look'][Math.floor(Math.random() * 3)], t: 0, dur: rnd(1.1, 2.0) };
         if (F.timer > 0) decide();
       }
     }
   }
   if (F.state === 'groom' && F.state !== 'flight') { /* stays put */ }
   clampPos();
+  if (F.micro) { F.micro.t += dt; if (F.micro.t > F.micro.dur || F.state !== 'idle') F.micro = null; }
+  {
+    const walking = F.state === 'goto' || F.state === 'wander' || F.state === 'odor';
+    let ht = 0;
+    if (walking) ht = clamp(F.lastDa * 0.9, -0.7, 0.7);
+    else if (F.state === 'idle' || F.state === 'sniff') ht = 0.4 * Math.sin(T.time * 0.9 + 1) * Math.sin(T.time * 0.37) + (F.micro && F.micro.type === 'look' ? 0.5 * Math.sin(T.time * 2.2) : 0);
+    F.headYaw = sm(F.headYaw, ht, dt, 0.12);
+  }
   A.flap = sm(A.flap, F.state === 'flight' ? 1 : 0, dt, 0.08);
   A.fl = sm(A.fl, F.state === 'flight' ? 1 : 0, dt, 0.12);
 }
 
 /* ====================== animation of the fly mesh ====================== */
 let wingT = 0;
+const _A = new THREE.Vector3(), _Kn = new THREE.Vector3();
 function poseFly(dt) {
   const sp = F.v / S;                               // speed in fly-local units
   const swMove = clamp(F.v / 0.35, 0, 1), swTurn = clamp(Math.abs(F.omega) / 3, 0, 1) * 0.5;
@@ -561,43 +627,62 @@ function poseFly(dt) {
   const stride = 0.55;
   const rate = F.state === 'flight' ? 0 : Math.max(0.6 * sp / Math.max(stride * sw, 0.06), 1.4 * swTurn);
   F.walk = (F.walk + rate * dt) % 1;
+  const ph = F.walk * Math.PI * 2, tt = T.time;
+  const fl = A.fl, me = F.micro ? Math.sin(Math.PI * F.micro.t / F.micro.dur) : 0;
 
   root.position.set(F.x, F.y, F.z); root.rotation.y = F.h;
-  const bob = (F.state === 'flight' ? 0 : 0.02 * Math.sin(F.walk * Math.PI * 4) * sw) + (F.state === 'eat' ? -0.03 * A.p : 0);
+  // body: bob, sway and lean into turns
+  const bob = (fl > 0.5 ? 0 : 0.022 * Math.sin(ph * 2) * sw) + (F.state === 'eat' ? -0.03 * A.p : 0);
   body.position.set(0, bob, 0);
-  const pitch = (F.state === 'flight' ? -0.35 * A.fl : 0) + 0.14 * A.p + (F.state === 'flinch' ? -0.25 : 0);
-  body.rotation.x = pitch; body.rotation.z = F.state === 'flight' ? Math.sin(T.time * 5) * 0.08 : 0;
+  const pitch = -0.35 * fl + 0.12 * A.p + (F.state === 'flinch' ? -0.25 : 0);
+  const roll = fl > 0.5 ? Math.sin(tt * 5) * 0.08 - F.omega * 0.04 : 0.05 * Math.sin(ph) * sw - F.omega * 0.03 * swMove;
+  body.rotation.set(pitch, 0.04 * Math.sin(ph + 1) * sw, roll);
   body.updateMatrix();
+  // head leads the turn and glances around when idle; dips when feeding
+  head.rotation.set(0.32 * A.p + (F.state === 'groom' ? 0.08 * Math.sin(tt * 14) * A.g : 0) - 0.1 * fl, F.headYaw || 0, 0.12 * (F.headYaw || 0) + (F.micro && F.micro.type === 'look' ? 0.18 * me : 0));
+  // antennae twitch
+  ants.forEach((g, i) => { g.rotation.set(0.12 * Math.sin(tt * 6.3 + i * 2) + 0.35 * A.g * Math.sin(tt * 20 + i) - 0.5 * fl, 0, 0.1 * Math.sin(tt * 4.1 + i)); });
+  // abdomen breathes and bends
+  abd.scale.set(1 + 0.02 * Math.sin(tt * 4.5), 1 + 0.035 * Math.sin(tt * 4.5), 1);
+  abd.rotation.set(-0.22 * fl + 0.03 * Math.sin(tt * 2.2), -F.omega * 0.06 + 0.06 * Math.sin(ph) * sw, 0);
 
-  // proboscis
-  const e = A.p, L = 0.06 + 0.56 * e;
-  prob.rotation.x = 0.9 * e; rost.scale.z = L; label.position.z = L + 0.04; label.visible = e > 0.05; rost.visible = e > 0.03;
+  // proboscis: extends and pumps while drinking
+  const e = A.p, pump = e > 0.3 ? Math.sin(tt * 19) : 0, L = 0.06 + 0.56 * e * (1 + 0.07 * pump);
+  prob.rotation.x = 0.9 * e - 0.06 * pump * e; rost.scale.z = L; label.position.z = L + 0.04; label.visible = e > 0.05; rost.visible = e > 0.03;
+  label.scale.set(0.11 * (1 + 0.25 * pump), 0.07 * (1 - 0.2 * pump), 0.11);
 
-  // wings: 8 Hz visual flap (slow enough for a screen) during flight
+  // wings: 8 Hz visual flap in flight (slow enough for a screen), flick when fidgeting
   wingT += dt * (A.flap > 0.2 ? 8 : 0) * Math.PI * 2;
   for (const w of wings) {
-    const spread = 0.12 + 1.0 * A.flap, flap = 0.05 + A.flap * (0.15 + 0.65 * Math.sin(wingT));
-    w.pv.rotation.set(0, -w.sd * spread, w.sd * flap);
+    const flick = F.micro && F.micro.type === 'wingFlick' ? 0.45 * me * me : 0;
+    const spread = 0.12 + 1.0 * A.flap + flick, flap = -0.12 + A.flap * (0.27 + 0.65 * Math.sin(wingT)) + flick * 0.15 * Math.sin(tt * 30);
+    w.pv.rotation.set(0.1 * A.flap * Math.sin(wingT + 1.2), -w.sd * spread, w.sd * flap);
   }
 
   // legs
-  const gAmt = F.state === 'groom' ? clamp(A.g * 1.6, 0, 1) : 0, eAmt = F.state === 'eat' ? A.p : 0;
+  const gAmt = F.state === 'groom' ? clamp(A.g * 1.6, 0, 1) : 0, eAmt = F.state === 'eat' ? A.p : 0, rub = F.micro && F.micro.type === 'rubHind' ? me : 0;
   for (const lg of legs) {
     const t = (F.walk + 0.5 * lg.group) % 1;
     const s = t < 0.6 ? 0.5 - t / 0.6 : -0.5 + (t - 0.6) / 0.4, lift = t < 0.6 ? 0 : Math.sin(Math.PI * (t - 0.6) / 0.4);
     _F.copy(lg.rest); _F.z += s * stride * sw; _F.y += lift * 0.22 * sw;
     if (lg.row === 0) {
-      if (eAmt > 0) { _F.z += 0.32 * eAmt; _F.x *= 1 - 0.3 * eAmt; }
+      if (eAmt > 0) { _F.z += 0.32 * eAmt + 0.03 * Math.sin(tt * 9 + lg.sd) * eAmt; _F.x *= 1 - 0.3 * eAmt; }
       if (gAmt > 0) {
-        const gx = lg.sd * (0.17 + 0.05 * Math.sin(T.time * 14 + (lg.sd > 0 ? 0 : 1.6))), gy = 0.78, gz = 0.82 + 0.1 * Math.sin(T.time * 14 + (lg.sd > 0 ? 0 : 1.6));
+        const gx = lg.sd * (0.17 + 0.05 * Math.sin(tt * 14 + (lg.sd > 0 ? 0 : 1.6))), gy = 0.78, gz = 0.82 + 0.1 * Math.sin(tt * 14 + (lg.sd > 0 ? 0 : 1.6));
         _F.x += (gx - _F.x) * gAmt; _F.y += (gy - _F.y) * gAmt; _F.z += (gz - _F.z) * gAmt;
       }
     }
-    if (A.fl > 0.01) { _F.x += (lg.sd * 0.32 - _F.x) * A.fl; _F.y += (0.12 - _F.y) * A.fl; _F.z += (lg.hip.z * 0.8 - 0.1 * (lg.row === 2 ? 1 : 0) - _F.z) * A.fl; }
+    if (lg.row === 2 && rub > 0) {   // hind legs rubbed together behind the body
+      const gx = lg.sd * 0.1, gy = 0.62, gz = -0.78 + 0.1 * Math.sin(tt * 13 + (lg.sd > 0 ? 0 : 1.2));
+      _F.x += (gx - _F.x) * rub; _F.y += (gy - _F.y) * rub; _F.z += (gz - _F.z) * rub;
+    }
+    if (fl > 0.01) { _F.x += (lg.sd * 0.32 - _F.x) * fl; _F.y += (0.12 - _F.y) * fl; _F.z += (lg.hip.z * 0.8 - 0.1 * (lg.row === 2 ? 1 : 0) - _F.z) * fl; }
     lg.foot.copy(_F);
     _H.copy(lg.hip).applyMatrix4(body.matrix);
-    ik(0.55, 0.78, _H, lg.foot, _K);
-    seg(lg.fem, _H, _K); seg(lg.tib, _K, lg.foot);
+    _A.copy(lg.foot); _A.y += 0.13 * (1 - 0.4 * fl); _A.x -= lg.sd * 0.03;       // ankle sits a little above and inside the foot
+    ik(0.46, 0.56, _H, _A, _K);
+    seg(lg.fem, _H, _K); seg(lg.tib, _K, _A); seg(lg.tar, _A, lg.foot);
+    lg.knee.position.copy(_K); lg.ankle.position.copy(_A);
   }
   shadow.position.set(F.x, 0.006, F.z); shadow.rotation.y = F.h;
   const hgt = clamp(F.y / 1.5, 0, 1); shadow.material.opacity = 0.3 * (1 - 0.7 * hgt); shadow.scale.set(S * (1 + 0.5 * hgt), 1, S * 1.5 * (1 + 0.5 * hgt));
@@ -666,7 +751,7 @@ const api = {
     return true;
   },
   forget() { MB.w.fill(0); visits.A = visits.B = 0; toast('Муха всё забыла'); },
-  reset() { while (puddles.length) removePuddle(puddles[0]); pulses.length = 0; events.wind = events.swat = null; events.poke = events.stroke = 0; Object.assign(F, { x: 0, z: 0.6, h: 0.3, v: 0, y: 0, flight: null, flinch: null, retreat: null, cool: 0, fcool: 0, dnT: 0, callHold: 0 }); setState('idle'); F.timer = 0; },
+  reset() { while (puddles.length) removePuddle(puddles[0]); pulses.length = 0; events.wind = events.swat = null; events.poke = events.stroke = 0; Object.assign(F, { x: 0, z: 0.6, h: 0.3, v: 0, y: 0, flight: null, flinch: null, retreat: null, cool: 0, fcool: 0, dnT: 0, callHold: 0, om: 0, pauseT: 0, micro: null }); setState('idle'); F.timer = 0; },
 };
 $('bRew').addEventListener('click', () => api.teach('reward'));
 $('bPun').addEventListener('click', () => api.teach('punish'));
