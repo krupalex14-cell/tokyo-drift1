@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#05060c"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Космос — симулятор космической программы</title>
+<style>
+/*@FONTS@*/
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html,body{margin:0;height:100%;background:#05060c;color:#dfe8ff;font-family:'Pix',monospace;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#app{position:fixed;inset:0;overflow:hidden}
+#cv{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;background:#000}
+#ui{position:absolute;inset:0;pointer-events:none}
+#ui>*{pointer-events:auto}
+.scr{position:absolute;inset:0;pointer-events:none}
+.scr>*{pointer-events:auto}
+b,.B{font-family:'PixB','Pix',monospace;font-weight:700}
+/* ---- кнопки и панели в пиксельном стиле ---- */
+.btn{font:inherit;font-size:14px;color:#dfe8ff;background:#14203f;border:0;padding:9px 11px;min-height:40px;min-width:40px;cursor:pointer;
+ box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #35508f,inset 0 -4px 0 #0c1630;letter-spacing:.3px;border-radius:0;white-space:nowrap;line-height:1.1}
+.btn:active,.btn.on{background:#2a4a96;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #7fb2ff,inset 0 3px 0 #1a2f66;transform:translateY(1px)}
+.btn.go{background:#1d6a34;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #5fe383,inset 0 -4px 0 #0f4220}
+.btn.go:active{background:#2c9a4c}
+.btn.warn{background:#7a2a22;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #ff8a78,inset 0 -4px 0 #4a1812}
+.btn.dis{opacity:.4;pointer-events:none}
+.btn.sm{min-height:32px;padding:5px 8px;font-size:12px}
+.btn.big{min-height:52px;font-size:17px;padding:12px 16px}
+.pn{background:rgba(8,12,26,.93);box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #2c3f77;padding:10px}
+.pn.solid{background:#0a1022}
+.row{display:flex;gap:6px;align-items:center}
+.row.w{flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:6px}
+.sp{flex:1}
+.mut{color:#8fa0cc}.cy{color:#6fd8ff}.or{color:#ffb347}.gr{color:#7dff8a}.rd{color:#ff7a68}.yl{color:#ffe27a}
+h1,h2,h3{margin:0;font-family:'PixB','Pix',monospace;font-weight:700}
+h2{font-size:18px;color:#6fd8ff}h3{font-size:14px;color:#ffe27a}
+.small{font-size:11px}.tiny{font-size:10px}
+.card{background:#0e1630;box-shadow:inset 0 0 0 2px #25366a;padding:8px 9px}
+.card.sel{box-shadow:inset 0 0 0 2px #ffe27a;background:#1a2447}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto}
+.bar{height:9px;background:#0a0e1c;box-shadow:inset 0 0 0 1px #2a3a66;position:relative;min-width:40px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;background:#6fd8ff}
+.bar.ec>i{background:#ffd34d}.bar.fu>i{background:#ff9a4d}.bar.gr>i{background:#7dff8a}
+input[type=range]{-webkit-appearance:none;appearance:none;height:26px;background:transparent;width:100%;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:#0a0e1c;box-shadow:inset 0 0 0 2px #2c3f77}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:24px;margin-top:-8px;background:#6fd8ff;box-shadow:0 0 0 2px #05060c;border-radius:0}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;background:#0a0e1c;color:#dfe8ff;border:0;box-shadow:inset 0 0 0 2px #2c3f77;padding:7px;min-height:36px;border-radius:0;max-width:100%}
+.scroll{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#35508f #0a0e1c}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:62%;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.full{top:0;max-height:none}
+.sheet>.scroll{flex:1;min-height:0}
+.top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 6px) 6px 6px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:12px}.kv span:first-child{color:#8fa0cc}
+.hr{height:2px;background:#1b2850;margin:5px 0}
+.badge{display:inline-block;padding:1px 5px;background:#25366a;font-size:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#toast{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 54px);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:99}
+.tst{background:rgba(10,16,34,.95);box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #35508f;padding:6px 10px;font-size:12px;max-width:92%;text-align:center;animation:tst 4.2s forwards}
+.tst.ok{box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #5fe383}.tst.bad{box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #ff6a5a}
+@keyframes tst{0%{opacity:0;transform:translateY(-8px)}8%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
+/* ---- HUD полёта ---- */
+.hud{position:absolute;font-size:12px;line-height:1.35;background:rgba(5,8,18,.72);padding:5px 7px;box-shadow:inset 0 0 0 2px #1f2e5c;pointer-events:none}
+.thr{position:absolute;left:6px;bottom:96px;width:44px;height:170px;background:rgba(5,8,18,.72);box-shadow:inset 0 0 0 2px #2c3f77;touch-action:none}
+.thr>i{position:absolute;left:3px;right:3px;bottom:3px;background:#ff9a4d}
+.thr>u{position:absolute;left:-3px;right:-3px;height:4px;background:#fff;text-decoration:none}
+.cpad{position:absolute;display:flex;gap:6px}
+.wp{display:flex;gap:2px}
+.nav{position:absolute;pointer-events:auto}
+.stbtn{position:absolute;right:8px;bottom:104px;width:84px;height:84px;font-size:15px}
+.lbl{position:absolute;font-size:10px;color:#cfe6ff;text-shadow:1px 1px 0 #000,-1px 1px 0 #000;pointer-events:none;white-space:nowrap}
+.ptile{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:74px}
+.ptile canvas{image-rendering:pixelated;background:#070b18;box-shadow:inset 0 0 0 2px #25366a}
+.hide{display:none!important}
+a{color:#6fd8ff}
+</style></head>
+<body><div id="app"><canvas id="cv"></canvas><div id="ui"></div><div id="toast"></div></div>
+<script>
+(function(){'use strict';
+//@JS@
+})();
+</script></body></html>
