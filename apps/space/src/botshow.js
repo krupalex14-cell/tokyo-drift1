@@ -68,7 +68,7 @@ const BotShow = {
   // ---------- подпись «БОТ · ракета» ----------
   makeCap(top) {
     this.nameEl = h('b', { class: 'cy' }); this.infoEl = h('div', { class: 'tiny', style: 'color:#dbe6ff' });
-    this.capEl = h('div', { class: 'hud', style: 'position:absolute;left:50%;transform:translateX(-50%);top:' + top + ';white-space:nowrap;display:flex;gap:10px;align-items:center;pointer-events:auto;text-align:left;z-index:2' },
+    this.capEl = h('div', { class: 'hud botcap', style: 'position:absolute;left:50%;transform:translateX(-50%);top:' + top + ';white-space:nowrap;display:flex;gap:10px;align-items:center;pointer-events:auto;text-align:left;z-index:2' },
       h('div', null, this.nameEl, this.infoEl), h('button', { class: 'btn sm', title: 'Следующий бот', onclick: () => this.skip() }, '»'));
     this.capT = 0; return this.capEl;
   },

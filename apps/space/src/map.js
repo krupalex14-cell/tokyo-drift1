@@ -95,7 +95,7 @@ const MapV = {
       const el = orbitInfo(W, v); const col = rgb(111, 216, 255);
       if (el.bound) this.curve(g, el, 0, TAU, col, 1, false); else this.curve(g, el, -el.nuInf * 0.985, el.nuInf * 0.985, col, 1, false);
       // апоцентр/перицентр
-      const pe = conicAt(el, 0), sp = this.scr(pe[0], pe[1]); g.tri(sp[0], sp[1] + 1, sp[0] - 3, sp[1] + 6, sp[0] + 3, sp[1] + 6, rgb(255, 179, 71)); this.lbl(li++, 'Pe ' + fmtDist(el.rp - B.R), sp[0], sp[1] + 8, 'or');
+      const pe = conicAt(el, 0), sp = this.scr(pe[0], pe[1]); g.tri(sp[0], sp[1] + 1, sp[0] - 3, sp[1] + 6, sp[0] + 3, sp[1] + 6, rgb(255, 179, 71)); this.lbl(li++, el.rp < B.R ? 'Pe: под землёй' : 'Pe ' + fmtDist(el.rp - B.R), sp[0], sp[1] + 8, 'or');
       if (el.bound) { const ap = conicAt(el, PI), sa = this.scr(ap[0], ap[1]); g.tri(sa[0], sa[1] - 1, sa[0] - 3, sa[1] - 6, sa[0] + 3, sa[1] - 6, rgb(255, 179, 71)); this.lbl(li++, 'Ap ' + fmtDist(el.ra - B.R), sa[0], sa[1] - 14, 'or'); }
       // манёвр
       const ap = v.ap; if (ap && ap.phase === 'node' && ap.node && ap.node.body === B.id && !ap.done) {
@@ -107,7 +107,7 @@ const MapV = {
       const onGround = v.mode === 'landed' || el.rp < B.R * 0.1; info = 'Апоцентр: ' + (el.bound && !onGround ? fmtDist(el.ra - B.R) : '—') + '<br>Перицентр: ' + (onGround ? '—' : fmtDist(el.rp - B.R)) + '<br>' + (el.bound && !onGround ? 'Период: ' + fmtDur(el.T) + '<br>' : '') + 'Эксцентриситет: ' + el.e.toFixed(3) + '<br>Скорость: ' + fmtSpeed(Math.hypot(v.vx, v.vy));
     } else if (v) { info = 'Аппарат «' + esc(v.name) + '» в системе: ' + esc(W.U.byId[v.body].name) + '<br><span class="mut">нажмите ◎ чтобы вернуться</span>'; }
     for (let i = li; i < this.lbls.length; i++) this.lbls[i].style.display = 'none';
-    this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .25; this.E.title.textContent = B.name + (B.parent ? ' · у ' + W.U.byId[B.parent].name : '') + ' · ' + fmtDate(W.ut); this.E.info.innerHTML = info; this.E.wl.textContent = '×' + fmtNum(W.warpVal(), 0); }
+    this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .25; this.E.title.textContent = B.name + (B.parent && W.U.byId[B.parent].kind !== 'star' ? ' · вокруг: ' + W.U.byId[B.parent].name : '') + ' · ' + fmtDate(W.ut); this.E.info.innerHTML = info; this.E.wl.textContent = '×' + fmtNum(W.warpVal(), 0); }
     try { Sfx.update(0, 0, 0, false); } catch (e) { }
   },
   // ---------- планировщик ----------

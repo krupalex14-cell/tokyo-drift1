@@ -1,0 +1,21 @@
+import json, sys
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+    b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--allow-file-access-from-files'])
+    pg=b.new_page(viewport={'width':390,'height':780},device_scale_factor=1)
+    logs=[]; pg.on('console',lambda m:logs.append(m.type+': '+m.text)); pg.on('pageerror',lambda e:logs.append('PAGEERROR '+str(e)))
+    pg.goto('file:///home/claude/space/out/index.html'); pg.wait_for_timeout(1500)
+    def shot(n): pg.wait_for_timeout(800); pg.screenshot(path=f'/tmp/{n}.png')
+    pg.get_by_text('Как играть').first.click(); shot('au50_howto')
+    pg.evaluate("__T().UI.closeSheets()")
+    pg.get_by_text('Настройки').first.click(); shot('au51_settings'); pg.evaluate("__T().UI.closeSheets()")
+    pg.get_by_text('Новая игра').first.click(); pg.wait_for_timeout(400); pg.get_by_text('Песочница').first.click(); pg.get_by_text('Начать').first.click(); pg.wait_for_timeout(3500)
+    pg.evaluate("__T().UI.closeSheets()"); pg.evaluate("__T().Tutor.begin('flight')"); pg.wait_for_timeout(2500)
+    pg.evaluate("__T().Tutor.stop()")
+    shot('au60_sound')
+    pg.evaluate("__T().Flight.drawer(true)"); shot('au61_drawer')
+    pg.evaluate("__T().Flight.menu()"); shot('au62_menu'); pg.evaluate("__T().UI.closeSheets()")
+    pg.evaluate("__T().Flight.partsPanel()"); shot('au63_parts'); pg.evaluate("__T().UI.closeSheets()")
+    pg.evaluate("__T().Flight.stagesPanel()"); shot('au64_stages'); pg.evaluate("__T().UI.closeSheets()")
+    for l in logs[:10]: print(l)
+    b.close()

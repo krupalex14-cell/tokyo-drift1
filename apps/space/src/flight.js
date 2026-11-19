@@ -211,7 +211,7 @@ const Flight = {
     if (v.q > 500) h2 += '<div class="' + (v.q > 30000 ? 'or' : 'mut') + '">Q ' + fmtNum(v.q / 1000, 1) + ' кПа</div>';
     const hot = Math.max(0, ...v.parts.map(p => p.temp || 0)); if (hot > 600) h2 += '<div class="' + (hot > 1200 ? 'rd' : 'or') + '">нагрев ' + Math.round(hot) + ' K</div>';
     if (v.gen != null && full) h2 += '<div class="mut">' + (v.gen - v.use >= 0 ? '+' : '') + fmtPow(v.gen - v.use) + '</div>';
-    if (v.link && (full || !v.link.ok)) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
+    if (v.link && v.parts.some(p => p.d.ant || p.d.inst) && (full || !v.link.ok)) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
     E.hud2.innerHTML = h2;
     // автопилот
     if (v.ap && !v.ap.done && v.ap.phase !== 'none') { E.ap.classList.remove('hide'); E.ap.innerHTML = '🤖 ' + (AP_NAMES[v.ap.phase] || v.ap.phase) + (v.ap.phase === 'land' && v.ap.st ? ': ' + (LAND_ST[v.ap.st] || '') : '') + (v.ap.phase === 'wait' && v.ap.until ? ' · ' + fmtDur(v.ap.until - W.ut) : '') + (v.tasks && v.tasks.length ? ' · далее: ' + v.tasks.length : ''); }
@@ -239,6 +239,8 @@ const Flight = {
   landState(v, W) {
     const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails' || (this.isRover(v) && v.contact > 0)) return null;   // вездеход на колёсах — не посадка
     let c; try { c = landCalc(W, v); } catch (e) { return null; } if (!c || c.hg > 30000) return null;
+    const ap = v.ap && !v.ap.done && v.ap.phase === 'land';
+    if (!ap && c.vv > 1.5 && c.hg > 60) return null;   // взлёт и набор высоты — это не посадка; на спуске, в висении и у земли панель остаётся
     const aUse = Math.max(0.3, 0.55 * (c.aT * 0.9 - c.g)); const vAllow = -landProfile(c, aUse);       // скорость падения, которую ещё можно погасить
     return { B, c, aUse, vAllow };
   },

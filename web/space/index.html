@@ -96,6 +96,7 @@ input[type=number],input[type=text],select{font:inherit;font-size:15px;backgroun
 .tut{position:absolute;left:6px;display:flex;flex-direction:column;gap:5px;padding:6px 8px;font-size:12px;line-height:1.3;z-index:60;background:rgba(8,12,26,.97)!important;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #ffe27a!important}
 .tut .tx{font-size:12px;line-height:1.32}
 .scr.rover .rvhide{display:none!important}
+.sheetopen .botcap{display:none!important}
 .tut.min .tx,.tut.min>.row:last-child{display:none}
 .pcard .row{display:flex;align-items:center;gap:6px}
 body.tutfl .scr .lcol,body.tutfl .scr .hud2{margin-top:var(--tuth,0)}
@@ -5755,7 +5756,7 @@ const BotShow = {
   // ---------- подпись «БОТ · ракета» ----------
   makeCap(top) {
     this.nameEl = h('b', { class: 'cy' }); this.infoEl = h('div', { class: 'tiny', style: 'color:#dbe6ff' });
-    this.capEl = h('div', { class: 'hud', style: 'position:absolute;left:50%;transform:translateX(-50%);top:' + top + ';white-space:nowrap;display:flex;gap:10px;align-items:center;pointer-events:auto;text-align:left;z-index:2' },
+    this.capEl = h('div', { class: 'hud botcap', style: 'position:absolute;left:50%;transform:translateX(-50%);top:' + top + ';white-space:nowrap;display:flex;gap:10px;align-items:center;pointer-events:auto;text-align:left;z-index:2' },
       h('div', null, this.nameEl, this.infoEl), h('button', { class: 'btn sm', title: 'Следующий бот', onclick: () => this.skip() }, '»'));
     this.capT = 0; return this.capEl;
   },
@@ -5892,10 +5893,10 @@ const UI = {
   sheet(title, body, o) {
     o = o || {}; const el = h('div', { class: 'pn solid sheet' + (o.full ? ' full' : ''), style: (o.height ? 'max-height:' + o.height + ';' : '') + 'z-index:' + (30 + this.sheets.length) });
     const tt = h('h3', { style: 'flex:1;font-size:17px' }, title);
-    const sh = { el, body, close: () => { el.remove(); this.sheets = this.sheets.filter(x => x !== sh); if (o.onClose) o.onClose(); }, setTitle: t => { tt.textContent = t; } };
+    const sh = { el, body, close: () => { el.remove(); this.sheets = this.sheets.filter(x => x !== sh); if (!this.sheets.length) document.body.classList.remove('sheetopen'); if (o.onClose) o.onClose(); }, setTitle: t => { tt.textContent = t; } };
     const head = h('div', { class: 'row', style: 'padding-bottom:6px' }, tt, h('button', { class: 'btn sm', onclick: () => sh.close() }, '✕'));
     const sc = h('div', { class: 'scroll' }, body); if (body.classList && !body.classList.contains('col')) { }
-    sc.style.padding = '2px 2px 6px'; el.append(head, sc); this.layer.append(el); this.sheets.push(sh); try { Sfx.click(); } catch (e) { }
+    sc.style.padding = '2px 2px 6px'; el.append(head, sc); this.layer.append(el); this.sheets.push(sh); document.body.classList.add('sheetopen'); try { Sfx.click(); } catch (e) { }
     return sh;
   },
   closeSheets() { for (const s of this.sheets.slice()) s.close(); },
@@ -6538,7 +6539,7 @@ const Flight = {
     if (v.q > 500) h2 += '<div class="' + (v.q > 30000 ? 'or' : 'mut') + '">Q ' + fmtNum(v.q / 1000, 1) + ' кПа</div>';
     const hot = Math.max(0, ...v.parts.map(p => p.temp || 0)); if (hot > 600) h2 += '<div class="' + (hot > 1200 ? 'rd' : 'or') + '">нагрев ' + Math.round(hot) + ' K</div>';
     if (v.gen != null && full) h2 += '<div class="mut">' + (v.gen - v.use >= 0 ? '+' : '') + fmtPow(v.gen - v.use) + '</div>';
-    if (v.link && (full || !v.link.ok)) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
+    if (v.link && v.parts.some(p => p.d.ant || p.d.inst) && (full || !v.link.ok)) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
     E.hud2.innerHTML = h2;
     // автопилот
     if (v.ap && !v.ap.done && v.ap.phase !== 'none') { E.ap.classList.remove('hide'); E.ap.innerHTML = '🤖 ' + (AP_NAMES[v.ap.phase] || v.ap.phase) + (v.ap.phase === 'land' && v.ap.st ? ': ' + (LAND_ST[v.ap.st] || '') : '') + (v.ap.phase === 'wait' && v.ap.until ? ' · ' + fmtDur(v.ap.until - W.ut) : '') + (v.tasks && v.tasks.length ? ' · далее: ' + v.tasks.length : ''); }
@@ -6566,6 +6567,8 @@ const Flight = {
   landState(v, W) {
     const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails' || (this.isRover(v) && v.contact > 0)) return null;   // вездеход на колёсах — не посадка
     let c; try { c = landCalc(W, v); } catch (e) { return null; } if (!c || c.hg > 30000) return null;
+    const ap = v.ap && !v.ap.done && v.ap.phase === 'land';
+    if (!ap && c.vv > 1.5 && c.hg > 60) return null;   // взлёт и набор высоты — это не посадка; на спуске, в висении и у земли панель остаётся
     const aUse = Math.max(0.3, 0.55 * (c.aT * 0.9 - c.g)); const vAllow = -landProfile(c, aUse);       // скорость падения, которую ещё можно погасить
     return { B, c, aUse, vAllow };
   },
@@ -6829,7 +6832,7 @@ const MapV = {
       const el = orbitInfo(W, v); const col = rgb(111, 216, 255);
       if (el.bound) this.curve(g, el, 0, TAU, col, 1, false); else this.curve(g, el, -el.nuInf * 0.985, el.nuInf * 0.985, col, 1, false);
       // апоцентр/перицентр
-      const pe = conicAt(el, 0), sp = this.scr(pe[0], pe[1]); g.tri(sp[0], sp[1] + 1, sp[0] - 3, sp[1] + 6, sp[0] + 3, sp[1] + 6, rgb(255, 179, 71)); this.lbl(li++, 'Pe ' + fmtDist(el.rp - B.R), sp[0], sp[1] + 8, 'or');
+      const pe = conicAt(el, 0), sp = this.scr(pe[0], pe[1]); g.tri(sp[0], sp[1] + 1, sp[0] - 3, sp[1] + 6, sp[0] + 3, sp[1] + 6, rgb(255, 179, 71)); this.lbl(li++, el.rp < B.R ? 'Pe: под землёй' : 'Pe ' + fmtDist(el.rp - B.R), sp[0], sp[1] + 8, 'or');
       if (el.bound) { const ap = conicAt(el, PI), sa = this.scr(ap[0], ap[1]); g.tri(sa[0], sa[1] - 1, sa[0] - 3, sa[1] - 6, sa[0] + 3, sa[1] - 6, rgb(255, 179, 71)); this.lbl(li++, 'Ap ' + fmtDist(el.ra - B.R), sa[0], sa[1] - 14, 'or'); }
       // манёвр
       const ap = v.ap; if (ap && ap.phase === 'node' && ap.node && ap.node.body === B.id && !ap.done) {
@@ -6841,7 +6844,7 @@ const MapV = {
       const onGround = v.mode === 'landed' || el.rp < B.R * 0.1; info = 'Апоцентр: ' + (el.bound && !onGround ? fmtDist(el.ra - B.R) : '—') + '<br>Перицентр: ' + (onGround ? '—' : fmtDist(el.rp - B.R)) + '<br>' + (el.bound && !onGround ? 'Период: ' + fmtDur(el.T) + '<br>' : '') + 'Эксцентриситет: ' + el.e.toFixed(3) + '<br>Скорость: ' + fmtSpeed(Math.hypot(v.vx, v.vy));
     } else if (v) { info = 'Аппарат «' + esc(v.name) + '» в системе: ' + esc(W.U.byId[v.body].name) + '<br><span class="mut">нажмите ◎ чтобы вернуться</span>'; }
     for (let i = li; i < this.lbls.length; i++) this.lbls[i].style.display = 'none';
-    this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .25; this.E.title.textContent = B.name + (B.parent ? ' · у ' + W.U.byId[B.parent].name : '') + ' · ' + fmtDate(W.ut); this.E.info.innerHTML = info; this.E.wl.textContent = '×' + fmtNum(W.warpVal(), 0); }
+    this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .25; this.E.title.textContent = B.name + (B.parent && W.U.byId[B.parent].kind !== 'star' ? ' · вокруг: ' + W.U.byId[B.parent].name : '') + ' · ' + fmtDate(W.ut); this.E.info.innerHTML = info; this.E.wl.textContent = '×' + fmtNum(W.warpVal(), 0); }
     try { Sfx.update(0, 0, 0, false); } catch (e) { }
   },
   // ---------- планировщик ----------

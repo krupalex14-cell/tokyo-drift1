@@ -82,10 +82,10 @@ const UI = {
   sheet(title, body, o) {
     o = o || {}; const el = h('div', { class: 'pn solid sheet' + (o.full ? ' full' : ''), style: (o.height ? 'max-height:' + o.height + ';' : '') + 'z-index:' + (30 + this.sheets.length) });
     const tt = h('h3', { style: 'flex:1;font-size:17px' }, title);
-    const sh = { el, body, close: () => { el.remove(); this.sheets = this.sheets.filter(x => x !== sh); if (o.onClose) o.onClose(); }, setTitle: t => { tt.textContent = t; } };
+    const sh = { el, body, close: () => { el.remove(); this.sheets = this.sheets.filter(x => x !== sh); if (!this.sheets.length) document.body.classList.remove('sheetopen'); if (o.onClose) o.onClose(); }, setTitle: t => { tt.textContent = t; } };
     const head = h('div', { class: 'row', style: 'padding-bottom:6px' }, tt, h('button', { class: 'btn sm', onclick: () => sh.close() }, '✕'));
     const sc = h('div', { class: 'scroll' }, body); if (body.classList && !body.classList.contains('col')) { }
-    sc.style.padding = '2px 2px 6px'; el.append(head, sc); this.layer.append(el); this.sheets.push(sh); try { Sfx.click(); } catch (e) { }
+    sc.style.padding = '2px 2px 6px'; el.append(head, sc); this.layer.append(el); this.sheets.push(sh); document.body.classList.add('sheetopen'); try { Sfx.click(); } catch (e) { }
     return sh;
   },
   closeSheets() { for (const s of this.sheets.slice()) s.close(); },
