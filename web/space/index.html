@@ -3711,7 +3711,7 @@ const FV = {
     const k = smooth(0.002, 0.04, hg / B.R);
     const Zg = Math.exp((1 - k) * Math.log(Zlow) + k * Math.log(Math.max(Zp, Zlow)));
     const ppmB = H / Zg;
-    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0), yFoot = cyC + ex.down * ppmV;
+    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0) + (this.yOff || 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0), yFoot = cyC + ex.down * ppmV;
     // Солнце в локальной системе
     const si = Systems.sunInfo(W, v); const Sx = -si.sx * sph + si.sy * cph, Sy = si.sx * cph + si.sy * sph;
     const air = atmAt(B, r - B.R);
@@ -3726,7 +3726,7 @@ const FV = {
     return S;
   },
   // ---------- главный кадр ----------
-  frame(g, W, v, t) {
+  frame(g, W, v, t, noMarks) {
     const S = this.setup(g, W, v, t); this.lastS = S;
     this.world(g, S);
     this.celestial(g, S);
@@ -3734,7 +3734,7 @@ const FV = {
     if (typeof FX !== 'undefined') FX.draw(g, S, 0);
     this.vessels(g, S);
     if (typeof FX !== 'undefined') FX.draw(g, S, 1);
-    this.markers(g, S);
+    if (!noMarks) this.markers(g, S);
     return S;
   },
   // ---------- небо + поверхность по колонкам ----------
@@ -4463,11 +4463,13 @@ tpl('sound', 'Суборбитальная ракета', 'rocket', 'метео�
   const D = new Design('Суборбитальная ракета');
   D.add('rutherford'); const tk = D.add('tank_kerolox', { w: .75, h: 2.0 });
   D.add('acs_ring', { w: .75 });   // кольцо РСУ — чтобы можно было наклонять ракету
-  const bus = D.add('core_bus'); D.add('batt_m'); const mg = D.add('i_mag'); D.add('nose', { w: Math.max(.45, mg.w), h: 1.2 });
-  D.add('ant_lga', { x: bus.w / 2 + .05, y: bus.y, noStack: true });   // антенна сбоку на приборном отсеке, а не вместо носового конуса
+  // приборы разной ширины прячем в головной обтекатель того же диаметра, что и корпус: снаружи — гладкая ракета, как настоящая
+  const fb = D.top; const bus = D.add('core_bus'); D.add('batt_m'); D.add('i_mag'); D.add('ant_lga', { x: .28, y: bus.y + .3, noStack: true });   // антенна — внутри обтекателя, не торчит
+  const hf = Math.max(1.9, D.top - fb + .9); const fair = D.add('fairing', { w: tk.w, h: hf, y: fb + hf / 2 });
   const fw = .45;   // узкие стабилизаторы у нижней части бака — ракета летит носом вперёд сама
   for (const sx of [-1, 1]) D.add('fin', { w: fw, h: 1.3, x: sx * (tk.w / 2 + fw / 2), y: .85, noStack: true });
-  return D.finish();
+  D.finish(); fair.stage = 1;   // второй «СТУП» отстреливает обтекатель и открывает приборы
+  return D;
 });
 rtpl('electron', 'Электрон', 'Rocket Lab Electron: 9 × Rutherford + Rutherford Vac, Ø1,2 м (2017)', 'Лёгкая двухступенчатая ракета для спутников. Первая ступень — девять двигателей Rutherford, вторая — один вакуумный. Выводит CubeSat на орбиту 200 км.',
   [{ e: 'rutherford', n: 9, D: 1.25, L: 11.5 }, { e: 'rutherford_vac', n: 1, D: 1.25, L: 2.0 }], 'cubesat');
@@ -5626,6 +5628,129 @@ const AutoUI = {
   }
 };
 
+/* ==== botshow.js ==== */
+'use strict';
+// ============ Бот-шоу: за главным экраном автопилоты сами запускают и сажают настоящие аппараты ============
+// Своя маленькая вселенная (не сохраняется, не влияет на игру): ракета на старте → отсчёт → взлёт на автопилоте →
+// сброс ступеней → космос; а ещё посадка на Луну. Камера ведёт текущий аппарат, потом плавный переход к следующему.
+const BOT_SHOWS = [
+  { id: 'falcon9', k: 'launch' }, { id: 'electron', k: 'launch' }, { id: 'lander', k: 'land', body: 'moon', alt: 1800, vd: 20, vh: 55 },
+  { id: 'saturn5', k: 'launch' }, { id: 'sound', k: 'launch' }, { id: 'atlas5', k: 'launch' }, { id: 'starship', k: 'launch' },
+  { id: 'lander2', k: 'land', body: 'moon', alt: 1500, vd: 18, vh: 45 }
+];
+const BotShow = {
+  W: null, v: null, spec: null, tpl: null, ph: 'pad', pt: 0, T0: 0, real: 0, fade: 1, fadeDir: -1, order: [], last: '', capEl: null, nameEl: null, infoEl: null, ov: null, started: false,
+  // ---------- подготовка ----------
+  begin() {
+    const ui = document.getElementById('ui');
+    if (!this.ov && ui && ui.parentNode) { this.ov = document.createElement('div'); this.ov.style.cssText = 'position:fixed;inset:0;background:#000;opacity:1;pointer-events:none'; ui.parentNode.insertBefore(this.ov, ui); }
+    this.next(true);
+  },
+  pick() {
+    if (!this.order.length) {
+      const a = BOT_SHOWS.slice(); for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+      if (a[0].id === this.last) a.push(a.shift());
+      this.order = a;
+    }
+    return this.order.shift();
+  },
+  // красивый свет: подобрать время суток (старт с Земли) — Солнце невысоко над горизонтом
+  sunny(W, v) {
+    const t0 = W.ut; let best = t0, bs = 9;
+    for (let k = 0; k < 144; k++) {
+      W.ut = t0 + k * 600; W.setPinned(v); const si = Systems.sunInfo(W, v), r = Math.hypot(v.x, v.y);
+      const sc = Math.abs((v.x * si.sx + v.y * si.sy) / r - 0.55); if (sc < bs) { bs = sc; best = W.ut; }
+    }
+    W.ut = best; W.setPinned(v);
+  },
+  next(first) {
+    let spec = this.pick(), tries = 0;
+    while ((!TEMPLATES.find(x => x.id === spec.id) || (spec.body && !UI.getU('solar').byId[spec.body])) && tries++ < 8) spec = this.pick();
+    this.spec = spec; this.last = spec.id;
+    const t = TEMPLATES.find(x => x.id === spec.id); this.tpl = t;
+    const W = new World(UI.getU('solar'), { tier: 9 }); W.sandbox = true;
+    const D = t.make(); const v = W.launch(D); v.throttle = 0; W.active = v; v.sunLit = 1;
+    this.W = W; this.v = v; this.D = D; this.ph = 'pad'; this.pt = 0; this.real = 0; this.T0 = 0;
+    if (typeof FX !== 'undefined') FX.clear();
+    if (spec.k === 'launch') this.sunny(W, v);
+    else {
+      // посадка: Солнце под приятным углом к площадке спуска
+      v.body = spec.body; const si = Systems.sunInfo(W, v), a0 = Math.atan2(si.sy, si.sx);
+      v.orbPhase = a0 + Math.acos(0.62) * (Math.random() < .5 ? 1 : -1) - 1.3;
+      W.placeDescent(v, spec.body, spec.alt, spec.vd, spec.vh);
+      if (!v.engines.some(p => p.on)) { try { W.stage(v); } catch (e) { } }
+      v.throttle = 0; v.sas = 'sretro'; v.rcs = v.rcsList.length > 0;
+      for (const p of v.parts) { if (p.d.leg) p.st.deployed = true; if (p.d.chute || p.d.src) p.st.chute = 'arm'; }
+      W.setWarp(0); this.ph = 'fly'; this.T0 = W.ut; this.go();
+    }
+    this.fade = 1; this.fadeDir = -1;
+    this.started = true;
+  },
+  // включить автопилот выбранного бота
+  go() {
+    const W = this.W, v = this.v, s = this.spec;
+    if (s.k === 'launch') { const goal = s.id === 'sound' ? { alt: 150e3, inj: 0, restarts: 0, label: 'Суборбитальный полёт' } : AutoBuild.planGoal(W, null, 200e3); AutoBuild.startMission(W, v, goal, this.D); }
+    else v.ap = { phase: 'land', stageLimit: v.stages.length };
+    W.autoWarp = false; W.setWarp(0); this.ph = 'fly'; this.T0 = W.ut;
+  },
+  skip() { if (this.fadeDir > 0 || this.ph === 'out') return; this.ph = 'out'; this.fadeDir = 1; },
+  // вернулись из полёта/карты в меню: чистим эффекты и возвращаем камеру
+  resume() { if (typeof FX !== 'undefined') FX.clear(); Cam.z = 0.72; if (this.W && this.W.setWarp) this.W.setWarp(0); },
+  // ---------- подпись «БОТ · ракета» ----------
+  makeCap(top) {
+    this.nameEl = h('b', { class: 'cy' }); this.infoEl = h('div', { class: 'tiny', style: 'color:#dbe6ff' });
+    this.capEl = h('div', { class: 'hud', style: 'position:absolute;left:50%;transform:translateX(-50%);top:' + top + ';white-space:nowrap;display:flex;gap:10px;align-items:center;pointer-events:auto;text-align:left;z-index:2' },
+      h('div', null, this.nameEl, this.infoEl), h('button', { class: 'btn sm', title: 'Следующий бот', onclick: () => this.skip() }, '»'));
+    this.capT = 0; return this.capEl;
+  },
+  caption(v, B, alt, T) {
+    if (!this.nameEl) return;
+    if (B.landable && FV.lastS && FV.lastS.v === v && FV.lastS.hg != null) alt = FV.lastS.hg;   // высота над грунтом (рельеф), а не над средним радиусом
+    this.nameEl.textContent = '🤖 БОТ · ' + (this.tpl.kind === 'rocket' ? this.tpl.name : this.tpl.name.replace(/^Посадочный зонд /, '').replace(/[«»]/g, ''));
+    let s;
+    if (this.ph === 'pad') s = 'Старт через ' + Math.max(1, Math.ceil(3 - this.pt)) + '…';
+    else if (!v.alive) s = 'Авария';
+    else if (this.spec.k === 'land') s = v.mode === 'landed' ? 'Мягкая посадка · ' + (B.name || '') : (B.name || '') + ' · ' + fmtDist(alt) + ' · ' + fmtSpeed(Math.hypot(v.vx + B.rotW * v.y, v.vy - B.rotW * v.x));
+    else { const m = Math.max(0, T) | 0; s = 'T+' + ((m / 60) | 0) + ':' + ('0' + (m % 60)).slice(-2) + ' · ' + fmtDist(alt) + ' · ' + fmtSpeed(Math.hypot(v.vx + B.rotW * v.y, v.vy - B.rotW * v.x)); }
+    this.infoEl.textContent = s;
+  },
+  // ---------- кадр ----------
+  frame(g, dt) {
+    if (!this.started) return;
+    const W = this.W, v = this.v; dt = Math.min(dt, 0.1); this.real += dt;
+    const B = W.U.byId[v.body]; let warp = 1;
+    if (this.ph === 'pad') {
+      W.setPinned(v); this.pt += dt;
+      if (this.pt >= 3) this.go();
+    }
+    if (this.ph === 'fly' || this.ph === 'end' || this.ph === 'out') {
+      const A = v.alive ? v : null, alt0 = Math.hypot(v.x, v.y) - B.R, T = W.ut - this.T0;
+      // темп: взлёт в реальном времени, дальше быстрее (на тяге физика держит не больше ×4)
+      let idx = 0; if (this.spec.k === 'land') idx = 1; else if (T > 10) idx = alt0 < 20000 ? 2 : 3;
+      idx = Math.min(idx, W.maxWarpIdx()); if (W.warpIdx !== idx) W.setWarp(idx);
+      W.step(dt); warp = W.warpVal();
+      const alt = Math.hypot(v.x, v.y) - B.R;
+      if (this.ph === 'fly') {
+        if (!v.alive) { this.ph = 'end'; this.pt = 0; }
+        else if (this.spec.k === 'land' ? (v.mode === 'landed' && T > 5) : (alt >= 88000 || T > 260)) { this.ph = 'end'; this.pt = 0; }
+        else if (this.real > 110) { this.ph = 'out'; this.fadeDir = 1; }
+      } else if (this.ph === 'end') { this.pt += dt; if (this.pt > (v.alive ? 4 : 3.5)) { this.ph = 'out'; this.fadeDir = 1; } }
+      this.caption(v, B, alt, T);
+    } else this.caption(v, B, Math.hypot(v.x, v.y) - B.R, 0);
+    if (typeof FX !== 'undefined') FX.update(W, dt * (warp || 1), v);
+    FV.yOff = App.mode === 'hub' ? -0.07 * g.h : 0;   // в центре управления снизу большая панель: поднимаем ракету
+    FV.frame(g, W, v, App.t, true); FV.yOff = 0;
+    // плавный переход
+    if (this.fadeDir) {
+      this.fade = clamp(this.fade + this.fadeDir * dt / 0.55, 0, 1);
+      if (this.fadeDir > 0 && this.fade >= 1) { this.next(); }
+      else if (this.fadeDir < 0 && this.fade <= 0) this.fadeDir = 0;
+    }
+    if (this.ov) this.ov.style.opacity = this.fade;
+  },
+  hide() { if (this.ov) this.ov.style.opacity = 0; }
+};
+
 /* ==== ui.js ==== */
 'use strict';
 // ============ Оболочка интерфейса: меню, центр управления, листы, читы, настройки ============
@@ -5669,26 +5794,19 @@ const UI = {
     window.addEventListener('keyup', e => { if (App.mode === 'flight' && Flight.key) Flight.key(e, false); });
   },
   getU(kind, seed) { if (kind === 'solar') { if (!this.solarU) this.solarU = makeSolarSystem(); return this.solarU; } if (kind === 'trappist') return makeTrappist(); return makeRandomSystem(seed || 1); },
-  // ---------- фон меню: ракета на площадке ----------
-  bgNew() {
-    const U = this.getU('solar'); const W = new World(U, { tier: 9 }); W.sandbox = true;
-    const D = new Design('Фон'); D.add('merlin1d', { n: 9 }); D.add('tank_kerolox', { w: 3.7, h: 22 }); D.add('dec', { w: 3.7 }); D.add('merlin_vac', {}); D.add('tank_kerolox', { w: 3.7, h: 10 }); D.add('fairing', { w: 3.7, h: 8 });
-    D.finish(); const v = W.launch(D); v.throttle = 0; W.active = v; this.bg = { W, v };
-    Cam.z = 0.95;
-  },
-  bgFrame(g, dt) {
-    const b = this.bg; b.W.ut += dt * 90; b.W.setPinned(b.v); b.v.sunLit = 1;
-    FV.frame(g, b.W, b.v, App.t);
-  },
+  // ---------- фон меню: бот-шоу (см. botshow.js) ----------
+  bgNew() { BotShow.begin(); Cam.z = 0.72; },
+  bgFrame(g, dt) { BotShow.frame(g, dt); },
   // ---------- переключение режимов ----------
   go(mode, arg) {
     this.closeSheets();
     if (this.cur) { const c = this.cur; this.cur = null; if (c.leave) c.leave(); }
     if (this.scr) { this.scr.remove(); this.scr = null; }
-    App.mode = mode;
+    const prevMode = App.mode; App.mode = mode;
+    if (mode === 'menu' || mode === 'hub') { if (prevMode !== 'menu' && prevMode !== 'hub') BotShow.resume(); } else BotShow.hide();
     if (mode === 'menu' && typeof Tutor !== 'undefined') Tutor.stop();
     if (mode === 'menu') this.menuScreen();
-    else if (mode === 'hub') { this.hubScreen(); Cam.z = 0.95; }
+    else if (mode === 'hub') { this.hubScreen(); Cam.z = 0.72; }
     else if (mode === 'flight') { this.logBase(); this.cur = Flight; Flight.open(); }
     else if (mode === 'map') { this.logBase(); this.cur = MapV; MapV.open(); }
     else if (mode === 'build') { this.cur = Builder; Builder.open(App.W, arg); }
@@ -5759,6 +5877,7 @@ const UI = {
       h('div', { style: 'position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 40px);text-align:center;pointer-events:none' },
         h('div', { style: 'font-family:Pix;font-size:44px;letter-spacing:3px;color:#fff;text-shadow:3px 3px 0 #1a2d70,-1px -1px 0 #000' }, 'КОСМОС'),
         h('div', { class: 'small', style: 'color:#bcd4ff;text-shadow:1px 1px 0 #000;margin-top:4px' }, 'исследуйте настоящие миры')),
+      BotShow.makeCap('calc(env(safe-area-inset-top) + 118px)'),
       h('div', { class: 'col pn', style: 'position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);gap:8px' },
         h('button', { class: 'btn go big' + (has ? '' : ' dis'), onclick: () => { if (this.loadSave()) this.go('hub'); } }, '▶  Продолжить'),
         h('button', { class: 'btn big', onclick: () => this.newGameSheet() }, '✦  Новая игра'),
@@ -5812,7 +5931,7 @@ const UI = {
       h('div', { class: 'row w' }, btn('📜 Контракты', null, () => this.contractsSheet()), btn('🔬 Наука', 'кодекс знаний', () => this.scienceSheet())),
       h('div', { class: 'row w' }, btn('⚙ Технологии', null, () => this.techSheet()), btn('🧪 Читы', null, () => this.cheatSheet())),
       h('div', { class: 'row' }, btn('💾 Сохранить', null, () => this.save()), btn('☰ Меню', null, () => { this.save(true); this.go('menu'); })));
-    this.scr = h('div', { class: 'scr' }, top, bot); this.layer.append(this.scr);
+    this.scr = h('div', { class: 'scr' }, top, BotShow.makeCap('calc(env(safe-area-inset-top) + 72px)'), bot); this.layer.append(this.scr);
     this.hubHud(); this._hubT = 0;
     this.hubTick = dt => { if (App.mode !== 'hub') return; this._hubT += dt; if (this._hubT > 1) { this._hubT = 0; this.hubHud(); } };
   },
@@ -5986,6 +6105,7 @@ const TUT_LESSONS = [
       { t: 'Тяга: потяните ползунок слева вверх до упора (или кнопка MAX).', hl: '.thr', ok: v => v.throttle > .6 },
       { t: 'Пошла! Высота — в левом верхнем углу. Стабилизаторы держат ракету носом вперёд сами. Дождитесь высоты 1 км.', ok: (v, W) => tutAlt(W, v) > 1000 },
       { t: 'В плотном воздухе ракету не развернуть — стабилизаторы держат её, как флюгер. Дождитесь высоты 85 км: там воздуха почти нет, ракета станет послушной.', ok: (v, W) => tutAlt(W, v) > 85000 },
+      { t: 'Воздуха нет, обтекатель больше не нужен. Нажмите «СТУП» ещё раз: он отстрелится и откроет антенну и приборы.', hl: '.stbtn', ok: v => !v.parts.some(p => p.d.fair) },
       { t: 'Теперь воздуха нет — ракета слушается руля. Нажмите и держите ◀ или ▶ в нижних углах: ракета наклонится. Наклоните градусов на 30.', hl: '.rot', ok: v => { if (Tutor.base == null) { Tutor.base = v.a; return false; } return Math.abs(wrapPI(v.a - Tutor.base)) > .5; } },
       { t: 'SAS — это автоматический «руль». Нажмите кнопку SAS справа и выберите «От тела ↑»: ракета выровняется вертикально.', hl: '.sasbtn', ok: v => v.sas === 'up' },
       { t: 'Дальше ракета долетит до верхней точки сама (≈ 150 км) и упадёт обратно. Ускорьте время кнопкой ⏩ внизу, посмотрите — и нажмите «Дальше».', hl: '.warp', next: true },
@@ -6638,7 +6758,7 @@ const MapV = {
 // ============ Запуск ============
 const App = { W: null, mode: 'menu', t: 0, last: 0, raf: 0, cv: null };
 window.__App = App;
-window.__T = () => ({ Builder, Gfx, PARTS, TEMPLATES, prect, validateDesign, UI, FX, FV, Flight, AutoBuild, Tutor, TUT_LESSONS });   // для автотестов
+window.__T = () => ({ Builder, Gfx, PARTS, TEMPLATES, prect, validateDesign, UI, FX, FV, Flight, AutoBuild, Tutor, TUT_LESSONS, BotShow });   // для автотестов
 window.__B = () => Builder;
 function boot() {
   Art.init(); FV.init();

@@ -62,7 +62,7 @@ const FV = {
     const k = smooth(0.002, 0.04, hg / B.R);
     const Zg = Math.exp((1 - k) * Math.log(Zlow) + k * Math.log(Math.max(Zp, Zlow)));
     const ppmB = H / Zg;
-    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0), yFoot = cyC + ex.down * ppmV;
+    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0) + (this.yOff || 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0), yFoot = cyC + ex.down * ppmV;
     // Солнце в локальной системе
     const si = Systems.sunInfo(W, v); const Sx = -si.sx * sph + si.sy * cph, Sy = si.sx * cph + si.sy * sph;
     const air = atmAt(B, r - B.R);
@@ -77,7 +77,7 @@ const FV = {
     return S;
   },
   // ---------- главный кадр ----------
-  frame(g, W, v, t) {
+  frame(g, W, v, t, noMarks) {
     const S = this.setup(g, W, v, t); this.lastS = S;
     this.world(g, S);
     this.celestial(g, S);
@@ -85,7 +85,7 @@ const FV = {
     if (typeof FX !== 'undefined') FX.draw(g, S, 0);
     this.vessels(g, S);
     if (typeof FX !== 'undefined') FX.draw(g, S, 1);
-    this.markers(g, S);
+    if (!noMarks) this.markers(g, S);
     return S;
   },
   // ---------- небо + поверхность по колонкам ----------

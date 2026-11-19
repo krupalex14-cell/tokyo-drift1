@@ -40,26 +40,19 @@ const UI = {
     window.addEventListener('keyup', e => { if (App.mode === 'flight' && Flight.key) Flight.key(e, false); });
   },
   getU(kind, seed) { if (kind === 'solar') { if (!this.solarU) this.solarU = makeSolarSystem(); return this.solarU; } if (kind === 'trappist') return makeTrappist(); return makeRandomSystem(seed || 1); },
-  // ---------- фон меню: ракета на площадке ----------
-  bgNew() {
-    const U = this.getU('solar'); const W = new World(U, { tier: 9 }); W.sandbox = true;
-    const D = new Design('Фон'); D.add('merlin1d', { n: 9 }); D.add('tank_kerolox', { w: 3.7, h: 22 }); D.add('dec', { w: 3.7 }); D.add('merlin_vac', {}); D.add('tank_kerolox', { w: 3.7, h: 10 }); D.add('fairing', { w: 3.7, h: 8 });
-    D.finish(); const v = W.launch(D); v.throttle = 0; W.active = v; this.bg = { W, v };
-    Cam.z = 0.95;
-  },
-  bgFrame(g, dt) {
-    const b = this.bg; b.W.ut += dt * 90; b.W.setPinned(b.v); b.v.sunLit = 1;
-    FV.frame(g, b.W, b.v, App.t);
-  },
+  // ---------- фон меню: бот-шоу (см. botshow.js) ----------
+  bgNew() { BotShow.begin(); Cam.z = 0.72; },
+  bgFrame(g, dt) { BotShow.frame(g, dt); },
   // ---------- переключение режимов ----------
   go(mode, arg) {
     this.closeSheets();
     if (this.cur) { const c = this.cur; this.cur = null; if (c.leave) c.leave(); }
     if (this.scr) { this.scr.remove(); this.scr = null; }
-    App.mode = mode;
+    const prevMode = App.mode; App.mode = mode;
+    if (mode === 'menu' || mode === 'hub') { if (prevMode !== 'menu' && prevMode !== 'hub') BotShow.resume(); } else BotShow.hide();
     if (mode === 'menu' && typeof Tutor !== 'undefined') Tutor.stop();
     if (mode === 'menu') this.menuScreen();
-    else if (mode === 'hub') { this.hubScreen(); Cam.z = 0.95; }
+    else if (mode === 'hub') { this.hubScreen(); Cam.z = 0.72; }
     else if (mode === 'flight') { this.logBase(); this.cur = Flight; Flight.open(); }
     else if (mode === 'map') { this.logBase(); this.cur = MapV; MapV.open(); }
     else if (mode === 'build') { this.cur = Builder; Builder.open(App.W, arg); }
@@ -130,6 +123,7 @@ const UI = {
       h('div', { style: 'position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 40px);text-align:center;pointer-events:none' },
         h('div', { style: 'font-family:Pix;font-size:44px;letter-spacing:3px;color:#fff;text-shadow:3px 3px 0 #1a2d70,-1px -1px 0 #000' }, 'КОСМОС'),
         h('div', { class: 'small', style: 'color:#bcd4ff;text-shadow:1px 1px 0 #000;margin-top:4px' }, 'исследуйте настоящие миры')),
+      BotShow.makeCap('calc(env(safe-area-inset-top) + 118px)'),
       h('div', { class: 'col pn', style: 'position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);gap:8px' },
         h('button', { class: 'btn go big' + (has ? '' : ' dis'), onclick: () => { if (this.loadSave()) this.go('hub'); } }, '▶  Продолжить'),
         h('button', { class: 'btn big', onclick: () => this.newGameSheet() }, '✦  Новая игра'),
@@ -183,7 +177,7 @@ const UI = {
       h('div', { class: 'row w' }, btn('📜 Контракты', null, () => this.contractsSheet()), btn('🔬 Наука', 'кодекс знаний', () => this.scienceSheet())),
       h('div', { class: 'row w' }, btn('⚙ Технологии', null, () => this.techSheet()), btn('🧪 Читы', null, () => this.cheatSheet())),
       h('div', { class: 'row' }, btn('💾 Сохранить', null, () => this.save()), btn('☰ Меню', null, () => { this.save(true); this.go('menu'); })));
-    this.scr = h('div', { class: 'scr' }, top, bot); this.layer.append(this.scr);
+    this.scr = h('div', { class: 'scr' }, top, BotShow.makeCap('calc(env(safe-area-inset-top) + 72px)'), bot); this.layer.append(this.scr);
     this.hubHud(); this._hubT = 0;
     this.hubTick = dt => { if (App.mode !== 'hub') return; this._hubT += dt; if (this._hubT > 1) { this._hubT = 0; this.hubHud(); } };
   },

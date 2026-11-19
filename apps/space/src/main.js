@@ -2,7 +2,7 @@
 // ============ Запуск ============
 const App = { W: null, mode: 'menu', t: 0, last: 0, raf: 0, cv: null };
 window.__App = App;
-window.__T = () => ({ Builder, Gfx, PARTS, TEMPLATES, prect, validateDesign, UI, FX, FV, Flight, AutoBuild, Tutor, TUT_LESSONS });   // для автотестов
+window.__T = () => ({ Builder, Gfx, PARTS, TEMPLATES, prect, validateDesign, UI, FX, FV, Flight, AutoBuild, Tutor, TUT_LESSONS, BotShow });   // для автотестов
 window.__B = () => Builder;
 function boot() {
   Art.init(); FV.init();

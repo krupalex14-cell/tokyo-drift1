@@ -103,11 +103,13 @@ tpl('sound', 'Суборбитальная ракета', 'rocket', 'метео�
   const D = new Design('Суборбитальная ракета');
   D.add('rutherford'); const tk = D.add('tank_kerolox', { w: .75, h: 2.0 });
   D.add('acs_ring', { w: .75 });   // кольцо РСУ — чтобы можно было наклонять ракету
-  const bus = D.add('core_bus'); D.add('batt_m'); const mg = D.add('i_mag'); D.add('nose', { w: Math.max(.45, mg.w), h: 1.2 });
-  D.add('ant_lga', { x: bus.w / 2 + .05, y: bus.y, noStack: true });   // антенна сбоку на приборном отсеке, а не вместо носового конуса
+  // приборы разной ширины прячем в головной обтекатель того же диаметра, что и корпус: снаружи — гладкая ракета, как настоящая
+  const fb = D.top; const bus = D.add('core_bus'); D.add('batt_m'); D.add('i_mag'); D.add('ant_lga', { x: .28, y: bus.y + .3, noStack: true });   // антенна — внутри обтекателя, не торчит
+  const hf = Math.max(1.9, D.top - fb + .9); const fair = D.add('fairing', { w: tk.w, h: hf, y: fb + hf / 2 });
   const fw = .45;   // узкие стабилизаторы у нижней части бака — ракета летит носом вперёд сама
   for (const sx of [-1, 1]) D.add('fin', { w: fw, h: 1.3, x: sx * (tk.w / 2 + fw / 2), y: .85, noStack: true });
-  return D.finish();
+  D.finish(); fair.stage = 1;   // второй «СТУП» отстреливает обтекатель и открывает приборы
+  return D;
 });
 rtpl('electron', 'Электрон', 'Rocket Lab Electron: 9 × Rutherford + Rutherford Vac, Ø1,2 м (2017)', 'Лёгкая двухступенчатая ракета для спутников. Первая ступень — девять двигателей Rutherford, вторая — один вакуумный. Выводит CubeSat на орбиту 200 км.',
   [{ e: 'rutherford', n: 9, D: 1.25, L: 11.5 }, { e: 'rutherford_vac', n: 1, D: 1.25, L: 2.0 }], 'cubesat');
