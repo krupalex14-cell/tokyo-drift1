@@ -78,11 +78,12 @@ const Art = {
       const hw = pw(p) / 2, hh = p.h / 2, ang = (p.rot || 0) * Math.PI / 2, ca = Math.cos(ang), sa = Math.sin(ang);
       // габарит повернутой детали (в системе аппарата)
       let ex = Math.abs(hw * ca) + Math.abs(hh * sa), ey = Math.abs(hw * sa) + Math.abs(hh * ca);
-      if (p.d.solar && p.d.solar.deploy && !p.st.deployed) { ex = Math.min(ex, .2); }
-      const c = [tf(p.x - ex, p.y - ey), tf(p.x + ex, p.y - ey), tf(p.x + ex, p.y + ey), tf(p.x - ex, p.y + ey)];
+      let fx = 0;   // сложенная панель прижата к корпусу (раньше «висела» на месте раскрытой и казалась оторванной)
+      if (p.d.solar && p.d.solar.deploy && !p.st.deployed) { ex = Math.min(ex, .2); if (!((p.rot || 0) & 1)) fx = -(p.x < 0 ? -1 : 1) * Math.max(0, hw - .2); }
+      const c = [tf(p.x + fx - ex, p.y - ey), tf(p.x + fx + ex, p.y - ey), tf(p.x + fx + ex, p.y + ey), tf(p.x + fx - ex, p.y + ey)];
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const q of c) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
       if (x1 < 0 || y1 < 0 || x0 > W || y0 > H) continue;
-      list.push({ p, x0: Math.max(0, Math.floor(x0)), x1: Math.min(W - 1, Math.ceil(x1)), y0: Math.max(0, Math.floor(y0)), y1: Math.min(H - 1, Math.ceil(y1)), ang });
+      list.push({ p, fx, x0: Math.max(0, Math.floor(x0)), x1: Math.min(W - 1, Math.ceil(x1)), y0: Math.max(0, Math.floor(y0)), y1: Math.min(H - 1, Math.ceil(y1)), ang });
       bx0 = Math.min(bx0, x0); by0 = Math.min(by0, y0); bx1 = Math.max(bx1, x1); by1 = Math.max(by1, y1);
     }
     if (!list.length) return;
@@ -102,7 +103,7 @@ const Art = {
       for (let y = it.y0; y <= it.y1; y++) {
         for (let x = it.x0; x <= it.x1; x++) {
           const X = (x + 0.5 - T.ox) / ppm, Y = (T.oy - (y + 0.5)) / ppm;
-          const dx = X * cps + Y * sps + T.cx - p.x, dy = -X * sps + Y * cps + T.cy - p.y;
+          const dx = X * cps + Y * sps + T.cx - p.x - it.fx, dy = -X * sps + Y * cps + T.cy - p.y;
           let lx = dx * ca - dy * sa, ly = dx * sa + dy * ca; if (p.flip) lx = -lx;
           let u = lx / pwid, v = ly / hgt; const wy = ly + hgt / 2;
           if (v < -0.5 || v > 0.5 || u < -0.5 / wScale || u > 0.5 / wScale) continue;

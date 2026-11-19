@@ -93,6 +93,8 @@ input[type=number],input[type=text],select{font:inherit;font-size:15px;backgroun
 .dh.open .px{transform:scaleX(-1)}
 .tut{position:absolute;left:6px;display:flex;flex-direction:column;gap:5px;padding:6px 8px;font-size:12px;line-height:1.3;z-index:60;background:rgba(8,12,26,.97)!important;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #ffe27a!important}
 .tut .tx{font-size:12px;line-height:1.32}
+.tut.min .tx,.tut.min>.row:last-child{display:none}
+.pcard .row{display:flex;align-items:center;gap:6px}
 body.tutfl .scr .lcol,body.tutfl .scr .hud2{margin-top:var(--tuth,0)}
 body.tut #toast{top:calc(env(safe-area-inset-top) + var(--tuth,0px) + 6px)}
 body.tut #toast.lo{top:calc(env(safe-area-inset-top) + var(--tuth,0px) + 104px)}

@@ -1,7 +1,8 @@
 'use strict';
 // ============ Мир: время, аппараты, смена сфер влияния, время-варп ============
 const WARPS = [1, 2, 4, 10, 50, 100, 1000, 10000, 100000];   // 1..4 — физический, дальше — по орбите
-const PHYS_MAX = 4;
+const PHYS_MAX = 50;     // самое большое «честное» ускорение (значение): физика считается по-настоящему, как при тяге и посадке
+const PHYS_IDX = 4;      // его индекс в WARPS; выше — ускорение «по орбите» (по рельсам)
 function World(U, opts) {
   opts = opts || {};
   this.U = U; this.eph = new Ephemeris(U);
@@ -260,50 +261,55 @@ World.prototype.onSOI = function (v, from, to) {
 };
 // допустимый варп
 World.prototype.maxWarpIdx = function () {
+  // Физическое ускорение (до ×50) доступно ВСЕГДА: на тяге, у поверхности, в атмосфере, при посадке.
+  // Ограничения остаются только у ускорения «по орбите» (> ×50): там физика не считается, и пропустить манёвр или упасть было бы нечестно.
   const v = this.active; if (!v) return WARPS.length - 1;
   const B = this.U.byId[v.body];
-  if (v.mode === 'landed') return v.throttle > 0.003 ? PHYS_MAX - 2 + 0 : WARPS.length - 1;
+  if (v.mode === 'landed') return v.throttle > 0.003 ? PHYS_IDX : WARPS.length - 1;
   const alt = Math.hypot(v.x, v.y) - B.R;
   const thrusting = v.throttle > 0.003 && v.engines && v.engines.some(p => p.on);
-  if (thrusting) return 2;
+  if (thrusting) return PHYS_IDX;
   if (v.ap && !v.ap.done) {
     if (v.ap.phase === 'node' && v.mode !== 'landed') {
       const inf = nodeInfo(this, v); const tb = v.ap.node.t - inf.burn / 2 - 60 - this.ut;
-      let idx = 2; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i; return idx;
+      let idx = PHYS_IDX; for (let i = PHYS_IDX + 1; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i; return idx;
     }
     if (v.ap.phase === 'wait') return WARPS.length - 1;
-    if (v.ap.phase === 'hold' && v.ap.until) { let idx = 2; const tb = v.ap.until - this.ut - 30; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i; return idx; }
+    if (v.ap.phase === 'hold' && v.ap.until) { let idx = PHYS_IDX; const tb = v.ap.until - this.ut - 30; for (let i = PHYS_IDX + 1; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i; return idx; }
     if (v.ap.phase === 'coast' && alt > (B.atm ? B.atm.top : 0) * 1.05 + 1000) {
       const ci = apCoastInfo(this, v); const tb = ci.tA - ci.burn / 2 - 30;
-      let idx = 2; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i;
+      let idx = PHYS_IDX; for (let i = PHYS_IDX + 1; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i;
       return idx;
     }
     if (v.ap.phase === 'land') {
-      if (v.ap.st !== 'fall') return 2; const L = landLead(this, v); let idx = 2; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= L) idx = i; return idx;
+      if (v.ap.st !== 'fall') return PHYS_IDX; const L = landLead(this, v); let idx = PHYS_IDX; for (let i = PHYS_IDX + 1; i < WARPS.length; i++) if (WARPS[i] * 6 <= L) idx = i; return idx;
     }
-    return 2;
+    return PHYS_IDX;
   }
   const el = elements(B.gm, v.x, v.y, v.vx, v.vy);
   const peAlt = el.rp - B.R;
-  if (B.landable || B.atm) { const safe = B.atm ? B.atm.top : 0; if (alt < safe + 500) return 2; if (el.bound && peAlt < safe + 500 && alt < safe * 3 + 20000) return 6 - 0; if (!el.bound && alt < (B.atm ? B.atm.top : 0) * 2 + 5000) return 4; }
-  if (v.contact) return 2;
-  // моменты вращения аппарата
-  if (Math.abs(v.w) > 0.5 && v.mode === 'phys') return 3;
+  if (B.landable || B.atm) { const safe = B.atm ? B.atm.top : 0; if (alt < safe + 500) return PHYS_IDX; if (el.bound && peAlt < safe + 500 && alt < safe * 3 + 20000) return 6 - 0; if (!el.bound && alt < (B.atm ? B.atm.top : 0) * 2 + 5000) return 4; }
+  if (v.contact) return PHYS_IDX;
   return WARPS.length - 1;
 };
 World.prototype.chooseDt = function (v) {
   const B = this.U.byId[v.body]; const alt = (v.alt != null ? v.alt : Math.hypot(v.x, v.y) - B.R);
   const thr = v.throttle > 0.003 || (v.thrust > 0);
   const near = v.mp && alt < (v.mp.R + 60) && B.landable;
-  if (near || (v.contact > 0)) return this.coarse ? 1 / 60 : 1 / 120;
-  if (B.atm && alt < B.atm.top && B.atm.dens(alt) > 1e-6) return this.coarse ? 1 / 30 : 1 / 60;
-  if (thr) return this.coarse ? 1 / 20 : 1 / 40;
+  const fast = this.warpVal() >= 10 ? 2 : 1;      // ×10/×50: шаг вдвое крупнее, иначе телефону не хватит скорости
+  if (near || (v.contact > 0)) return (this.coarse ? 1 / 60 : 1 / 120) * fast;
+  if (B.atm && alt < B.atm.top && B.atm.dens(alt) > 1e-6) return (this.coarse ? 1 / 30 : 1 / 60) * fast;
+  if (thr) return (this.coarse ? 1 / 20 : 1 / 40) * fast;
   return 1 / 15;
 };
 World.prototype.step = function (dtReal) {
   dtReal = Math.min(dtReal, 0.1);
   let warp = this.warpVal();
   if (this.autoWarp && this.active && this.active.ap && !this.active.ap.done && (this.active.ap.phase === 'coast' || this.active.ap.phase === 'node' || this.active.ap.phase === 'hold' || this.active.ap.phase === 'wait' || (this.active.ap.phase === 'land' && this.active.ap.st === 'fall' && landLead(this, this.active) > 60))) this.setWarp(this.maxWarpIdx());
+  else if (this.autoWarp && this.active && this.active.ap && !this.active.ap.done && this.active.ap.phase === 'land' && this.active.mode === 'phys') {
+    // автопосадка сама ускоряет время, пока до земли далеко (долгое торможение), и замедляется перед касанием
+    const c = landCalc(this, this.active); if (c) { const tt = Math.max(0, c.hg) / Math.max(2, -c.vv); this.setWarp(Math.min(this.maxWarpIdx(), tt > 150 ? 4 : tt > 45 ? 3 : tt > 16 ? 2 : tt > 7 ? 1 : 0)); }
+  }
   const mx = this.maxWarpIdx(); if (this.warpIdx > mx) { this.setWarp(mx); }
   warp = this.warpVal();
   const A = this.active;
@@ -400,7 +406,7 @@ World.prototype.settle = function (v, isActive) {
     return;
   }
   // активный, но в атмосфере/у поверхности — не даём варпить
-  if (this.warpIdx > PHYS_MAX - 2) this.setWarp(2);
+  if (this.warpIdx > PHYS_IDX) this.setWarp(PHYS_IDX);
 };
 // -------- телепорт / читы --------
 World.prototype.placeInOrbit = function (v, bodyId, alt, dir) {
@@ -440,7 +446,7 @@ World.prototype.placeOnSurface = function (v, bodyId, th) {
   this.setPinned(v);
 };
 World.prototype.switchTo = function (v) {
-  if (!v || !v.alive) return; this.active = v; if (v.mode === 'rails' && this.warpIdx <= PHYS_MAX) v.mode = 'phys';
+  if (!v || !v.alive) return; this.active = v; if (v.mode === 'rails' && this.warpIdx <= PHYS_IDX) v.mode = 'phys';
 };
 World.prototype.recover = function (v) {
   const B = this.U.byId[v.body]; if (!(B.id === this.U.home && v.mode === 'landed')) return null;

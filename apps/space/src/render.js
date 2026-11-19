@@ -1,6 +1,6 @@
 'use strict';
 // ============ Рендер: вид полёта (небо, атмосфера, рельеф, аппарат) ============
-const Cam = { z: 1, mapZ: 1, mapX: 0, mapY: 0, focus: null, bz: 1, bx: 0, by: 0 };
+const Cam = { ox: 0, oy: 0, z: 1, mapZ: 1, mapX: 0, mapY: 0, focus: null, bz: 1, bx: 0, by: 0 };
 
 // --- LUT плотности атмосферы: f∈[0,1] — «видимая» доля рассеяния на высоте a (логарифмическая шкала) ---
 function skyLUT(B) {
@@ -35,6 +35,23 @@ const FV = {
     const r = rng(77); this.stars = [];
     for (let i = 0; i < 520; i++) { const a = r() * TAU, d = Math.sqrt(r()); const k = r(); this.stars.push([Math.cos(a) * d, Math.sin(a) * d, 0.25 + 0.75 * k * k, (r() * 5) | 0]); }
   },
+  // деталь активного аппарата под точкой экрана (bx, by — пиксели холста игры); null если мимо
+  partAt(bx, by) {
+    const S = this.lastS; if (!S || !S.v || !S.v.mp) return null; const v = S.v;
+    const cps = Math.cos(S.psi), sps = Math.sin(S.psi);
+    const X = (bx - S.cx) / S.ppmV, Y = (S.cyC - by) / S.ppmV;
+    const vx = X * cps + Y * sps + v.mp.cx, vy = -X * sps + Y * cps + v.mp.cy;
+    const tol = Math.max(0.12, 5 / S.ppmV);      // палец не точный: запас ≈ 5 пикселей холста
+    let best = null, ba = 1e9;
+    for (const p of v.parts) {
+      if (p.dead) continue; const r = prect(p); let x0 = r.x0, x1 = r.x1;
+      if (p.d.solar && p.d.solar.deploy && !p.st.deployed) { const hw = (x1 - x0) / 2, fx = -(p.x < 0 ? -1 : 1) * Math.max(0, hw - .2); x0 = p.x + fx - .2; x1 = p.x + fx + .2; }
+      if (vx < x0 - tol || vx > x1 + tol || vy < r.y0 - tol || vy > r.y1 + tol) continue;
+      const area = (x1 - x0) * (r.y1 - r.y0) + (p.shielded ? 1e3 : 0) + (p.d.fair ? 500 : 0);
+      if (area < ba) { ba = area; best = p; }
+    }
+    return best;
+  },
   // габариты аппарата вдоль «вертикали экрана» (м): ниже/выше центра масс, размер
   extents(v, psi) {
     const cx = v.mp.cx, cy = v.mp.cy, s = Math.sin(psi), c = Math.cos(psi);
@@ -62,7 +79,7 @@ const FV = {
     const k = smooth(0.002, 0.04, hg / B.R);
     const Zg = Math.exp((1 - k) * Math.log(Zlow) + k * Math.log(Math.max(Zp, Zlow)));
     const ppmB = H / Zg;
-    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0) + (this.yOff || 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0), yFoot = cyC + ex.down * ppmV;
+    const cyC = H * (0.42 - 0.12 * k) + (typeof FX !== 'undefined' ? FX.shy : 0) + (this.yOff || 0) + (Cam.oy || 0), cx = Wd / 2 + (typeof FX !== 'undefined' ? FX.shx : 0) + (Cam.ox || 0), yFoot = cyC + ex.down * ppmV;
     // Солнце в локальной системе
     const si = Systems.sunInfo(W, v); const Sx = -si.sx * sph + si.sy * cph, Sy = si.sx * cph + si.sy * sph;
     const air = atmAt(B, r - B.R);

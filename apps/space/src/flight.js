@@ -10,12 +10,12 @@ const Flight = {
   open() {
     const W = App.W; if (!W) { UI.go('hub'); return; }
     if (!W.active || !W.active.alive) { const v = W.vessels.find(x => x.alive && hasCore(x)) || W.vessels.find(x => x.alive); if (v) W.switchTo(v); }
-    this.lostShown = false; this.lostT = 0; this.ghost = null; this.lastLogId = W.logs.length ? W.logs[W.logs.length - 1].id : 0; this.rot = 0;
-    FX.clear && FX.clear(); this.dom(); App.mode = 'flight';
+    this.hudMode = Store.get('hudm', 1); this.lostShown = false; this.lostT = 0; this.ghost = null; this.lastLogId = W.logs.length ? W.logs[W.logs.length - 1].id : 0; this.rot = 0;
+    FX.clear && FX.clear(); Cam.ox = Cam.oy = 0; this.dom(); App.mode = 'flight';
     if (!W.active) { UI.toast('Нет аппаратов в полёте. Соберите ракету в ангаре.', 'info'); setTimeout(() => UI.go('hub'), 50); }
     this.bind();
   },
-  leave() { if (this.root) this.root.remove(); this.root = null; this.panel = null; this.unbind(); try { Sfx.update(0, 0, 0, false); } catch (e) { } if (App.W && App.W.active) App.W.active.ctl.rot = 0; App.W && (App.W.warpIdx = Math.min(App.W.warpIdx, 0)); },
+  leave() { Cam.ox = Cam.oy = 0; this.partCard(null); if (this.root) this.root.remove(); this.root = null; this.panel = null; this.unbind(); try { Sfx.update(0, 0, 0, false); } catch (e) { } if (App.W && App.W.active) App.W.active.ctl.rot = 0; App.W && (App.W.warpIdx = Math.min(App.W.warpIdx, 0)); },
   // ---------- DOM ----------
   dom() {
     const E = this.E = {}; const self = this;
@@ -24,7 +24,7 @@ const Flight = {
     E.hud = h('div', { class: 'hud', style: 'position:static;min-width:150px' });
     E.lcol = h('div', { class: 'lcol', style: 'position:absolute;left:6px;top:' + safeT + ';display:flex;flex-direction:column;gap:4px;align-items:flex-start;pointer-events:none' }, E.hud);
     E.hud2 = h('div', { class: 'hud hud2', style: 'right:56px;top:' + safeT + ';text-align:right;max-width:44%' });
-    const tr = h('div', { class: 'col trbtns', style: 'position:absolute;right:6px;top:' + safeT }, h('button', { class: 'btn sm', onclick: () => UI.go('map') }, '🌍'), h('button', { class: 'btn sm', onclick: () => this.menu() }, '☰'));
+    const tr = h('div', { class: 'col trbtns', style: 'position:absolute;right:6px;top:' + safeT }, h('button', { class: 'btn sm', onclick: () => UI.go('map') }, '🌍'), h('button', { class: 'btn sm', onclick: () => this.menu() }, '☰'), E.hudB = h('button', { class: 'btn sm', title: 'Панели: компактные / полные / скрыты', onclick: () => this.cycleHud() }, 'HUD'), E.cenB = h('button', { class: 'btn sm hide', title: 'Камера к ракете', onclick: () => { Cam.ox = Cam.oy = 0; this.camBtn(); } }, '◎'));
     // тяга: ползунок слева и быстрые кнопки рядом
     E.thr = h('div', { class: 'thr' }, h('i'), h('u')); E.thrFill = E.thr.firstChild; E.thrMark = E.thr.lastChild;
     E.thrL = h('div', { class: 'lbl', style: 'left:8px;bottom:272px;font-size:12px' }, 'ТЯГА');
@@ -54,8 +54,50 @@ const Flight = {
     E.ap = h('div', { class: 'hud hide', style: 'position:static;font-size:11px;white-space:normal;max-width:200px;text-align:left' }); E.lcol.prepend(E.ap);
     E.land = h('div', { class: 'hud hide land', style: 'position:static' }); E.lcol.append(E.land);
     E.hint = h('div', { class: 'hud hide hint', style: 'left:50%;transform:translateX(-50%);bottom:96px' });
+    this.applyHud();
     root.append(E.lcol, E.hud2, tr, E.thr, E.thrL, thrBtns, rc, E.stage, steer, E.left, E.right, warp, E.hint, E.drawer, E.dh);
     $('#ui').append(root);
+  },
+  // ---------- режим панелей, камера, тап по детали ----------
+  applyHud() { const E = this.E, m = this.hudMode; if (!E.lcol) return; E.lcol.style.display = m === 2 ? 'none' : ''; E.hud2.style.display = m === 2 ? 'none' : ''; if (m === 2) E.hint.classList.add('hide'); },
+  cycleHud() { this.hudMode = this.hudMode === 1 ? 0 : this.hudMode === 0 ? 2 : 1; Store.set('hudm', this.hudMode); this.applyHud(); this.hudT = 0; UI.toast(['Панели: полные', 'Панели: компактные', 'Панели скрыты'][this.hudMode], 'info'); },
+  camBtn() { const E = this.E; if (E.cenB) E.cenB.classList.toggle('hide', Math.abs(Cam.ox) + Math.abs(Cam.oy) < 3); },
+  tap(cx, cy) {
+    const now = performance.now();
+    if (this._lt && now - this._lt.t < 350 && Math.hypot(cx - this._lt.x, cy - this._lt.y) < 36) { this._lt = null; Cam.ox = Cam.oy = 0; this.camBtn(); this.partCard(null); return; }   // двойной тап — камера к ракете
+    this._lt = { t: now, x: cx, y: cy };
+    if (!this.V() || !FV.lastS) return;
+    const r = App.cv.getBoundingClientRect(), k = Gfx.w / Math.max(1, r.width);
+    this.partCard(FV.partAt((cx - r.left) * k, (cy - r.top) * k));
+  },
+  partCard(p) {
+    if (this.pcard) { this.pcard.remove(); this.pcard = null; } this.pcardP = p || null; if (!p || !this.root) return;
+    this.pcard = h('div', { class: 'hud pcard', style: 'position:absolute;left:50%;transform:translateX(-50%);top:37%;width:min(92vw,330px);pointer-events:auto;z-index:25;white-space:normal;text-align:left;font-size:12px' });
+    this.root.append(this.pcard); this.drawCard();
+  },
+  drawCard() {
+    const p = this.pcardP, v = this.V(), W = App.W; if (!this.pcard) return;
+    if (!p || !v || !v.parts.includes(p)) { this.partCard(null); return; }
+    const d = p.d, L = [], Bt = []; const kv = (c, t) => L.push(h('div', { class: c || '' }, t));
+    if (d.real) kv('tiny mut', d.real);
+    if (p.shielded) kv('or', 'Закрыт обтекателем: прибор и антенна не работают, пока его не сбросить.');
+    if (d.eng && !d.eng.rcs) { kv(p.on ? 'gr' : 'mut', (p.on ? 'Работает' : 'Выключен') + (p.stage >= 0 ? ' · включится на ступени ' + (p.stage + 1) : '')); kv('mut', 'Тяга ' + fmtForce((d.eng.Fv || 0) * (p.n || 1))); }
+    else if (d.eng && d.eng.rcs) kv('mut', 'Двигатель ориентации (РСУ)');
+    if (d.dec) kv('mut', 'Разделитель' + (p.stage >= 0 ? ' · сработает на ступени ' + (p.stage + 1) : ''));
+    if (d.tank || d.res || (p.res && Object.keys(p.res).length && !d.eng)) { const cap = partCap(p), cur = Object.keys(p.res || {}).filter(k => k !== 'ec').reduce((s, k) => s + p.res[k], 0); if (cap > 0) kv('', 'Топливо: ' + fmtMass(cur) + ' из ' + fmtMass(cap)); }
+    if (d.solar) { if (d.solar.deploy) { const on = !!p.st.deployed; kv(on ? 'gr' : 'or', on ? 'Панель раскрыта' : 'Панель сложена'); Bt.push([on ? 'Сложить' : 'Раскрыть', () => { p.st.deployed = !on; }]); } else kv('mut', 'Солнечные элементы на корпусе'); }
+    if (d.ant) { if (d.ant.deploy) { const on = !!p.st.deployed; kv(on ? 'gr' : 'or', on ? 'Антенна раскрыта' : 'Антенна сложена'); Bt.push([on ? 'Сложить' : 'Раскрыть', () => { p.st.deployed = !on; }]); } else kv('mut', 'Антенна'); }
+    if (d.leg) { const on = !!p.st.deployed; kv(on ? 'gr' : 'or', on ? 'Опора выпущена' : 'Опора убрана'); Bt.push([on ? 'Убрать' : 'Выпустить', () => { p.st.deployed = !on; }]); }
+    if (d.chute || d.src) { const s = p.st.chute; kv(s === 'open' ? 'gr' : 'mut', s === 'arm' ? 'Парашют взведён: раскроется сам' : s === 'deploy' ? 'Раскрывается' : s === 'open' ? 'Раскрыт' : s === 'cut' ? 'Отстрелен' : 'Парашют в ранце'); if (!s) Bt.push(['Взвести', () => { p.st.chute = 'arm'; }]); else if (s === 'arm') Bt.push(['Снять', () => { p.st.chute = null; }]); }
+    if (d.fair) { kv('mut', 'Головной обтекатель'); Bt.push(['Сбросить', () => { W.jettisonFairing(v); }]); }
+    if (d.inst) { const running = p.st.run != null && p.st.run >= 0, why = Science.canRun(W, v, p); kv(running ? 'cy' : why ? 'or' : 'gr', running ? 'Измерение идёт…' : (why || 'Прибор готов')); if (!running && !why) Bt.push(['Запустить', () => { const r = Science.start(W, v, p); if (r) UI.toast(r, 'bad'); }]); }
+    if (d.wheel) kv('mut', 'Колесо Ø' + (d.wheel.r * 2).toFixed(2) + ' м: едет кнопками ◀ ▶ внизу');
+    if (d.core) kv('mut', 'Блок управления · потребляет ' + d.core.ec + ' ед. энергии/с');
+    if (d.batt && !d.core) kv('mut', 'Аккумулятор');
+    if (typeof partDry === 'function') kv('tiny mut', 'Масса ' + fmtMass(partDry(p)));
+    this.pcard.innerHTML = '';
+    this.pcard.append(h('div', { class: 'row' }, h('b', { class: 'cy sp' }, d.name), h('button', { class: 'btn sm', onclick: () => this.partCard(null) }, '✕')), ...L,
+      ...(Bt.length ? [h('div', { class: 'row', style: 'margin-top:4px' }, ...Bt.map(([t, f]) => h('button', { class: 'btn sm go sp', onclick: () => { f(); this.drawCard(); } }, t)))] : []));
   },
   drawer(open) {
     const E = this.E; const on = open == null ? !E.drawer.classList.contains('open') : !!open;
@@ -67,9 +109,20 @@ const Flight = {
     el.addEventListener('pointerdown', this._tp); el.addEventListener('pointermove', this._tm); el.addEventListener('pointerup', this._tu); el.addEventListener('pointercancel', this._tu);
     // зум и панорама камеры по холсту
     const cv = App.cv; this._ptr = new Map();
-    this._cd = e => { this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (this._ptr.size === 2) { const a = [...this._ptr.values()]; this._pd = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); this._pz = Cam.z; } };
-    this._cm = e => { if (!this._ptr.has(e.pointerId)) return; this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (this._ptr.size === 2 && this._pd) { const a = [...this._ptr.values()]; const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); Cam.z = clamp(this._pz * d / this._pd, .15, 12); } };
-    this._cu = e => { this._ptr.delete(e.pointerId); this._pd = 0; };
+    this._cd = e => { this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); this._g = this._ptr.size === 1 ? { x: e.clientX, y: e.clientY, t: performance.now(), mv: 0 } : null; if (this._ptr.size === 2) { const a = [...this._ptr.values()]; this._pd = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); this._pz = Cam.z; } };
+    this._cm = e => {
+      if (!this._ptr.has(e.pointerId)) return; const old = this._ptr.get(e.pointerId); this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this._ptr.size === 2 && this._pd) { const a = [...this._ptr.values()]; const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); Cam.z = clamp(this._pz * d / this._pd, .15, 12); this._g = null; }
+      else if (this._ptr.size === 1 && this._g) {   // один палец: тянем камеру (вид сдвигается за пальцем)
+        this._g.mv = Math.max(this._g.mv, Math.hypot(e.clientX - this._g.x, e.clientY - this._g.y));
+        if (this._g.mv > 8) { const k = Gfx.w / Math.max(1, App.cv.clientWidth); Cam.ox = clamp(Cam.ox + (e.clientX - old.x) * k, -Gfx.w * 1.2, Gfx.w * 1.2); Cam.oy = clamp(Cam.oy + (e.clientY - old.y) * k, -Gfx.h * 1.2, Gfx.h * 1.2); this.camBtn(); }
+      }
+    };
+    this._cu = e => {
+      const had = this._ptr.has(e.pointerId); this._ptr.delete(e.pointerId); this._pd = 0;
+      const g = this._g; this._g = null;
+      if (had && g && g.mv <= 8 && performance.now() - g.t < 450 && e.type === 'pointerup') this.tap(e.clientX, e.clientY);
+    };
     this._cw = e => { e.preventDefault(); Cam.z = clamp(Cam.z * (e.deltaY < 0 ? 1.12 : 1 / 1.12), .15, 12); };
     cv.addEventListener('pointerdown', this._cd); addEventListener('pointermove', this._cm); addEventListener('pointerup', this._cu); addEventListener('pointercancel', this._cu); cv.addEventListener('wheel', this._cw, { passive: false });
   },
@@ -112,7 +165,7 @@ const Flight = {
     const view = A || this.ghost;
     const warp = W.warpVal();
     if (view) {
-      if (warp <= PHYS_MAX) FX.update(W, dt * warp, A || view); else { FX.P.length = 0; W.evq.length = 0; }
+      if (warp <= PHYS_MAX) FX.update(W, dt * Math.min(warp, 4), A || view); else { FX.P.length = 0; W.evq.length = 0; }
       FV.frame(g, W, view, App.t);
       try { Sfx.update(A ? A.throttle : 0, FV.lastS ? FV.lastS.dens : 0, A ? (A.q || 0) : 0, !!A && warp <= 2); } catch (e) { }
     } else { g.clear(rgb(4, 6, 14)); }
@@ -122,6 +175,7 @@ const Flight = {
     // журнал → тосты
     UI.pumpLogs(W);
     this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .15; this.hud(A, W); }
+    if (this.pcard) { this._pcT = (this._pcT || 0) - dt; if (this._pcT <= 0) { this._pcT = .4; this.drawCard(); } }
     if (this.panel) { this._pT += dt; if (this._pT > .5) { this._pT = 0; this.panel.render(); } }
     this.drawThr(A);
   },
@@ -142,19 +196,20 @@ const Flight = {
     const tw = v.thrust > 0 ? (v.thrust / (v.mp.m * (B.gm / (r * r)))) : 0;
     let h1 = '<b class="cy">' + esc(v.name) + '</b><div class="tiny mut">' + esc(B.name) + ' · ' + (ST_NAMES[sit] || sit) + (v.mode === 'rails' ? ' · по рельсам' : '') + '</div>';
     h1 += row(radar != null && radar < 30000 ? 'Выс. (рад.)' : 'Высота', fmtDist(radar != null ? radar : alt), alt < 0 ? 'rd' : '');
-    h1 += row(surfM ? 'Скор. пов.' : 'Скорость', fmtSpeed(sp)); h1 += row('Верт.', (vr >= 0 ? '+' : '') + fmtSpeed(vr), vr < -40 && alt < 20000 && v.mode !== 'rails' ? 'rd' : ''); h1 += row('Гориз.', fmtSpeed(vh));
-    h1 += row('Апоцентр', ap, 'or'); h1 += row('Перицентр', el.rp < B.R * 0.1 || v.mode === 'landed' ? '—' : pe, el.rp < B.R + (B.atm ? B.atm.top : 0) ? 'rd' : 'or');
+    const full = this.hudMode === 0, orb = v.mode !== 'landed' && alt > 15000;   // компактный режим: три строки, а орбита — только когда мы уже в космосе
+    h1 += row(surfM ? 'Скор. пов.' : 'Скорость', fmtSpeed(sp)); h1 += row('Верт.', (vr >= 0 ? '+' : '') + fmtSpeed(vr), vr < -40 && alt < 20000 && v.mode !== 'rails' ? 'rd' : ''); if (full) h1 += row('Гориз.', fmtSpeed(vh));
+    if (full || orb) { h1 += row('Апоцентр', ap, 'or'); h1 += row('Перицентр', el.rp < B.R * 0.1 || v.mode === 'landed' ? '—' : pe, el.rp < B.R + (B.atm ? B.atm.top : 0) ? 'rd' : 'or'); }
     E.hud.innerHTML = h1;
     // правая колонка: тяга, энергия, топливо
     const fu = this.fuel(v); const ecf = v.ecCap > 0 ? v.ec / v.ecCap : 0; const bar = (f, c) => '<div class="bar ' + c + '" style="width:70px;display:inline-block;vertical-align:middle"><i style="width:' + Math.round(clamp(f, 0, 1) * 100) + '%"></i></div>';
     let h2 = '<div>Топливо ' + bar(fu, 'fu') + '</div><div>Энергия ' + bar(ecf, 'ec') + '</div>';
-    h2 += '<div class="mut">Масса ' + fmtMass(v.mp.m) + '</div>';
-    if (v.thrust > 0) h2 += '<div>Тяга ' + fmtForce(v.thrust) + ' · TWR ' + tw.toFixed(2) + '</div>';
+    if (full) h2 += '<div class="mut">Масса ' + fmtMass(v.mp.m) + '</div>';
+    if (v.thrust > 0 && full) h2 += '<div>Тяга ' + fmtForce(v.thrust) + ' · TWR ' + tw.toFixed(2) + '</div>';
     if (v.gload > 1.5) h2 += '<div class="' + (v.gload > 6 ? 'rd' : 'or') + '">' + v.gload.toFixed(1) + ' g</div>';
     if (v.q > 500) h2 += '<div class="' + (v.q > 30000 ? 'or' : 'mut') + '">Q ' + fmtNum(v.q / 1000, 1) + ' кПа</div>';
     const hot = Math.max(0, ...v.parts.map(p => p.temp || 0)); if (hot > 600) h2 += '<div class="' + (hot > 1200 ? 'rd' : 'or') + '">нагрев ' + Math.round(hot) + ' K</div>';
-    if (v.gen != null) h2 += '<div class="mut">' + (v.gen - v.use >= 0 ? '+' : '') + fmtPow(v.gen - v.use) + '</div>';
-    if (v.link) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
+    if (v.gen != null && full) h2 += '<div class="mut">' + (v.gen - v.use >= 0 ? '+' : '') + fmtPow(v.gen - v.use) + '</div>';
+    if (v.link && (full || !v.link.ok)) h2 += '<div class="' + (v.link.ok ? 'gr' : 'mut') + '">' + (v.link.ok ? (v.txing ? '📡 ' + fmtBits(v.link.rate / 1e6 * 8 / 8) + '/с' : '📡 связь') : '📡 ' + (v.link.why || 'нет')) + '</div>';
     E.hud2.innerHTML = h2;
     // автопилот
     if (v.ap && !v.ap.done && v.ap.phase !== 'none') { E.ap.classList.remove('hide'); E.ap.innerHTML = '🤖 ' + (AP_NAMES[v.ap.phase] || v.ap.phase) + (v.ap.phase === 'land' && v.ap.st ? ': ' + (LAND_ST[v.ap.st] || '') : '') + (v.ap.phase === 'wait' && v.ap.until ? ' · ' + fmtDur(v.ap.until - W.ut) : '') + (v.tasks && v.tasks.length ? ' · далее: ' + v.tasks.length : ''); }
@@ -194,10 +249,11 @@ const Flight = {
     const row = (a, b, k) => '<div style="display:flex;justify-content:space-between;gap:10px"><span class="mut">' + a + '</span><b class="' + k + '">' + b + '</b></div>';
     let t = '<div class="cy" style="text-align:center">🛬 ПОСАДКА</div>' + row('Над грунтом', fmtDist(Math.max(0, c.hg)), '') + row('Падение', (c.vv > 0.5 ? 'вверх ' : '') + fmtSpeed(Math.abs(c.vv)), cv) + row('Боковая', fmtSpeed(c.vh), ch);
     if (c.vv < -0.5) t += row('До касания', fmtDur(Math.max(0, c.hg / -c.vv)), '');
-    t += row('Тяга / вес', (c.aT / c.g).toFixed(2), c.aT / c.g < 1.1 ? 'rd' : '');
+    if (this.hudMode === 0 || c.aT / c.g < 1.1) t += row('Тяга / вес', (c.aT / c.g).toFixed(2), c.aT / c.g < 1.1 ? 'rd' : '');
     E.land.innerHTML = t; E.land.classList.remove('hide');
     const hint = (v.ap && !v.ap.done && v.ap.phase === 'land') ? 'Автопосадка ведёт аппарат сама. Любое ваше действие тягой/поворотом отключит её.' : this.landHint(v, W, L);
-    if (hint) { E.hint.textContent = hint; E.hint.classList.remove('hide'); } else E.hint.classList.add('hide');
+    const apOn = v.ap && !v.ap.done && v.ap.phase === 'land';
+    if (hint && this.hudMode !== 2 && !(apOn && this.hudMode === 1)) { E.hint.textContent = hint; E.hint.classList.remove('hide'); } else E.hint.classList.add('hide');
   },
   landHint(v, W, L) {
     const { B, c, vAllow } = L, fall = -c.vv; const legs = v.parts.filter(p => p.d.leg), wh = v.parts.some(p => p.d.wheel);

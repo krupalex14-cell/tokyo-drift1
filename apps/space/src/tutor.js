@@ -137,7 +137,7 @@ const Tutor = {
     const L = this.cur; if (!L) return; this.unhl(); this.base = null;
     if (this.card) this.card.remove();
     const S = L.steps[this.si]; const last = this.si >= L.steps.length;
-    const head = h('div', { class: 'row' }, h('i', { class: 'px', 'data-n': L.icon, style: 'width:20px;height:20px' }), h('b', { class: 'yl sp', style: 'font-size:12px' }, L.title), h('span', { class: 'tiny mut' }, Math.min(this.si + 1, L.steps.length) + '/' + L.steps.length), h('button', { class: 'btn sm', style: 'min-height:26px;min-width:30px;padding:2px 6px', onclick: () => this.stop() }, '✕'));
+    const head = h('div', { class: 'row' }, h('i', { class: 'px', 'data-n': L.icon, style: 'width:20px;height:20px' }), h('b', { class: 'yl sp', style: 'font-size:12px' }, L.title + (this.mini ? '  ▴' : '  ▾')), h('span', { class: 'tiny mut' }, Math.min(this.si + 1, L.steps.length) + '/' + L.steps.length), h('button', { class: 'btn sm', style: 'min-height:26px;min-width:30px;padding:2px 6px', onclick: () => this.stop() }, '✕'));
     const btns = h('div', { class: 'row' });
     if (this.failed) { btns.append(h('button', { class: 'btn sm go sp', onclick: () => this.restart() }, '↻ Повторить'), h('button', { class: 'btn sm sp', onclick: () => this.stop() }, 'Выйти')); }
     else if (S) {
@@ -145,13 +145,14 @@ const Tutor = {
       else btns.append(h('button', { class: 'btn sm sp', style: 'opacity:.7', onclick: () => this.advance() }, 'Пропустить шаг'));
     }
     const text = this.failed ? 'Аппарат потерян — в космосе это бывает! Попробуйте ещё раз: смотрите на цифры «Падение» и «Боковая».' : (S ? S.t : '');
-    this.card = h('div', { class: 'tut pn' }, head, h('div', { class: 'tx' }, text), btns);
+    this.card = h('div', { class: 'tut pn' + (this.mini ? ' min' : '') }, head, h('div', { class: 'tx' }, text), btns);
+    head.style.cursor = 'pointer'; head.title = 'Свернуть / развернуть'; head.addEventListener('click', e => { if (e.target.closest('button')) return; this.mini = !this.mini; this.card.classList.toggle('min', this.mini); const tt = head.querySelector('b'); if (tt) tt.textContent = L.title + (this.mini ? '  ▴' : '  ▾'); this.layout(); });
     UI.layer.append(this.card); document.body.classList.add('tut');
     this.layout();
     if (S && S.hl && !this.failed) setTimeout(() => { const el = document.querySelector('#ui ' + S.hl); if (el) { el.classList.add('tut-hl'); this.hl = el; } }, 60);
   },
   advance() {
-    const L = this.cur; if (!L) return; this.si++;
+    const L = this.cur; if (!L) return; this.si++; this.mini = false;   // новый шаг — новый текст: показываем развёрнутым
     try { Sfx.ok && Sfx.ok(); } catch (e) { }
     if (this.si >= L.steps.length) {
       const dn = this.done(); dn[L.id] = 1; Store.set('tut', dn); UI.toast('Урок «' + L.title + '» пройден ✔', 'ok');
