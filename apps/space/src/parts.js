@@ -11,7 +11,7 @@ const PROPS = {
   xenon: { name: 'Ксенон', rho: 1600, frac: 0.15, ox: false, color: '#b8c8d8' },
   solid: { name: 'Твёрдое топливо', rho: 1800, frac: 0, ox: true, color: '#4a4a48' }
 };
-const CATS = [['engine', 'Двигатели'], ['tank', 'Баки'], ['struct', 'Конструкция'], ['control', 'Управление'], ['power', 'Энергия'], ['comm', 'Связь'], ['science', 'Наука'], ['landing', 'Посадка']];
+const CATS = [['engine', 'Двигатели'], ['tank', 'Баки'], ['struct', 'Конструкция'], ['control', 'Управление'], ['power', 'Энергия'], ['comm', 'Связь'], ['science', 'Наука'], ['landing', 'Посадка'], ['rover', 'Вездеход']];
 const PARTS = {}; const PART_LIST = [];
 const L = (t, g, c, s, o) => ({ t, g, c, s: s || 'f', o: o || null });   // слой рисунка
 function def(d) { d.w = d.w || 1; d.h = d.h || 1; d.tier = d.tier || 0; d.cost = d.cost || 1000; d.crashV = d.crashV || 9; d.maxT = d.maxT || 900; d.crushP = d.crushP || 6e5; PARTS[d.id] = d; PART_LIST.push(d); return d; }
@@ -144,10 +144,14 @@ leg('leg_f9', 'Посадочная опора (F9)', 'SpaceX Falcon 9: угле
 leg('leg_lem', 'Посадочная опора LM', 'Grumman: лунный модуль «Аполлон»', 1, 150, 2.4, 3.5, [1.2, -1.75], 300e3, { leg: { foot: [1.2, -1.75], tol: 5, k: 2.5, z: .9 } });
 leg('leg_probe', 'Лёгкая опора зонда', 'Phoenix / InSight (сминаемые)', 0, 4, 1.0, 1.0, [.5, -.5], 40e3, { leg: { foot: [.5, -.5], tol: 5, k: 3, z: 1 } });
 function wheel(id, name, real, tier, mass, r, F, vmax, P, cost) {
-  return def({ id, name, cat: 'landing', real, tier, cost, mass, w: r * 2, h: r * 2, attach: 'radial', wheel: { r, F, vmax, P }, crashV: 14, art: [L('e', [0, 0, .5, .5], 'dark', 's'), L('e', [0, 0, .32, .32], 'steel', 's'), L('r', [-.5, -.04, .5, .04], 'dark', 'f', { spokes: 1 })] });
+  return def({ id, name, cat: 'rover', real, tier, cost, mass, w: r * 2, h: r * 2, attach: 'radial', wheel: { r, F, vmax, P }, crashV: 14, art: [L('e', [0, 0, .5, .5], 'dark', 's'), L('e', [0, 0, .32, .32], 'steel', 's'), L('r', [-.5, -.04, .5, .04], 'dark', 'f', { spokes: 1 })] });
 }
 wheel('wheel_msl', 'Колесо ровера (MSL)', 'Curiosity/Perseverance: Ø0,5 м, алюминий (v ≈ 0,2 м/с в игре)', 2, 8, .25, 280, .2, 110, 500e3);
 wheel('wheel_lrv', 'Колесо LRV', 'Lunar Roving Vehicle: Ø0,82 м, проволочная сетка', 2, 5.5, .41, 160, 3.6, 220, 500e3);
+// корпус вездехода: «тёплый ящик» с компьютером и аккумулятором; ширина меняется, колёса и мачта крепятся к нему
+def({ id: 'rover_deck', name: 'Корпус вездехода', cat: 'rover', real: 'как герметичный контейнер «Лунохода» и корпус Curiosity: компьютер, аккумулятор и электроника, укрытые от холода', tier: 1, cost: 1.5e6, mass: 45, w: 1.4, h: .5, attach: 'both', core: { torque: .15, ec: 14 }, batt: 400, size: { dia: [.8, 1, 1.2, 1.4, 1.8, 2.2, 3], len: [.3, 1.2, .1] }, crashV: 8, art: [L('r', [-.5, -.5, .5, .5], 'steel', 'c'), L('r', [-.5, .2, .5, .5], 'gold', 'f'), L('r', [-.5, -.5, .5, -.34], 'dark', 'f'), L('r', [-.38, -.14, -.06, .08], 'blue', 'f'), L('e', [.3, -.02, .07, .07], 'blue', 's')] });
+// мачта: поднимает камеру и антенну над корпусом, к ней же крепят панели
+def({ id: 'rover_mast', name: 'Мачта вездехода', cat: 'rover', real: 'мачта камер Curiosity (≈ 2 м) / штанга антенны «Лунохода»', tier: 1, cost: 80e3, mass: 3, w: .1, h: 1, attach: 'both', size: { len: [.3, 2.5, .1] }, crashV: 6, art: [L('r', [-.5, -.5, .5, .5], 'steel', 'c', { band: [1, .06, 'dark'] })] });
 wheel('wheel_lunokhod', 'Колесо «Лунохода»', 'Лавочкин: Ø0,51 м, 8 колёс', 2, 6, .255, 200, 1.0, 150, 400e3);
 function chute(id, name, real, tier, mass, D, Cd, q, cost, o) {
   const A = Math.PI * D * D / 4;
@@ -202,6 +206,8 @@ function partDry(p) {
   if (d.fair) return 11 * 0.85 * Math.PI * p.w * p.h + 40;
   if (d.id === 'adapter_payload') return 30 * Math.PI * p.w * p.w / 4 + 8;
   if (d.id === 'strut') return 18 * p.w * p.h * 4 + 3;
+  if (d.id === 'rover_deck') return 45 * p.w * p.h + 12;
+  if (d.id === 'rover_mast') return 30 * p.w * p.h + .3;
   if (d.fin) return d.mass * clamp(pw(p) * p.h / (d.w * d.h), .08, 10);   // масса растёт с площадью
   if (d.shield && !d.shield.own) return d.shield.kgm2 * Math.PI * p.w * p.w / 4 + d.shield.abl * Math.PI * p.w * p.w / 4;
   if (d.eng && !d.eng.solid && !d.eng.rcs) return d.mass * (p.n || 1);

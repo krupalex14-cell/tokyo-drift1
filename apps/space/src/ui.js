@@ -288,6 +288,16 @@ const UI = {
       b.append(card(t, [toHangar(t), W.U.byId.moon ? go('moon', 0.3) : null, W.U.byId.mars ? go('mars', 0.3) : null].filter(Boolean)));
     }
   },
+  // вездеход не взлетает сам: в песочнице его «доставляют» на поверхность (как будто привёз посадочный модуль)
+  launchRover(design) {
+    const W = App.W, b = h('div', { class: 'col' }); const sh = this.sheet('🛞 Куда поставить вездеход?', b, { height: '52%' });
+    b.append(h('div', { class: 'small mut', style: 'line-height:1.35' }, 'Сам вездеход взлететь не может — его привозит посадочный модуль. Здесь он сразу окажется на поверхности. Едем кнопками в нижних углах; на склоне вездеход стоит, пока не нажали.'));
+    const spots = [['earth', 'Земля: космодром', null], ['moon', 'Луна', 0.3], ['mars', 'Марс', 0.3]].filter(x => W.U.byId[x[0]]);
+    for (const [body, name, th] of spots) b.append(h('button', { class: 'btn go', onclick: () => {
+      sh.close(); if (!this.launch(design, null, { test: true })) return; const v = W.active;
+      if (th != null) { W.placeOnSurface(v, body, th); this.toast('Вездеход на поверхности: ' + name, 'ok'); } else this.toast('Вездеход на космодроме', 'info');
+    } }, name));
+  },
   // ---------- запуск аппарата ----------
   launch(design, goal, o) {
     o = o || {}; const W = App.W; let cost = 0; for (const p of design.parts) cost += partCost(p);

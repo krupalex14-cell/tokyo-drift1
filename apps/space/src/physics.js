@@ -335,9 +335,12 @@ function contactForces(W, v, B, dt, ca, sa, thb, rr, rx, ry) {
     if (c.kind === 'wheel') {
       // продольная ось колеса вдоль касательной к поверхности
       const dirx = tx, diry = ty; const vl = rvx * dirx + rvy * diry;
-      const drive = (v.drive || 0) * p.d.wheel.F * (v.ec > 0 || ch.infEC ? 1 : 0) * (Math.abs(vl) < p.d.wheel.vmax ? 1 : 0);
+      // мотор-колесо держит заданную скорость: разгоняется с силой F до vmax и тормозит на спуске, а не катится под горку всё быстрее
+      const dIn = v.drive || 0, powered = v.ec > 0 || ch.infEC ? 1 : 0;
+      const drive = Math.abs(dIn) > 0.01 ? powered * clamp((dIn * p.d.wheel.vmax - vl) * 8, -1, 1) * p.d.wheel.F : 0;
       const roll = -clamp(vl * 40, -1, 1) * Math.min(Fn * 0.02, 5) * (Math.abs(v.drive || 0) > 0.01 ? 0 : 6);
-      const brake = v.brake ? -clamp(vl / 0.05, -1, 1) * Fn * 0.9 : 0;
+      const park = v.brake || !(Math.abs(v.drive || 0) > 0.01);   // стояночный тормоз: отпустили кнопку — вездеход стоит, даже на склоне
+      const brake = park ? -clamp(vl / 0.05, -1, 1) * Fn * 0.9 : 0;
       let Ft = clamp(drive + roll + brake, -Fn * mu_, Fn * mu_);
       // продольное сцепление при неприводе
       if (!(Math.abs(v.drive || 0) > 0.01) && !v.brake) { Ft += clamp(-vl * 4 * Fn, -Fn * 0.03, Fn * 0.03) * 0; }

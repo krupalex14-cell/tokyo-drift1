@@ -123,7 +123,8 @@ const Builder = {
     let x = tgt.x, y = tgt.y; const side = dir === 'left' ? -1 : 1;
     if (dir === 'up') { y = r.y1 + e[1]; }
     else if (dir === 'down') { y = r.y0 - e[1]; }
-    else { x = tgt.x + side * ((r.x1 - r.x0) / 2 + e[0]); y = tgt.y; if (d.leg || d.wheel || d.fin) y = r.y0 + e[1] + (d.leg ? 0 : 0); if (dir === 'left') p.flip = true; }
+    else { x = tgt.x + side * ((r.x1 - r.x0) / 2 + e[0]); y = tgt.y; if (d.wheel) y = tgt.d.wheel ? tgt.y : r.y0 + clamp(.4 * d.wheel.r, .05, .25);   // колесо чуть выше днища корпуса: оно, а не корпус, касается грунта
+      else if (d.leg || d.fin) y = r.y0 + e[1]; if (dir === 'left') p.flip = true; }
     p.x = x; p.y = y;
     if (dir === 'up' || dir === 'down') { const ch = this.chainOf(tgt, dir === 'up'); const dy = (dir === 'up' ? 1 : -1) * e[1] * 2; for (const o of ch) o.y += dy; }
     D.parts.push(p);
@@ -431,7 +432,7 @@ const Builder = {
       const [mn, mx, st] = d.size.len; const lv = h('b', { class: 'cy' }, p.h.toFixed(2) + ' м');
       b.append(h('div', { class: 'row' }, h('span', { class: 'small' }, 'Длина: '), lv), h('input', { type: 'range', min: mn, max: mx, step: st, value: p.h, oninput: e => { self.resizeLive(p, { h: +e.target.value }); lv.textContent = p.h.toFixed(2) + ' м'; } }));
     }
-    if (!(d.size && d.size.dia) && !d.eng && !d.tank) b.append(h('div', { class: 'small mut' }, 'Размер этой детали фиксирован — как у настоящего изделия.'));
+    if (!d.size && !d.eng && !d.tank) b.append(h('div', { class: 'small mut' }, 'Размер этой детали фиксирован — как у настоящего изделия.'));
     // ступень
     const act = partAction(p);
     if (act) {
@@ -490,7 +491,8 @@ const Builder = {
   launchManual() {
     this.analyze(); const s = this.stats; if (!s || !s.ok) { this.analysis(); return; }
     const miss = s.issues.filter(i => i.lvl === 'warn');
-    const go = () => { Store.set('draft', serDesign(this.D)); UI.launch(this.D, null); };
+    const rover = this.D.parts.some(p => p.d.wheel) && !this.D.parts.some(p => p.d.eng && !p.d.eng.rcs);
+    const go = () => { Store.set('draft', serDesign(this.D)); if (rover) UI.launchRover(this.D); else UI.launch(this.D, null); };
     if (miss.length) UI.confirm('Есть предупреждения (' + miss.length + '): ' + miss[0].text + '. Всё равно на старт?', go); else go();
   },
 

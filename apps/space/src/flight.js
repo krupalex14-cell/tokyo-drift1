@@ -55,6 +55,7 @@ const Flight = {
     E.land = h('div', { class: 'hud hide land', style: 'position:static' }); E.lcol.append(E.land);
     E.hint = h('div', { class: 'hud hide hint', style: 'left:50%;transform:translateX(-50%);bottom:96px' });
     this.applyHud();
+    for (const el of [E.thr, E.thrL, thrBtns, rc, E.stage]) el.classList.add('rvhide');
     root.append(E.lcol, E.hud2, tr, E.thr, E.thrL, thrBtns, rc, E.stage, steer, E.left, E.right, warp, E.hint, E.drawer, E.dh);
     $('#ui').append(root);
   },
@@ -72,7 +73,7 @@ const Flight = {
   },
   partCard(p) {
     if (this.pcard) { this.pcard.remove(); this.pcard = null; } this.pcardP = p || null; if (!p || !this.root) return;
-    this.pcard = h('div', { class: 'hud pcard', style: 'position:absolute;left:50%;transform:translateX(-50%);top:37%;width:min(92vw,330px);pointer-events:auto;z-index:25;white-space:normal;text-align:left;font-size:12px' });
+    this.pcard = h('div', { class: 'hud pcard', style: 'position:absolute;left:50%;transform:translateX(-50%);bottom:98px;width:min(92vw,330px);pointer-events:auto;z-index:25;white-space:normal;text-align:left;font-size:12px' });
     this.root.append(this.pcard); this.drawCard();
   },
   drawCard() {
@@ -131,7 +132,8 @@ const Flight = {
   V() { const W = App.W; return W && W.active && W.active.alive ? W.active : null; },
   stopAP(why) { const v = this.V(); if (!v) return; if (v.ap && !v.ap.done) { v.ap = { phase: 'none', done: true }; v.tasks = []; v.payloadTasks = null; App.W.autoWarp = false; UI.toast('Автопилот отключён' + (why ? ' (' + why + ')' : ''), 'info'); } },
   setThr(x) { const v = this.V(); if (!v) return; if (v.ap && !v.ap.done && Math.abs(x - v.throttle) > .02 && ['launch', 'coast', 'circ', 'node', 'land'].includes(v.ap.phase)) this.stopAP('ручная тяга'); v.throttle = clamp(x, 0, 1); },
-  setRot(r) { const v = this.V(); this.rot = r; if (!v) return; v.ctl.rot = r; if (r && v.ap && !v.ap.done && ['launch', 'coast', 'circ', 'land'].includes(v.ap.phase)) this.stopAP('ручное управление'); },
+  isRover(v) { return !!v && v.parts.some(p => p.d.wheel) && !v.parts.some(p => p.d.eng && !p.d.eng.rcs && !p.dead); },
+  setRot(r) { const v = this.V(); this.rot = r; if (!v) return; if (this.isRover(v)) { v.drive = r; v.ctl.rot = 0; return; } v.ctl.rot = r; if (r && v.ap && !v.ap.done && ['launch', 'coast', 'circ', 'land'].includes(v.ap.phase)) this.stopAP('ручное управление'); },
   setDrive(d) { const v = this.V(); if (v) v.drive = d; },
   doStage() { const W = App.W, v = this.V(); if (!v) return; if (v.stageIdx >= v.stages.length) { UI.toast('Ступеней больше нет', 'info'); return; } W.stage(v); try { Sfx.clunk(); } catch (e) { } },
   toggleRcs() { const v = this.V(); if (!v) return; v.rcs = !v.rcs; try { Sfx.click(); } catch (e) { } },
@@ -229,12 +231,13 @@ const Flight = {
     }
     E.stage.classList.toggle('dis', left <= 0);
     E.sasB.textContent = 'SAS: ' + (SAS_MODES.find(x => x[0] === v.sas) || ['', v.sas])[1]; E.sasB.classList.toggle('on', v.sas !== 'off'); E.rcsB.classList.toggle('on', !!v.rcs);
-    const wh = v.parts.some(p => p.d.wheel); E.drvL.classList.toggle('hide', !wh); E.drvR.classList.toggle('hide', !wh);
+    const wh = v.parts.some(p => p.d.wheel), rv = this.isRover(v); this.root.classList.toggle('rover', rv); E.drvL.classList.toggle('hide', !wh || rv); E.drvR.classList.toggle('hide', !wh || rv);
+    for (const [b, t] of [[E.left, rv ? 'ехать' : 'влево'], [E.right, rv ? 'ехать' : 'вправо']]) { const el = b.querySelector('.tiny'); if (el && el.textContent !== t) el.textContent = t; }
     E.warpL.textContent = '×' + fmtNum(W.warpVal(), 0);
   },
   // ---------- посадка: показания и подсказки ----------
   landState(v, W) {
-    const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails') return null;
+    const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails' || (this.isRover(v) && v.contact > 0)) return null;   // вездеход на колёсах — не посадка
     let c; try { c = landCalc(W, v); } catch (e) { return null; } if (!c || c.hg > 30000) return null;
     const aUse = Math.max(0.3, 0.55 * (c.aT * 0.9 - c.g)); const vAllow = -landProfile(c, aUse);       // скорость падения, которую ещё можно погасить
     return { B, c, aUse, vAllow };

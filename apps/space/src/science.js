@@ -103,7 +103,7 @@ const Comm = {
 const Science = {
   situation(W, v) {
     const B = W.U.byId[v.body]; const alt = Math.hypot(v.x, v.y) - B.R;
-    if (v.mode === 'landed' || (v.contact > 0 && v.sp < 3)) { const th = Math.atan2(v.y, v.x) - bodyRot(B, W.ut); return waterAt(W, B, th) ? 'splashed' : 'landed'; }
+    if (v.mode === 'landed' || (v.contact > 0 && (v.sp < 3 || v.parts.some(p => p.d.wheel && !p.dead)))) {  const th = Math.atan2(v.y, v.x) - bodyRot(B, W.ut); return waterAt(W, B, th) ? 'splashed' : 'landed'; }
     if (B.gas) { if (alt < B.atm.top * 0.35) return 'flyingLow'; if (alt < B.atm.top) return 'flyingHigh'; return alt < B.spaceLow ? 'spaceLow' : 'spaceHigh'; }
     if (B.atm) { if (alt < B.atm.top * 0.35) return 'flyingLow'; if (alt < B.atm.top) return 'flyingHigh'; }
     return alt < B.spaceLow ? 'spaceLow' : 'spaceHigh';

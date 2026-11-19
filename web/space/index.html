@@ -95,6 +95,7 @@ input[type=number],input[type=text],select{font:inherit;font-size:15px;backgroun
 .dh.open .px{transform:scaleX(-1)}
 .tut{position:absolute;left:6px;display:flex;flex-direction:column;gap:5px;padding:6px 8px;font-size:12px;line-height:1.3;z-index:60;background:rgba(8,12,26,.97)!important;box-shadow:0 0 0 2px #05060c,inset 0 0 0 2px #ffe27a!important}
 .tut .tx{font-size:12px;line-height:1.32}
+.scr.rover .rvhide{display:none!important}
 .tut.min .tx,.tut.min>.row:last-child{display:none}
 .pcard .row{display:flex;align-items:center;gap:6px}
 body.tutfl .scr .lcol,body.tutfl .scr .hud2{margin-top:var(--tuth,0)}
@@ -729,7 +730,7 @@ const PROPS = {
   xenon: { name: 'Ксенон', rho: 1600, frac: 0.15, ox: false, color: '#b8c8d8' },
   solid: { name: 'Твёрдое топливо', rho: 1800, frac: 0, ox: true, color: '#4a4a48' }
 };
-const CATS = [['engine', 'Двигатели'], ['tank', 'Баки'], ['struct', 'Конструкция'], ['control', 'Управление'], ['power', 'Энергия'], ['comm', 'Связь'], ['science', 'Наука'], ['landing', 'Посадка']];
+const CATS = [['engine', 'Двигатели'], ['tank', 'Баки'], ['struct', 'Конструкция'], ['control', 'Управление'], ['power', 'Энергия'], ['comm', 'Связь'], ['science', 'Наука'], ['landing', 'Посадка'], ['rover', 'Вездеход']];
 const PARTS = {}; const PART_LIST = [];
 const L = (t, g, c, s, o) => ({ t, g, c, s: s || 'f', o: o || null });   // слой рисунка
 function def(d) { d.w = d.w || 1; d.h = d.h || 1; d.tier = d.tier || 0; d.cost = d.cost || 1000; d.crashV = d.crashV || 9; d.maxT = d.maxT || 900; d.crushP = d.crushP || 6e5; PARTS[d.id] = d; PART_LIST.push(d); return d; }
@@ -862,10 +863,14 @@ leg('leg_f9', 'Посадочная опора (F9)', 'SpaceX Falcon 9: угле
 leg('leg_lem', 'Посадочная опора LM', 'Grumman: лунный модуль «Аполлон»', 1, 150, 2.4, 3.5, [1.2, -1.75], 300e3, { leg: { foot: [1.2, -1.75], tol: 5, k: 2.5, z: .9 } });
 leg('leg_probe', 'Лёгкая опора зонда', 'Phoenix / InSight (сминаемые)', 0, 4, 1.0, 1.0, [.5, -.5], 40e3, { leg: { foot: [.5, -.5], tol: 5, k: 3, z: 1 } });
 function wheel(id, name, real, tier, mass, r, F, vmax, P, cost) {
-  return def({ id, name, cat: 'landing', real, tier, cost, mass, w: r * 2, h: r * 2, attach: 'radial', wheel: { r, F, vmax, P }, crashV: 14, art: [L('e', [0, 0, .5, .5], 'dark', 's'), L('e', [0, 0, .32, .32], 'steel', 's'), L('r', [-.5, -.04, .5, .04], 'dark', 'f', { spokes: 1 })] });
+  return def({ id, name, cat: 'rover', real, tier, cost, mass, w: r * 2, h: r * 2, attach: 'radial', wheel: { r, F, vmax, P }, crashV: 14, art: [L('e', [0, 0, .5, .5], 'dark', 's'), L('e', [0, 0, .32, .32], 'steel', 's'), L('r', [-.5, -.04, .5, .04], 'dark', 'f', { spokes: 1 })] });
 }
 wheel('wheel_msl', 'Колесо ровера (MSL)', 'Curiosity/Perseverance: Ø0,5 м, алюминий (v ≈ 0,2 м/с в игре)', 2, 8, .25, 280, .2, 110, 500e3);
 wheel('wheel_lrv', 'Колесо LRV', 'Lunar Roving Vehicle: Ø0,82 м, проволочная сетка', 2, 5.5, .41, 160, 3.6, 220, 500e3);
+// корпус вездехода: «тёплый ящик» с компьютером и аккумулятором; ширина меняется, колёса и мачта крепятся к нему
+def({ id: 'rover_deck', name: 'Корпус вездехода', cat: 'rover', real: 'как герметичный контейнер «Лунохода» и корпус Curiosity: компьютер, аккумулятор и электроника, укрытые от холода', tier: 1, cost: 1.5e6, mass: 45, w: 1.4, h: .5, attach: 'both', core: { torque: .15, ec: 14 }, batt: 400, size: { dia: [.8, 1, 1.2, 1.4, 1.8, 2.2, 3], len: [.3, 1.2, .1] }, crashV: 8, art: [L('r', [-.5, -.5, .5, .5], 'steel', 'c'), L('r', [-.5, .2, .5, .5], 'gold', 'f'), L('r', [-.5, -.5, .5, -.34], 'dark', 'f'), L('r', [-.38, -.14, -.06, .08], 'blue', 'f'), L('e', [.3, -.02, .07, .07], 'blue', 's')] });
+// мачта: поднимает камеру и антенну над корпусом, к ней же крепят панели
+def({ id: 'rover_mast', name: 'Мачта вездехода', cat: 'rover', real: 'мачта камер Curiosity (≈ 2 м) / штанга антенны «Лунохода»', tier: 1, cost: 80e3, mass: 3, w: .1, h: 1, attach: 'both', size: { len: [.3, 2.5, .1] }, crashV: 6, art: [L('r', [-.5, -.5, .5, .5], 'steel', 'c', { band: [1, .06, 'dark'] })] });
 wheel('wheel_lunokhod', 'Колесо «Лунохода»', 'Лавочкин: Ø0,51 м, 8 колёс', 2, 6, .255, 200, 1.0, 150, 400e3);
 function chute(id, name, real, tier, mass, D, Cd, q, cost, o) {
   const A = Math.PI * D * D / 4;
@@ -920,6 +925,8 @@ function partDry(p) {
   if (d.fair) return 11 * 0.85 * Math.PI * p.w * p.h + 40;
   if (d.id === 'adapter_payload') return 30 * Math.PI * p.w * p.w / 4 + 8;
   if (d.id === 'strut') return 18 * p.w * p.h * 4 + 3;
+  if (d.id === 'rover_deck') return 45 * p.w * p.h + 12;
+  if (d.id === 'rover_mast') return 30 * p.w * p.h + .3;
   if (d.fin) return d.mass * clamp(pw(p) * p.h / (d.w * d.h), .08, 10);   // масса растёт с площадью
   if (d.shield && !d.shield.own) return d.shield.kgm2 * Math.PI * p.w * p.w / 4 + d.shield.abl * Math.PI * p.w * p.w / 4;
   if (d.eng && !d.eng.solid && !d.eng.rcs) return d.mass * (p.n || 1);
@@ -1952,9 +1959,12 @@ function contactForces(W, v, B, dt, ca, sa, thb, rr, rx, ry) {
     if (c.kind === 'wheel') {
       // продольная ось колеса вдоль касательной к поверхности
       const dirx = tx, diry = ty; const vl = rvx * dirx + rvy * diry;
-      const drive = (v.drive || 0) * p.d.wheel.F * (v.ec > 0 || ch.infEC ? 1 : 0) * (Math.abs(vl) < p.d.wheel.vmax ? 1 : 0);
+      // мотор-колесо держит заданную скорость: разгоняется с силой F до vmax и тормозит на спуске, а не катится под горку всё быстрее
+      const dIn = v.drive || 0, powered = v.ec > 0 || ch.infEC ? 1 : 0;
+      const drive = Math.abs(dIn) > 0.01 ? powered * clamp((dIn * p.d.wheel.vmax - vl) * 8, -1, 1) * p.d.wheel.F : 0;
       const roll = -clamp(vl * 40, -1, 1) * Math.min(Fn * 0.02, 5) * (Math.abs(v.drive || 0) > 0.01 ? 0 : 6);
-      const brake = v.brake ? -clamp(vl / 0.05, -1, 1) * Fn * 0.9 : 0;
+      const park = v.brake || !(Math.abs(v.drive || 0) > 0.01);   // стояночный тормоз: отпустили кнопку — вездеход стоит, даже на склоне
+      const brake = park ? -clamp(vl / 0.05, -1, 1) * Fn * 0.9 : 0;
       let Ft = clamp(drive + roll + brake, -Fn * mu_, Fn * mu_);
       // продольное сцепление при неприводе
       if (!(Math.abs(v.drive || 0) > 0.01) && !v.brake) { Ft += clamp(-vl * 4 * Fn, -Fn * 0.03, Fn * 0.03) * 0; }
@@ -2832,6 +2842,7 @@ World.prototype.placeOnSurface = function (v, bodyId, th) {
     rr = Math.max(rr, surfR(this, B, th - p.x / B.R) + (v.mp.cy - yb));
   }
   v.land = { th, rr: rr + 0.01, dang: -Math.PI / 2 }; v.mode = 'landed'; v.throttle = 0; v.rest = 0; v.clamped = false;
+  if (v.parts.some(p => p.d.wheel) && !v.engines.some(p => !p.d.eng.rcs)) { v.sas = 'off'; v.rcs = false; }   // вездеход: ориентация по рельефу, без «выравнивания» SAS
   this.setPinned(v);
 };
 World.prototype.switchTo = function (v) {
@@ -2978,7 +2989,7 @@ const Comm = {
 const Science = {
   situation(W, v) {
     const B = W.U.byId[v.body]; const alt = Math.hypot(v.x, v.y) - B.R;
-    if (v.mode === 'landed' || (v.contact > 0 && v.sp < 3)) { const th = Math.atan2(v.y, v.x) - bodyRot(B, W.ut); return waterAt(W, B, th) ? 'splashed' : 'landed'; }
+    if (v.mode === 'landed' || (v.contact > 0 && (v.sp < 3 || v.parts.some(p => p.d.wheel && !p.dead)))) {  const th = Math.atan2(v.y, v.x) - bodyRot(B, W.ut); return waterAt(W, B, th) ? 'splashed' : 'landed'; }
     if (B.gas) { if (alt < B.atm.top * 0.35) return 'flyingLow'; if (alt < B.atm.top) return 'flyingHigh'; return alt < B.spaceLow ? 'spaceLow' : 'spaceHigh'; }
     if (B.atm) { if (alt < B.atm.top * 0.35) return 'flyingLow'; if (alt < B.atm.top) return 'flyingHigh'; }
     return alt < B.spaceLow ? 'spaceLow' : 'spaceHigh';
@@ -4510,10 +4521,19 @@ rtpl('starship', 'Starship', 'SpaceX Starship / Super Heavy: Raptor 2 и Raptor 
 
 tpl('rover', 'Луноход (вездеход)', 'rover', 'Луноход-1 (1970) / LRV (Apollo 15–17)', 'Четыре колеса LRV, батарея, солнечные панели, камера и антенна. Ехать по поверхности. В «Готовых ракетах» его можно сразу поставить на Луну или Марс и поездить; настоящий — запускать на ракете.', () => {
   const D = new Design('Вездеход');
-  const cw = 1.8, c = D.add('core_bus', { w: cw, h: .6 }); const bt = D.add('batt_m'); D.add('i_mastcam'); D.add('ant_mga');
-  const r = PARTS.wheel_lrv.w / 2;
-  for (const sx of [-1, 1]) for (const k of [0, 1]) D.add('wheel_lrv', { x: sx * (cw / 2 + r + k * 2 * r), y: c.y - .1, noStack: true });
-  for (const sx of [-1, 1]) D.add('solar_small', { w: 1.6, x: sx * (bt.w / 2 + .8), y: bt.y, noStack: true });
+  const cw = 1.8, c = D.add('rover_deck', { w: cw, h: .5 }); const m = D.add('rover_mast', { h: 1 }); D.add('i_mastcam'); D.add('ant_mga');
+  const r = PARTS.wheel_lrv.w / 2, wy = c.y - c.h / 2 + clamp(.4 * r, .05, .25);
+  for (const sx of [-1, 1]) for (const k of [0, 1]) D.add('wheel_lrv', { x: sx * (cw / 2 + r + k * 2 * r), y: wy, noStack: true });
+  for (const sx of [-1, 1]) D.add('solar_small', { w: 1.6, x: sx * (m.w / 2 + .8), y: m.y, noStack: true });
+  return D.finish();
+});
+tpl('rover_mars', 'Марсоход (Curiosity)', 'rover', 'Curiosity / Perseverance (2012 / 2021)', 'Шесть колёс MSL, радиоизотопный генератор (110 Вт — работает и ночью), камера на мачте, лазерный спектрометр и антенна. Медленный, зато вывозит любые камни.', () => {
+  const D = new Design('Марсоход');
+  const cw = 2.2, c = D.add('rover_deck', { w: cw, h: .6 }); const m = D.add('rover_mast', { h: 1.4 }); D.add('i_mastcam'); D.add('ant_mga');
+  const r = PARTS.wheel_msl.w / 2, wy = c.y - c.h / 2 + clamp(.4 * r, .05, .25);
+  for (const sx of [-1, 1]) for (const k of [0, 1, 2]) D.add('wheel_msl', { x: sx * (cw / 2 + r + k * 2 * r), y: wy, noStack: true });
+  const top = c.y + c.h / 2; D.add('mmrtg', { x: -(m.w / 2 + .35), y: top + .33, noStack: true });
+  D.add('i_chemcam', { x: m.w / 2 + .2, y: top + .3, noStack: true });
   return D.finish();
 });
 
@@ -4535,7 +4555,13 @@ function validateDesign(parts, W, o) {
   }
   if (!parts.some(p => p.d.core)) add('warn', 'Нет блока управления: аппарат не сможет ориентироваться');
   const engs = parts.filter(p => p.d.eng && !p.d.eng.rcs);
-  if (!engs.length) add('warn', 'Нет двигателя');
+  const wheels = parts.filter(p => p.d.wheel), rover = wheels.length > 0 && !engs.length;
+  if (rover) {
+    if (wheels.length < 2) add('warn', 'Вездеходу нужно хотя бы два колеса');
+    else { const mp = massProps(parts); const xs = wheels.map(p => p.x); if (mp.cx < Math.min(...xs) - 0.05 || mp.cx > Math.max(...xs) + 0.05) add('warn', 'Центр масс вне колёс: вездеход опрокинется. Поставьте колёса по обе стороны корпуса'); }
+    if (!parts.some(p => p.d.solar || p.d.rtg)) add('warn', 'Нет источника энергии: аккумулятор разрядится, колёса встанут. Добавьте солнечную панель');
+  }
+  if (!engs.length) { if (!rover) add('warn', 'Нет двигателя'); }
   else {
     const sec = computeSections(parts, edges);
     for (const e of engs) {
@@ -4545,7 +4571,7 @@ function validateDesign(parts, W, o) {
     }
   }
   const noStage = engs.filter(p => p.stage < 0 && !p.d.eng.rcs); if (noStage.length && engs.length) add('warn', 'Двигатель без ступени: назначьте её в окне «Ступени»');
-  if (parts.some(p => p.d.core) && !parts.some(p => p.d.rw || (p.d.eng && p.d.eng.rcs) || (p.d.eng && p.d.eng.gim))) {
+  if (!rover && parts.some(p => p.d.core) && !parts.some(p => p.d.rw || (p.d.eng && p.d.eng.rcs) || (p.d.eng && p.d.eng.gim))) {
     const A = attAuthority(parts); if (A.t90 > 45) add('warn', 'Слабое управление поворотом: разворот на 90° займёт ~' + Math.round(A.t90) + ' с. Добавьте РСУ («Кольцо РСУ», Draco) или маховики');
   }
   const ec = parts.reduce((s, p) => s + (p.d.batt || 0), 0), use = parts.reduce((s, p) => s + (p.d.core ? p.d.core.ec : 0), 0);
@@ -4664,6 +4690,8 @@ const PART_INFO = {
   leg_f9: ['Раскладная опора, как у ступени Falcon 9: смягчает посадку и не даёт ракете упасть.', 'Для мягкой посадки ступени или посадочного модуля; на ровных площадках.'],
   leg_lem: ['Опоры лунного модуля «Аполлона»: широкая колея, смятые соты амортизируют удар.', 'Ставьте 3–4 по кругу. Прочнее лёгких опор зонда.'],
   leg_probe: ['Лёгкая опора для небольших зондов (как у «Сервейера»).', 'Нужно две или больше. Допустимая скорость посадки невелика.'],
+  rover_deck: ['Корпус вездехода: внутри бортовой компьютер и аккумулятор. Это «шасси», к которому крепят колёса, мачту и панели. Ширину можно менять.', 'Выберите корпус и добавьте колёса: они встанут по бокам. Чем шире корпус, тем шире колея и устойчивее вездеход. Колёса едут от аккумулятора.'],
+  rover_mast: ['Мачта поднимает камеру и антенну над корпусом: вид дальше и связь надёжнее. На ней же удобно держать солнечные панели.', 'Ставьте над корпусом, сверху — камера и антенна, по бокам — раскладные панели. Длину можно менять.'],
   wheel_msl: ['Колесо марсохода Curiosity: рифлёное, из алюминия. Медленное, зато проходит камни.', 'Ставьте попарно по бокам корпуса. Нужна мощность от батареи.'],
   wheel_lrv: ['Колесо лунного вездехода Apollo: проволочная сетка вместо резины.', 'Быстрее марсохода (до 3,6 м/с), но на Луне слабая гравитация — не разгоняйтесь на холмах.'],
   wheel_lunokhod: ['Колесо «Лунохода»: небольшое, 8 штук. Надёжное, но медленное.', 'Много маленьких колёс лучше держатся на рыхлом реголите.'],
@@ -4997,7 +5025,8 @@ const Builder = {
     let x = tgt.x, y = tgt.y; const side = dir === 'left' ? -1 : 1;
     if (dir === 'up') { y = r.y1 + e[1]; }
     else if (dir === 'down') { y = r.y0 - e[1]; }
-    else { x = tgt.x + side * ((r.x1 - r.x0) / 2 + e[0]); y = tgt.y; if (d.leg || d.wheel || d.fin) y = r.y0 + e[1] + (d.leg ? 0 : 0); if (dir === 'left') p.flip = true; }
+    else { x = tgt.x + side * ((r.x1 - r.x0) / 2 + e[0]); y = tgt.y; if (d.wheel) y = tgt.d.wheel ? tgt.y : r.y0 + clamp(.4 * d.wheel.r, .05, .25);   // колесо чуть выше днища корпуса: оно, а не корпус, касается грунта
+      else if (d.leg || d.fin) y = r.y0 + e[1]; if (dir === 'left') p.flip = true; }
     p.x = x; p.y = y;
     if (dir === 'up' || dir === 'down') { const ch = this.chainOf(tgt, dir === 'up'); const dy = (dir === 'up' ? 1 : -1) * e[1] * 2; for (const o of ch) o.y += dy; }
     D.parts.push(p);
@@ -5305,7 +5334,7 @@ const Builder = {
       const [mn, mx, st] = d.size.len; const lv = h('b', { class: 'cy' }, p.h.toFixed(2) + ' м');
       b.append(h('div', { class: 'row' }, h('span', { class: 'small' }, 'Длина: '), lv), h('input', { type: 'range', min: mn, max: mx, step: st, value: p.h, oninput: e => { self.resizeLive(p, { h: +e.target.value }); lv.textContent = p.h.toFixed(2) + ' м'; } }));
     }
-    if (!(d.size && d.size.dia) && !d.eng && !d.tank) b.append(h('div', { class: 'small mut' }, 'Размер этой детали фиксирован — как у настоящего изделия.'));
+    if (!d.size && !d.eng && !d.tank) b.append(h('div', { class: 'small mut' }, 'Размер этой детали фиксирован — как у настоящего изделия.'));
     // ступень
     const act = partAction(p);
     if (act) {
@@ -5364,7 +5393,8 @@ const Builder = {
   launchManual() {
     this.analyze(); const s = this.stats; if (!s || !s.ok) { this.analysis(); return; }
     const miss = s.issues.filter(i => i.lvl === 'warn');
-    const go = () => { Store.set('draft', serDesign(this.D)); UI.launch(this.D, null); };
+    const rover = this.D.parts.some(p => p.d.wheel) && !this.D.parts.some(p => p.d.eng && !p.d.eng.rcs);
+    const go = () => { Store.set('draft', serDesign(this.D)); if (rover) UI.launchRover(this.D); else UI.launch(this.D, null); };
     if (miss.length) UI.confirm('Есть предупреждения (' + miss.length + '): ' + miss[0].text + '. Всё равно на старт?', go); else go();
   },
 
@@ -6068,6 +6098,16 @@ const UI = {
       b.append(card(t, [toHangar(t), W.U.byId.moon ? go('moon', 0.3) : null, W.U.byId.mars ? go('mars', 0.3) : null].filter(Boolean)));
     }
   },
+  // вездеход не взлетает сам: в песочнице его «доставляют» на поверхность (как будто привёз посадочный модуль)
+  launchRover(design) {
+    const W = App.W, b = h('div', { class: 'col' }); const sh = this.sheet('🛞 Куда поставить вездеход?', b, { height: '52%' });
+    b.append(h('div', { class: 'small mut', style: 'line-height:1.35' }, 'Сам вездеход взлететь не может — его привозит посадочный модуль. Здесь он сразу окажется на поверхности. Едем кнопками в нижних углах; на склоне вездеход стоит, пока не нажали.'));
+    const spots = [['earth', 'Земля: космодром', null], ['moon', 'Луна', 0.3], ['mars', 'Марс', 0.3]].filter(x => W.U.byId[x[0]]);
+    for (const [body, name, th] of spots) b.append(h('button', { class: 'btn go', onclick: () => {
+      sh.close(); if (!this.launch(design, null, { test: true })) return; const v = W.active;
+      if (th != null) { W.placeOnSurface(v, body, th); this.toast('Вездеход на поверхности: ' + name, 'ok'); } else this.toast('Вездеход на космодроме', 'info');
+    } }, name));
+  },
   // ---------- запуск аппарата ----------
   launch(design, goal, o) {
     o = o || {}; const W = App.W; let cost = 0; for (const p of design.parts) cost += partCost(p);
@@ -6190,6 +6230,24 @@ const TUT_LESSONS = [
       { t: 'Капсула падает щитом вперёд — так воздух тормозит и защищает. Парашюты раскроются сами, когда воздух станет плотным. Ускоряйте время ⏩.', hl: '.warp', next: true },
       { t: 'Смотрите на «Падение»: парашют сбросит скорость до 4–6 м/с. Дождитесь касания.', ok: v => v.mode === 'landed' },
       { t: 'Земля: воздуха много, хватает одного парашюта. Луна: воздуха нет — только двигатель. Марс: воздуха мало — нужно и то, и другое.', next: true }
+    ]
+  },
+  {
+    id: 'rover', icon: 'wheel', title: 'Луноход', time: '≈ 6 мин', desc: 'Соберите вездеход, поставьте на Луну, проедьте, раскройте панели и сделайте снимок.',
+    start() { UI.go('build', new Design('Мой луноход')); Tutor.base = null; },
+    steps: [
+      { t: 'Вездеход — это корпус с «мозгом», колёса и источник энергии. Откройте вкладку «Вездеход» (после «Посадка») и нажмите «Корпус вездехода»: внутри компьютер и аккумулятор.', hl: '.tabs .tab:nth-child(9)', ok: () => Builder.D.parts.some(p => p.defId === 'rover_deck') },
+      { t: 'Колёса крепятся по бокам. Корпус выбран (рамка): нажмите «Колесо LRV». Кнопка «Симметрия» поставит пару — слева и справа.', hl: '.tabs .tab:nth-child(9)', ok: () => Builder.D.parts.filter(p => p.d.wheel).length >= 2 },
+      { t: 'Нужны четыре колеса. Коснитесь крайнего колеса на поле и снова нажмите «Колесо LRV»: новая пара встанет рядом.', ok: () => Builder.D.parts.filter(p => p.d.wheel).length >= 4 },
+      { t: 'Мачта поднимает камеру над корпусом. Коснитесь корпуса (не колеса) и нажмите «Мачта вездехода» — она встанет сверху.', hl: '.tabs .tab:nth-child(9)', ok: () => Builder.D.parts.some(p => p.defId === 'rover_mast') },
+      { t: 'Теперь камера: коснитесь мачты, откройте «Наука» и нажмите «Камера Mastcam». Она встанет на мачту.', hl: '.tabs .tab:nth-child(7)', ok: () => Builder.D.parts.some(p => p.defId === 'i_mastcam') },
+      { t: 'Без антенны снимки не уйдут на Землю. Коснитесь камеры, вкладка «Связь» → «Антенна среднего усиления».', hl: '.tabs .tab:nth-child(6)', ok: () => Builder.D.parts.some(p => p.d.ant) },
+      { t: 'Энергия: вездеход живёт от солнца. Коснитесь мачты, вкладка «Энергия» → «Раскладная панель». Симметрия поставит пару по бокам мачты.', hl: '.tabs .tab:nth-child(5)', ok: () => Builder.D.parts.some(p => p.d.solar) },
+      { t: 'Готово! Нажмите «старт». Взлететь вездеход не может, поэтому игра спросит, куда его привезти. Выберите «Луна».', hl: '.btn.go.big', ok: (v, W) => App.mode === 'flight' && W.active && W.active.body === 'moon' && W.active.parts.some(p => p.d.wheel) },
+      { t: 'Вы на Луне. Нажмите и держите «ехать» в правом нижнем углу: вездеход поедет вправо. Отпустите — он встанет сам, даже на склоне. Проедьте метров 30.', ok: (v, W) => { const a = W.active; if (!a) return false; if (Tutor.base == null) { Tutor.base = [a.x, a.y]; return false; } return Math.hypot(a.x - Tutor.base[0], a.y - Tutor.base[1]) > 30; } },
+      { t: 'Любую деталь можно коснуться пальцем: откроется карточка с состоянием и кнопками. Нажмите на солнечную панель (тонкая полоска над корпусом): её можно сложить и раскрыть. Закройте карточку крестиком.', ok: () => !!(Flight.pcard && Flight.pcardP && Flight.pcardP.d.solar) },
+      { t: 'Теперь снимок. Коснитесь камеры на мачте (маленькая деталь над корпусом, можно приблизить щипком) и нажмите «Запустить». Результат уйдёт на Землю, пока есть связь.', ok: (v, W) => { const a = W.active; return !!a && (a.science.length > 0 || a.parts.some(p => p.d.inst && p.st.run != null && p.st.run >= 0)); } },
+      { t: 'Отлично! Вы построили и запустили вездеход. Камеру двигайте пальцем, двойной тап возвращает её к вездеходу. Дальше можно проехать к другому ландшафту и повторить снимок: новое место — новые очки науки.', next: true }
     ]
   }
 ];
@@ -6324,6 +6382,7 @@ const Flight = {
     E.land = h('div', { class: 'hud hide land', style: 'position:static' }); E.lcol.append(E.land);
     E.hint = h('div', { class: 'hud hide hint', style: 'left:50%;transform:translateX(-50%);bottom:96px' });
     this.applyHud();
+    for (const el of [E.thr, E.thrL, thrBtns, rc, E.stage]) el.classList.add('rvhide');
     root.append(E.lcol, E.hud2, tr, E.thr, E.thrL, thrBtns, rc, E.stage, steer, E.left, E.right, warp, E.hint, E.drawer, E.dh);
     $('#ui').append(root);
   },
@@ -6341,7 +6400,7 @@ const Flight = {
   },
   partCard(p) {
     if (this.pcard) { this.pcard.remove(); this.pcard = null; } this.pcardP = p || null; if (!p || !this.root) return;
-    this.pcard = h('div', { class: 'hud pcard', style: 'position:absolute;left:50%;transform:translateX(-50%);top:37%;width:min(92vw,330px);pointer-events:auto;z-index:25;white-space:normal;text-align:left;font-size:12px' });
+    this.pcard = h('div', { class: 'hud pcard', style: 'position:absolute;left:50%;transform:translateX(-50%);bottom:98px;width:min(92vw,330px);pointer-events:auto;z-index:25;white-space:normal;text-align:left;font-size:12px' });
     this.root.append(this.pcard); this.drawCard();
   },
   drawCard() {
@@ -6400,7 +6459,8 @@ const Flight = {
   V() { const W = App.W; return W && W.active && W.active.alive ? W.active : null; },
   stopAP(why) { const v = this.V(); if (!v) return; if (v.ap && !v.ap.done) { v.ap = { phase: 'none', done: true }; v.tasks = []; v.payloadTasks = null; App.W.autoWarp = false; UI.toast('Автопилот отключён' + (why ? ' (' + why + ')' : ''), 'info'); } },
   setThr(x) { const v = this.V(); if (!v) return; if (v.ap && !v.ap.done && Math.abs(x - v.throttle) > .02 && ['launch', 'coast', 'circ', 'node', 'land'].includes(v.ap.phase)) this.stopAP('ручная тяга'); v.throttle = clamp(x, 0, 1); },
-  setRot(r) { const v = this.V(); this.rot = r; if (!v) return; v.ctl.rot = r; if (r && v.ap && !v.ap.done && ['launch', 'coast', 'circ', 'land'].includes(v.ap.phase)) this.stopAP('ручное управление'); },
+  isRover(v) { return !!v && v.parts.some(p => p.d.wheel) && !v.parts.some(p => p.d.eng && !p.d.eng.rcs && !p.dead); },
+  setRot(r) { const v = this.V(); this.rot = r; if (!v) return; if (this.isRover(v)) { v.drive = r; v.ctl.rot = 0; return; } v.ctl.rot = r; if (r && v.ap && !v.ap.done && ['launch', 'coast', 'circ', 'land'].includes(v.ap.phase)) this.stopAP('ручное управление'); },
   setDrive(d) { const v = this.V(); if (v) v.drive = d; },
   doStage() { const W = App.W, v = this.V(); if (!v) return; if (v.stageIdx >= v.stages.length) { UI.toast('Ступеней больше нет', 'info'); return; } W.stage(v); try { Sfx.clunk(); } catch (e) { } },
   toggleRcs() { const v = this.V(); if (!v) return; v.rcs = !v.rcs; try { Sfx.click(); } catch (e) { } },
@@ -6498,12 +6558,13 @@ const Flight = {
     }
     E.stage.classList.toggle('dis', left <= 0);
     E.sasB.textContent = 'SAS: ' + (SAS_MODES.find(x => x[0] === v.sas) || ['', v.sas])[1]; E.sasB.classList.toggle('on', v.sas !== 'off'); E.rcsB.classList.toggle('on', !!v.rcs);
-    const wh = v.parts.some(p => p.d.wheel); E.drvL.classList.toggle('hide', !wh); E.drvR.classList.toggle('hide', !wh);
+    const wh = v.parts.some(p => p.d.wheel), rv = this.isRover(v); this.root.classList.toggle('rover', rv); E.drvL.classList.toggle('hide', !wh || rv); E.drvR.classList.toggle('hide', !wh || rv);
+    for (const [b, t] of [[E.left, rv ? 'ехать' : 'влево'], [E.right, rv ? 'ехать' : 'вправо']]) { const el = b.querySelector('.tiny'); if (el && el.textContent !== t) el.textContent = t; }
     E.warpL.textContent = '×' + fmtNum(W.warpVal(), 0);
   },
   // ---------- посадка: показания и подсказки ----------
   landState(v, W) {
-    const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails') return null;
+    const B = W.U.byId[v.body]; if (!B || !B.landable || v.mode === 'landed' || v.mode === 'rails' || (this.isRover(v) && v.contact > 0)) return null;   // вездеход на колёсах — не посадка
     let c; try { c = landCalc(W, v); } catch (e) { return null; } if (!c || c.hg > 30000) return null;
     const aUse = Math.max(0.3, 0.55 * (c.aT * 0.9 - c.g)); const vAllow = -landProfile(c, aUse);       // скорость падения, которую ещё можно погасить
     return { B, c, aUse, vAllow };

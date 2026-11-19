@@ -443,6 +443,7 @@ World.prototype.placeOnSurface = function (v, bodyId, th) {
     rr = Math.max(rr, surfR(this, B, th - p.x / B.R) + (v.mp.cy - yb));
   }
   v.land = { th, rr: rr + 0.01, dang: -Math.PI / 2 }; v.mode = 'landed'; v.throttle = 0; v.rest = 0; v.clamped = false;
+  if (v.parts.some(p => p.d.wheel) && !v.engines.some(p => !p.d.eng.rcs)) { v.sas = 'off'; v.rcs = false; }   // вездеход: ориентация по рельефу, без «выравнивания» SAS
   this.setPinned(v);
 };
 World.prototype.switchTo = function (v) {

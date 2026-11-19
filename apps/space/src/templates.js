@@ -124,10 +124,19 @@ rtpl('starship', 'Starship', 'SpaceX Starship / Super Heavy: Raptor 2 и Raptor 
 
 tpl('rover', 'Луноход (вездеход)', 'rover', 'Луноход-1 (1970) / LRV (Apollo 15–17)', 'Четыре колеса LRV, батарея, солнечные панели, камера и антенна. Ехать по поверхности. В «Готовых ракетах» его можно сразу поставить на Луну или Марс и поездить; настоящий — запускать на ракете.', () => {
   const D = new Design('Вездеход');
-  const cw = 1.8, c = D.add('core_bus', { w: cw, h: .6 }); const bt = D.add('batt_m'); D.add('i_mastcam'); D.add('ant_mga');
-  const r = PARTS.wheel_lrv.w / 2;
-  for (const sx of [-1, 1]) for (const k of [0, 1]) D.add('wheel_lrv', { x: sx * (cw / 2 + r + k * 2 * r), y: c.y - .1, noStack: true });
-  for (const sx of [-1, 1]) D.add('solar_small', { w: 1.6, x: sx * (bt.w / 2 + .8), y: bt.y, noStack: true });
+  const cw = 1.8, c = D.add('rover_deck', { w: cw, h: .5 }); const m = D.add('rover_mast', { h: 1 }); D.add('i_mastcam'); D.add('ant_mga');
+  const r = PARTS.wheel_lrv.w / 2, wy = c.y - c.h / 2 + clamp(.4 * r, .05, .25);
+  for (const sx of [-1, 1]) for (const k of [0, 1]) D.add('wheel_lrv', { x: sx * (cw / 2 + r + k * 2 * r), y: wy, noStack: true });
+  for (const sx of [-1, 1]) D.add('solar_small', { w: 1.6, x: sx * (m.w / 2 + .8), y: m.y, noStack: true });
+  return D.finish();
+});
+tpl('rover_mars', 'Марсоход (Curiosity)', 'rover', 'Curiosity / Perseverance (2012 / 2021)', 'Шесть колёс MSL, радиоизотопный генератор (110 Вт — работает и ночью), камера на мачте, лазерный спектрометр и антенна. Медленный, зато вывозит любые камни.', () => {
+  const D = new Design('Марсоход');
+  const cw = 2.2, c = D.add('rover_deck', { w: cw, h: .6 }); const m = D.add('rover_mast', { h: 1.4 }); D.add('i_mastcam'); D.add('ant_mga');
+  const r = PARTS.wheel_msl.w / 2, wy = c.y - c.h / 2 + clamp(.4 * r, .05, .25);
+  for (const sx of [-1, 1]) for (const k of [0, 1, 2]) D.add('wheel_msl', { x: sx * (cw / 2 + r + k * 2 * r), y: wy, noStack: true });
+  const top = c.y + c.h / 2; D.add('mmrtg', { x: -(m.w / 2 + .35), y: top + .33, noStack: true });
+  D.add('i_chemcam', { x: m.w / 2 + .2, y: top + .3, noStack: true });
   return D.finish();
 });
 
@@ -149,7 +158,13 @@ function validateDesign(parts, W, o) {
   }
   if (!parts.some(p => p.d.core)) add('warn', 'Нет блока управления: аппарат не сможет ориентироваться');
   const engs = parts.filter(p => p.d.eng && !p.d.eng.rcs);
-  if (!engs.length) add('warn', 'Нет двигателя');
+  const wheels = parts.filter(p => p.d.wheel), rover = wheels.length > 0 && !engs.length;
+  if (rover) {
+    if (wheels.length < 2) add('warn', 'Вездеходу нужно хотя бы два колеса');
+    else { const mp = massProps(parts); const xs = wheels.map(p => p.x); if (mp.cx < Math.min(...xs) - 0.05 || mp.cx > Math.max(...xs) + 0.05) add('warn', 'Центр масс вне колёс: вездеход опрокинется. Поставьте колёса по обе стороны корпуса'); }
+    if (!parts.some(p => p.d.solar || p.d.rtg)) add('warn', 'Нет источника энергии: аккумулятор разрядится, колёса встанут. Добавьте солнечную панель');
+  }
+  if (!engs.length) { if (!rover) add('warn', 'Нет двигателя'); }
   else {
     const sec = computeSections(parts, edges);
     for (const e of engs) {
@@ -159,7 +174,7 @@ function validateDesign(parts, W, o) {
     }
   }
   const noStage = engs.filter(p => p.stage < 0 && !p.d.eng.rcs); if (noStage.length && engs.length) add('warn', 'Двигатель без ступени: назначьте её в окне «Ступени»');
-  if (parts.some(p => p.d.core) && !parts.some(p => p.d.rw || (p.d.eng && p.d.eng.rcs) || (p.d.eng && p.d.eng.gim))) {
+  if (!rover && parts.some(p => p.d.core) && !parts.some(p => p.d.rw || (p.d.eng && p.d.eng.rcs) || (p.d.eng && p.d.eng.gim))) {
     const A = attAuthority(parts); if (A.t90 > 45) add('warn', 'Слабое управление поворотом: разворот на 90° займёт ~' + Math.round(A.t90) + ' с. Добавьте РСУ («Кольцо РСУ», Draco) или маховики');
   }
   const ec = parts.reduce((s, p) => s + (p.d.batt || 0), 0), use = parts.reduce((s, p) => s + (p.d.core ? p.d.core.ec : 0), 0);
