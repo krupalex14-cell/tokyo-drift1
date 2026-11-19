@@ -104,7 +104,7 @@ const MapV = {
           this.lbl(li++, 'Δv ' + Math.round(ap.node.mag) + ' м/с · через ' + fmtDur(dt), sn[0], sn[1] + 8, ''); }
       }
       const s = this.scr(v.x, v.y); g.tri(s[0], s[1] - 4, s[0] - 3, s[1] + 3, s[0] + 3, s[1] + 3, rgb(255, 240, 120)); this.lbl(li++, v.name, s[0], s[1] - 12, 'yl');
-      info = 'Апоцентр: ' + (el.bound ? fmtDist(el.ra - B.R) : '—') + '<br>Перицентр: ' + fmtDist(el.rp - B.R) + '<br>' + (el.bound ? 'Период: ' + fmtDur(el.T) + '<br>' : '') + 'Эксцентриситет: ' + el.e.toFixed(3) + '<br>Скорость: ' + fmtSpeed(Math.hypot(v.vx, v.vy));
+      const onGround = v.mode === 'landed' || el.rp < B.R * 0.1; info = 'Апоцентр: ' + (el.bound && !onGround ? fmtDist(el.ra - B.R) : '—') + '<br>Перицентр: ' + (onGround ? '—' : fmtDist(el.rp - B.R)) + '<br>' + (el.bound && !onGround ? 'Период: ' + fmtDur(el.T) + '<br>' : '') + 'Эксцентриситет: ' + el.e.toFixed(3) + '<br>Скорость: ' + fmtSpeed(Math.hypot(v.vx, v.vy));
     } else if (v) { info = 'Аппарат «' + esc(v.name) + '» в системе: ' + esc(W.U.byId[v.body].name) + '<br><span class="mut">нажмите ◎ чтобы вернуться</span>'; }
     for (let i = li; i < this.lbls.length; i++) this.lbls[i].style.display = 'none';
     this.hudT -= dt; if (this.hudT <= 0) { this.hudT = .25; this.E.title.textContent = B.name + (B.parent ? ' · у ' + W.U.byId[B.parent].name : '') + ' · ' + fmtDate(W.ut); this.E.info.innerHTML = info; this.E.wl.textContent = '×' + fmtNum(W.warpVal(), 0); }

@@ -47,7 +47,7 @@ const Icons = {
 };
 
 const Builder = {
-  W: null, D: null, sel: null, dir: 'up', sym: true, magnet: true, chain: false, cam: { x: 0, y: 6, ppm: 8 }, hist: [], fut: [], root: null, cat: 'engine', ptrs: new Map(), drag: null,
+  W: null, D: null, sel: null, dir: 'up', sym: true, magnet: true, chain: false, cam: { x: 0, y: 6, ppm: 8 }, hist: [], fut: [], root: null, cat: 'engine', ptrs: new Map(), drag: null, pal: null, dockEl: null,
   vp: { parts: [] }, stats: null, anaT: 0, manualStage: false, tilesEl: null, chipEl: null, stripEl: null, nameEl: null, propSheet: null, showStages: true,
   avail(d) { const W = this.W; return W.sandbox || W.cheats.freeBuild || d.tier <= W.tier; },
 
@@ -56,9 +56,9 @@ const Builder = {
     this.sel = null; this.hist = []; this.fut = []; this.ptrs.clear(); this.drag = null; this.manualStage = this.D.parts.some(p => p.stage >= 0);
     App.mode = 'build'; this.vp.parts = this.D.parts;
     this.dom(); this.touch(true); this.fit(); this.bindPointer();
-    if (!this.D.parts.length) UI.toast('Выберите деталь внизу — она встанет на площадку. Дальше каждая новая крепится к выбранной', 'info');
+    if (!this.D.parts.length) UI.toast('Нажмите на деталь внизу — она встанет на площадку, или потяните её вверх на поле. Значок «i» — зачем деталь нужна', 'info');
   },
-  leave() { this.unbindPointer(); if (this.propSheet) { this.propSheet.close(); this.propSheet = null; } if (this.root) this.root.remove(); this.root = null; this.ptrs.clear(); this.drag = null; },
+  leave() { const ts = $('#toast'); if (ts) ts.classList.remove('lo'); if (this.pal) { this.pal.g.remove(); this.pal = null; } this.unbindPointer(); if (this.propSheet) { this.propSheet.close(); this.propSheet = null; } if (this.root) this.root.remove(); this.root = null; this.ptrs.clear(); this.drag = null; },
   close() { UI.go('hub'); },
 
   // ---------- история ----------
@@ -75,7 +75,13 @@ const Builder = {
     if (!this.manualStage) autoStage(D.parts, D.edges);
     this.normalize(); this.vp.parts = D.parts; this.stats = null; this.anaT = 0.25; this.upd();
   },
-  fit() { const ps = this.D.parts; if (!ps.length) { this.cam = { x: 0, y: 6, ppm: Math.max(2, Gfx.h / 28) }; return; } let x0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of ps) { const r = prect(p); x0 = Math.min(x0, r.x0); x1 = Math.max(x1, r.x1); y1 = Math.max(y1, r.y1); } const w = Math.max(x1 - x0, 6), hh = Math.max(y1, 6); const ppm = clamp(Math.min(Gfx.w * .8 / w, Gfx.h * .52 / hh), .12, 60); this.cam = { x: (x0 + x1) / 2, y: hh / 2, ppm }; },
+  fit() {
+    const ps = this.D.parts, H = Gfx.h, top = H * .17, bot = H * .60;   // полоса между верхней панелью и палитрой
+    if (!ps.length) { const ppm = Math.max(2, H / 28); this.cam = { x: 0, y: (bot - H * .46) / ppm, ppm }; return; }
+    let x0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of ps) { const r = prect(p); x0 = Math.min(x0, r.x0); x1 = Math.max(x1, r.x1); y1 = Math.max(y1, r.y1); }
+    const w = Math.max(x1 - x0, 6), hh = Math.max(y1, 6); const ppm = clamp(Math.min(Gfx.w * .74 / w, (bot - top) / hh), .12, 60);
+    this.cam = { x: (x0 + x1) / 2, y: (bot - H * .46) / ppm, ppm };
+  },
   scr(x, y) { const c = this.cam; return [Gfx.w / 2 + (x - c.x) * c.ppm, Gfx.h * .46 - (y - c.y) * c.ppm]; },
   wld(sx, sy) { const c = this.cam; return [c.x + (sx - Gfx.w / 2) / c.ppm, c.y - (sy - Gfx.h * .46) / c.ppm]; },
   hit(sx, sy) {
@@ -93,6 +99,12 @@ const Builder = {
     return out;
   },
   // ---------- размещение ----------
+  // подогнать размер новой детали под соседа (диаметр, длина бака и т.п.)
+  sizeFor(p, tgt, dir) {
+    const d = p.d;
+    if (d.size && d.size.dia && (dir === 'up' || dir === 'down') && !d.fair) { const w = snapDia(pw(tgt), d.size.dia); if (!(d.eng) && !d.shield) { p.w = w; if (d.id === 'adapter') { p.w2 = snapDia(Math.max(.3, w * .5), d.size.dia); } if (d.tank && d.size.len) p.h = clamp(Math.round(w * 2.7 * 4) / 4, d.size.len[0], d.size.len[1]); if (d.id === 'nose' && d.size.len) p.h = clamp(Math.round(w * 2 * 4) / 4, d.size.len[0], d.size.len[1]); fillPart(p); } }
+    if (d.fair && (dir === 'up' || dir === 'down')) { p.w = snapDia(Math.max(pw(tgt), p.w), d.size.dia); fillPart(p); }
+  },
   place(defId) {
     const d = PARTS[defId], D = this.D;
     if (!this.avail(d)) { UI.toast('Нужна технология ' + d.tier + ' (сейчас ' + this.W.tier + ') — изучите в «Технологиях»', 'bad'); return; }
@@ -105,9 +117,7 @@ const Builder = {
     if (att === 'radial' && vert) { dir = 'right'; UI.toast('Эта деталь крепится сбоку', 'info'); }
     if (att === 'stack' && !vert) { dir = 'up'; }
     if (att === 'bottom' && dir !== 'up') { dir = 'up'; }
-    // ширина по соседу
-    if (d.size && d.size.dia && (dir === 'up' || dir === 'down') && !(d.fair || d.id === 'nose' && false)) { const w = snapDia(pw(tgt), d.size.dia); if (!(d.eng) && !d.shield) { p.w = w; if (d.id === 'adapter') { p.w2 = snapDia(Math.max(.3, w * .5), d.size.dia); } if (d.tank && d.size.len) p.h = clamp(Math.round(w * 2.7 * 4) / 4, d.size.len[0], d.size.len[1]); if (d.fair && d.size.len) p.h = clamp(Math.round(w * 2.5 * 2) / 2, d.size.len[0], d.size.len[1]); if (d.id === 'nose' && d.size.len) p.h = clamp(Math.round(w * 2 * 4) / 4, d.size.len[0], d.size.len[1]); fillPart(p); } }
-    if (d.fair) { p.w = snapDia(Math.max(pw(tgt), p.w), d.size.dia); fillPart(p); }
+    this.sizeFor(p, tgt, dir);
     const r = prect(tgt), e = pext(p);
     let x = tgt.x, y = tgt.y; const side = dir === 'left' ? -1 : 1;
     if (dir === 'up') { y = r.y1 + e[1]; }
@@ -153,6 +163,80 @@ const Builder = {
   },
   nudge(p, dx, dy) { p.x += dx; p.y += dy; this.touch(); },
 
+  // ---------- магнитная стыковка (как в Spaceflight Simulator) ----------
+  // Ищет лучшее место крепления детали P, если её центр «хотят» поставить в (nx, ny).
+  // Возвращает { x, y, q, type } — type: 'up' (P над q), 'down', 'left', 'right' — или null.
+  dockCands(P, nx, ny, excl, only) {
+    const e = pext(P), T = only ? 1e9 : Math.max(.35, 24 / this.cam.ppm); let best = null, bs = 1e18;
+    const cands = this.D.parts;
+    const tryC = (type, q, cx, cy, xw, yw) => {
+      const sc = Math.hypot((cx - nx) * xw, (cy - ny) * yw); if (sc > T) return;
+      // пересечение с остальными (кроме тех, что сдвинутся при вставке)
+      let pen = 0; if (!this.W.cheats.overlap) { const save = [P.x, P.y]; P.x = cx; P.y = cy; const skip = (type === 'up' || type === 'down') ? new Set(this.chainOf(q, type === 'up')) : null; for (const o of cands) { if (o === P || o === q || (excl && excl.has(o)) || (skip && skip.has(o))) continue; if (overlaps([P, o], P)) { pen = T * .8; break; } } P.x = save[0]; P.y = save[1]; }
+      if (sc + pen < bs) { bs = sc + pen; best = { x: cx, y: cy, q, type, bad: pen > 0 }; }
+    };
+    for (const q of cands) {
+      if (q === P || (excl && excl.has(q)) || (only && q !== only)) continue; const r = prect(q);
+      if (acceptEdge(P, 'bottom') && acceptEdge(q, 'top')) tryC('up', q, q.x, r.y1 + e[1], .5, 1);
+      if (acceptEdge(P, 'top') && acceptEdge(q, 'bottom')) tryC('down', q, q.x, r.y0 - e[1], .5, 1);
+      if (acceptEdge(P, 'left') && acceptEdge(q, 'right')) for (const yc of [q.y, r.y0 + e[1], r.y1 - e[1]]) tryC('right', q, r.x1 + e[0], yc, 1, .5);
+      if (acceptEdge(P, 'right') && acceptEdge(q, 'left')) for (const yc of [q.y, r.y0 + e[1], r.y1 - e[1]]) tryC('left', q, r.x0 - e[0], yc, 1, .5);
+    }
+    return best;
+  },
+  dockBest(P, nx, ny, excl, auto) {
+    let s = this.dockCands(P, nx, ny, excl); if (!s) return null;
+    if (auto && (s.type === 'up' || s.type === 'down')) { this.sizeFor(P, s.q, s.type); s = this.dockCands(P, nx, ny, excl, s.q) || s; }
+    return s;
+  },
+  // свободное положение (без стыковки): не ниже земли, липнет к центральной оси
+  freePos(P, nx, ny) {
+    const e = pext(P), T = Math.max(.25, 8 / this.cam.ppm); let y = ny, x = nx;
+    let low = P.d.wheel ? P.d.wheel.r : P.d.leg ? -P.d.leg.foot[1] + 0 : e[1]; if (P.d.leg) low = e[1];
+    if (y < low) y = low; if (Math.abs(x) < T) x = 0; return [x, y];
+  },
+  // после стыковки: если деталь «влезла» между частями стопки — раздвинуть
+  pushFor(P, s, excl) {
+    if (!s || (s.type !== 'up' && s.type !== 'down')) return;
+    const ch = this.chainOf(s.q, s.type === 'up').filter(o => o !== P && !(excl && excl.has(o))); if (!ch.length) return;
+    const r = prect(P); let dy = 0;
+    if (s.type === 'up') { for (const o of ch) dy = Math.max(dy, r.y1 - prect(o).y0); } else { for (const o of ch) dy = Math.min(dy, r.y0 - prect(o).y1); }
+    if (Math.abs(dy) > .01) for (const o of ch) o.y += dy;
+  },
+  // ---------- перетаскивание из палитры ----------
+  dockTop() { return this.dockEl ? this.dockEl.getBoundingClientRect().top : innerHeight * .8; },
+  palDragStart(defId, ev) {
+    const d = PARTS[defId]; if (!this.avail(d)) { UI.toast('Нужна технология ' + d.tier + ' (сейчас ' + this.W.tier + ')', 'bad'); return false; }
+    const P = newPart(defId, 0, 0, {}); if (P.d.solar) P.st.deployed = true; if (P.d.ant) P.st.deployed = true; if (P.d.leg) P.st.deployed = true;
+    const ref = (this.sel && this.D.parts.includes(this.sel)) ? this.sel : this.D.parts[this.D.parts.length - 1]; if (ref) this.sizeFor(P, ref, 'up');   // сразу разумный размер под соседа
+    const g = Icons.clone(defId); g.className = 'ico ghost'; document.body.append(g);
+    this.pal = { defId, P, g, snap: null, inCv: false, nx: 0, ny: 0 }; this.palDragMove(ev); return true;
+  },
+  palDragMove(ev) {
+    const pal = this.pal; if (!pal) return;
+    pal.g.style.left = (ev.clientX - 30) + 'px'; pal.g.style.top = (ev.clientY - 84) + 'px';
+    const inCv = ev.clientY < this.dockTop() - 6; pal.inCv = inCv; pal.g.style.opacity = inCv ? 0 : 1;
+    if (!inCv) { pal.snap = null; return; }
+    const r = App.cv.getBoundingClientRect(), gx = (ev.clientX - r.left) / Gfx.scale, gy = (ev.clientY - r.top) / Gfx.scale - 30;   // деталь рисуем выше пальца, чтобы её было видно
+    const [wx, wy] = this.wld(gx, gy); pal.nx = wx; pal.ny = wy;
+    const P = pal.P; if (!this.D.parts.length) { P.x = 0; P.y = pext(P)[1]; pal.snap = null; return; }
+    const s = this.dockBest(P, wx, wy, null, true);
+    if (s) { P.x = s.x; P.y = s.y; pal.snap = s; if (s.type === 'left') P.flip = true; else if (s.type === 'right') P.flip = false; }
+    else { const f = this.freePos(P, wx, wy); P.x = f[0]; P.y = f[1]; pal.snap = null; }
+  },
+  palDragEnd(ev) {
+    const pal = this.pal; this.pal = null; if (!pal) return; pal.g.remove(); const D = this.D, P = pal.P;
+    if (!pal.inCv) return;           // отпустили над палитрой — отмена
+    this.snap();
+    if (!D.parts.length) { P.x = 0; P.y = pext(P)[1]; D.parts.push(P); this.select(P); this.touch(); this.fit(); return; }
+    const s = pal.snap; D.parts.push(P); const added = [P];
+    if (s) {
+      this.pushFor(P, s);
+      if (this.sym && (s.type === 'left' || s.type === 'right')) { const q = clonePart(P); q.id = _pid++; q.x = 2 * s.q.x - P.x; q.flip = !P.flip; q.st = {}; D.parts.push(q); added.push(q); }
+    } else UI.toast('Деталь не касается ракеты — подтяните её к другой детали', 'info');
+    this.select(P); this.touch();
+  },
+
   // ---------- анализ ----------
   analyze() {
     const D = this.D; const W = this.W; const B = W.homeBody;
@@ -196,7 +280,7 @@ const Builder = {
     this.chipEl = h('div', { class: 'pn', style: 'position:absolute;left:0;right:0;bottom:158px;padding:5px 6px' });
     this.tilesEl = h('div', { class: 'row scroll', style: 'overflow-x:auto;overflow-y:hidden;gap:6px;padding:4px 2px 2px;align-items:stretch' });
     this.tabsEl = h('div', { class: 'tabs' });
-    const dock = h('div', { class: 'pn solid', style: 'position:absolute;left:0;right:0;bottom:0;padding:4px 4px calc(env(safe-area-inset-bottom) + 4px)' }, this.tabsEl, this.tilesEl);
+    const dock = h('div', { class: 'pn solid', style: 'position:absolute;left:0;right:0;bottom:0;padding:4px 4px calc(env(safe-area-inset-bottom) + 4px)' }, this.tabsEl, this.tilesEl); this.dockEl = dock; const ts = $('#toast'); if (ts) ts.classList.add('lo');
     this.root.append(top, side, this.chipEl, dock);
     $('#ui').append(this.root);
     this.tabs(); this.tiles(); this.chips();
@@ -210,34 +294,60 @@ const Builder = {
   tiles() {
     const el = this.tilesEl; el.innerHTML = ''; el.scrollLeft = 0;
     if (this.cat === 'tpl') {
-      for (const t of TEMPLATES) {
-        const ok = this.W.sandbox || this.W.cheats.freeBuild || (designTier(t.make().parts) <= this.W.tier);
-        el.append(h('div', { class: 'card ptile' + (ok ? '' : ' dis'), style: 'min-width:108px;max-width:108px;cursor:pointer;justify-content:flex-start', onclick: () => this.loadTemplate(t) },
-          h('b', { class: 'tiny', style: 'text-align:center' }, t.name), h('span', { class: 'tiny mut', style: 'text-align:center' }, t.kind === 'probe' ? 'зонд' : 'ракета'), h('span', { class: 'tiny ' + (ok ? 'mut' : 'rd') }, ok ? 'нажмите' : 'нужна техн.')));
+      const groups = [['rocket', '🚀 Ракеты'], ['probe', '🛰 Зонды'], ['rover', '🛞 Вездеходы']];
+      for (const [kind, label] of groups) {
+        const list = TEMPLATES.filter(t => t.kind === kind); if (!list.length) continue;
+        el.append(h('div', { class: 'grp' }, label));
+        for (const t of list) {
+          const ok = this.W.sandbox || this.W.cheats.freeBuild || (designTier(t.make().parts) <= this.W.tier);
+          el.append(h('div', { class: 'card ptile' + (ok ? '' : ' dis'), style: 'min-width:112px;max-width:112px;cursor:pointer;justify-content:flex-start', onclick: () => this.loadTemplate(t) },
+            h('b', { class: 'tiny', style: 'text-align:center;line-height:1.1' }, t.name), h('span', { class: 'tiny mut', style: 'text-align:center;line-height:1.1;height:24px;overflow:hidden' }, (t.real || '').split(':')[0].slice(0, 34)), h('span', { class: 'tiny ' + (ok ? 'gr' : 'rd') }, ok ? 'открыть' : 'нужна техн.')));
+        }
       }
-      el.append(h('div', { class: 'card ptile', style: 'min-width:108px;max-width:108px;cursor:pointer;justify-content:flex-start', onclick: () => this.pickSaved() }, h('b', { class: 'tiny' }, '💾 Мои проекты'), h('span', { class: 'tiny mut' }, 'сохранённые')));
+      el.append(h('div', { class: 'card ptile', style: 'min-width:100px;max-width:100px;cursor:pointer;justify-content:flex-start', onclick: () => this.pickSaved() }, h('b', { class: 'tiny' }, '💾 Мои проекты'), h('span', { class: 'tiny mut' }, 'сохранённые')));
       return;
     }
     const list = PART_LIST.filter(d => d.cat === this.cat).sort((a, b) => (a.tier - b.tier) || (a.cost - b.cost));
     for (const d of list) {
       const ok = this.avail(d);
       const cv = Icons.clone(d.id);
-      el.append(h('div', { class: 'card ptile' + (ok ? '' : ' dis'), style: 'min-width:86px;max-width:86px;cursor:pointer;justify-content:flex-start;padding:5px 3px', onclick: () => this.place(d.id) },
+      const tile = h('div', { class: 'card ptile pt' + (ok ? '' : ' dis'), style: 'min-width:86px;max-width:86px;cursor:pointer;justify-content:flex-start;padding:5px 3px' },
         cv, h('span', { class: 'tiny', style: 'text-align:center;line-height:1.05;height:22px;overflow:hidden' }, d.name),
-        h('span', { class: 'tiny ' + (ok ? 'yl' : 'rd') }, ok ? fmtMoney(d.cost) : '🔒 тех.' + d.tier)));
+        h('span', { class: 'tiny ' + (ok ? 'yl' : 'rd') }, ok ? fmtMoney(d.cost) : '🔒 тех.' + d.tier), PartInfo.badge(d.id, () => this.place(d.id)));
+      this.tileInput(tile, d.id); el.append(tile);
     }
+  },
+  // тап — поставить к выбранной; потянуть вверх — перетащить на поле; удержать — справка
+  tileInput(el, defId) {
+    el.addEventListener('pointerdown', e => {
+      if (e.target.classList && e.target.classList.contains('inf')) return;
+      const st = { id: e.pointerId, x: e.clientX, y: e.clientY, drag: false, long: false };
+      st.t = setTimeout(() => { if (!st.drag) { st.long = true; PartInfo.show(defId, () => this.place(defId)); } }, 520);
+      const off = () => { clearTimeout(st.t); removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', cn); };
+      const mv = ev => {
+        if (ev.pointerId !== st.id) return; const dx = ev.clientX - st.x, dy = ev.clientY - st.y;
+        if (!st.drag && !st.long) {
+          if (dy < -14 && Math.abs(dy) > Math.abs(dx) * .7) { st.drag = true; clearTimeout(st.t); if (!this.palDragStart(defId, ev)) { off(); return; } }
+          else if (Math.hypot(dx, dy) > 10) clearTimeout(st.t);
+        }
+        if (st.drag) this.palDragMove(ev);
+      };
+      const up = ev => { if (ev.pointerId !== st.id) return; const moved = Math.hypot(ev.clientX - st.x, ev.clientY - st.y); off(); if (st.drag) this.palDragEnd(ev); else if (!st.long && moved < 10) this.place(defId); };
+      const cn = ev => { if (ev.pointerId !== st.id) return; off(); if (st.drag && this.pal) { this.pal.g.remove(); this.pal = null; } };
+      addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', cn);
+    });
   },
   chips() {
     const el = this.chipEl, p = this.sel; el.innerHTML = '';
     const dirBtn = (k, l) => h('button', { class: 'btn sm' + (this.dir === k ? ' on' : ''), onclick: () => { this.dir = k; this.chips(); } }, l);
-    const r1 = h('div', { class: 'row' }, h('span', { class: 'tiny mut' }, 'крепить:'), dirBtn('up', '↑'), dirBtn('down', '↓'), dirBtn('left', '←'), dirBtn('right', '→'),
+    const r1 = h('div', { class: 'row' }, dirBtn('up', '↑'), dirBtn('down', '↓'), dirBtn('left', '←'), dirBtn('right', '→'),
       h('button', { class: 'btn sm' + (this.sym ? ' on' : ''), onclick: () => { this.sym = !this.sym; this.chips(); } }, '⇆ симм.'),
-      h('span', { class: 'sp' }), h('button', { class: 'btn sm' + (this.magnet ? ' on' : ''), onclick: () => { this.magnet = !this.magnet; this.chips(); } }, '🧲'),
-      h('button', { class: 'btn sm' + (this.chain ? ' on' : ''), onclick: () => { this.chain = !this.chain; this.chips(); } }, '⇡ с верхними'));
+      h('span', { class: 'sp' }), h('button', { class: 'btn sm' + (this.magnet ? ' on' : ''), onclick: () => { this.magnet = !this.magnet; this.chips(); } }, '🧲 магнит'),
+      h('button', { class: 'btn sm' + (this.chain ? ' on' : ''), onclick: () => { this.chain = !this.chain; this.chips(); } }, '⇡ цепь'));
     el.append(r1);
     if (p) {
       el.append(h('div', { class: 'row w', style: 'margin-top:4px' }, h('b', { class: 'small cy', style: 'flex:1;min-width:90px' }, p.d.name + (p.n > 1 ? ' ×' + p.n : '')),
-        h('button', { class: 'btn sm', onclick: () => this.props() }, '✎ размер'), h('button', { class: 'btn sm', onclick: () => this.rotate(p) }, '⟳'), h('button', { class: 'btn sm', onclick: () => this.mirror(p) }, '⇋'),
+        h('button', { class: 'btn sm', onclick: () => PartInfo.show(p.defId) }, h('span', { class: 'inf s' }, 'i'), ' что это'), h('button', { class: 'btn sm', onclick: () => this.props() }, '✎ размер'), h('button', { class: 'btn sm', onclick: () => this.rotate(p) }, '⟳'), h('button', { class: 'btn sm', onclick: () => this.mirror(p) }, '⇋'),
         h('button', { class: 'btn sm', onclick: () => this.dup(p) }, '⧉'), (Math.abs(p.x) > .01 ? h('button', { class: 'btn sm', onclick: () => this.mirrorSide(p) }, '⇆+') : null),
         h('button', { class: 'btn sm warn', onclick: () => this.remove(p) }, '🗑')));
     }
@@ -292,7 +402,7 @@ const Builder = {
   loadTemplate(t) {
     const D = t.make(); const need = designTier(D.parts);
     if (!(this.W.sandbox || this.W.cheats.freeBuild) && need > this.W.tier) { UI.toast('Шаблон требует технологию ' + need + ' (сейчас ' + this.W.tier + ')', 'bad'); return; }
-    const go = () => { this.snap(); this.D.parts = D.parts; this.D.edges = D.edges; this.D.name = t.name; this.nameEl.value = t.name; this.manualStage = false; this.vp.parts = this.D.parts; this.sel = null; this.touch(); this.fit(); UI.toast(t.name + ': ' + t.note, 'info'); };
+    const go = () => { this.snap(); this.D.parts = D.parts; this.D.edges = D.edges; this.D.name = t.name; this.nameEl.value = t.name; this.manualStage = false; this.vp.parts = this.D.parts; this.sel = null; this.touch(); this.fit(); if (UI.toastEl) UI.toastEl.innerHTML = ''; UI.toast(t.name + ': ' + t.note, 'info'); };
     if (this.D.parts.length) UI.confirm('Заменить текущий проект шаблоном «' + t.name + '»?', go); else go();
   },
   saveDesign() {
@@ -312,7 +422,7 @@ const Builder = {
   analysis() {
     this.analyze(); const s = this.stats; const sh = UI.sheet('Анализ и ступени', h('div', { class: 'col' }), { height: '78%' }); const b = sh.body;
     if (!s || !this.D.parts.length) { b.append(h('div', { class: 'mut' }, 'Добавьте детали.')); return; }
-    for (const i of s.issues) b.append(h('div', { class: 'card ' + (i.lvl === 'err' ? 'rd' : 'or'), style: 'font-size:12px' }, (i.lvl === 'err' ? '⛔ ' : '⚠ ') + i.text));
+    for (const i of s.issues) b.append(h('div', { class: 'card ' + (i.lvl === 'err' ? 'rd' : 'or'), style: 'font-size:13px' }, (i.lvl === 'err' ? '⛔ ' : '⚠ ') + i.text));
     b.append(h('div', { class: 'card' }, h('div', { class: 'kv' }, h('span', null, 'Масса на старте'), h('span', null, fmtMass(s.mass))), h('div', { class: 'kv' }, h('span', null, 'Стоимость'), h('span', null, fmtMoney(s.cost))), h('div', { class: 'kv' }, h('span', null, 'Δv (вакуум)'), h('span', { class: 'cy' }, Math.round(s.dv) + ' м/с')),
       h('div', { class: 'kv' }, h('span', null, 'Тяговооружённость 1-й ступени'), h('span', null, s.twr.toFixed(2) + ' на ' + this.W.homeBody.name))));
     if (s.stages && s.stages.length) { b.append(h('h3', null, 'Ступени (выгорание)')); for (const st of s.stages) b.append(h('div', { class: 'card' }, h('div', { class: 'kv' }, h('b', null, 'Ступень ' + (st.stage + 1)), h('span', { class: 'cy' }, Math.round(st.dv) + ' м/с')), h('div', { class: 'kv' }, h('span', null, 'время работы'), h('span', null, fmtDur(st.t))), h('div', { class: 'kv' }, h('span', null, 'масса до → после'), h('span', null, fmtMass(st.mStart) + ' → ' + fmtMass(st.mEnd))))); }
@@ -364,7 +474,8 @@ const Builder = {
     else if (dr.part) {
       if (!dr.snapSaved) { this.snap(); dr.snapSaved = true; dr.chainSet = this.chain ? this.chainOf(dr.part, true).map(o => ({ o, x: o.x, y: o.y })) : null; }
       let nx = dr.p0.x + dx / this.cam.ppm, ny = dr.p0.y - dy / this.cam.ppm;
-      if (this.magnet) { const s = this.snapPos(dr.part, nx, ny); nx = s[0]; ny = s[1]; }
+      dr.snap = null;
+      if (this.magnet) { const ex = new Set(dr.chainSet ? dr.chainSet.map(c => c.o) : []); const s = this.dockCands(dr.part, nx, ny, ex); if (s) { nx = s.x; ny = s.y; dr.snap = s; } else { const f = this.freePos(dr.part, nx, ny); nx = f[0]; ny = f[1]; } }
       const mx = nx - dr.part.x, my = ny - dr.part.y; dr.part.x = nx; dr.part.y = ny; if (dr.chainSet) for (const c of dr.chainSet) { c.o.x += mx; c.o.y += my; }
       this.D.edges = computeEdges(this.D.parts); this.stats = null; this.anaT = .3;
     }
@@ -375,7 +486,7 @@ const Builder = {
       const dr = this.drag; this.drag = null; this.pinch = null;
       if (dr) {
         if (!dr.moved) { const p = this.hit(P.x, P.y); this.select(p); }
-        else if (dr.mode === 'part') { this.touch(); }
+        else if (dr.mode === 'part') { this.pushFor(dr.part, dr.snap, new Set(dr.chainSet ? dr.chainSet.map(c => c.o) : [])); this.touch(); }
       }
     } else if (this.ptrs.size < 2) this.pinch = null;
   },
@@ -428,7 +539,26 @@ const Builder = {
         if (this.dir === 'left') g.tri(a[0] - 3 - k, my, a[0] - 3, my - 4, a[0] - 3, my + 4, cc); if (this.dir === 'right') g.tri(b[0] + 3 + k, my, b[0] + 3, my - 4, b[0] + 3, my + 4, cc);
       }
     }
+    // подсветка стыковки при перетаскивании существующей детали
+    if (this.drag && this.drag.moved && this.drag.mode === 'part' && this.drag.snap) this.drawSnap(g, this.drag.part, this.drag.snap);
+    // «призрак» детали, которую тянут из палитры
+    const pal = this.pal;
+    if (pal && pal.inCv) {
+      const P = pal.P; P.shielded = false; this.vpG = this.vpG || { parts: [] }; this.vpG.parts = [P];
+      Art.vessel(this.vpG, g, { ox: g.w / 2, oy: g.h * .46, ppm: c.ppm, psi: 0, cx: c.x, cy: c.y }, { x: -.5, y: .62, z: .6, amb: .28 }, { all: true });
+      const r = prect(P), a = this.scr(r.x0, r.y1), b = this.scr(r.x1, r.y0);
+      this.box(g, a[0] - 1, a[1] - 1, b[0] + 1, b[1] + 1, pal.snap ? (pal.snap.bad ? rgb(255, 120, 70) : rgb(110, 255, 150)) : rgb(255, 226, 90), false);
+      if (pal.snap) this.drawSnap(g, P, pal.snap);
+    }
     g.micro(g.w - 30, g.h - 8, c.ppm.toFixed(1) + 'PX', rgb(90, 110, 170));
+  },
+  // яркая полоска на стыке + точки на концах — как «узлы крепления» в SFS
+  drawSnap(g, P, s) {
+    const r = prect(P), q = prect(s.q), col = s.bad ? rgb(255, 150, 80) : rgb(120, 255, 160); let a, b;
+    if (s.type === 'up') { const y = r.y0, x0 = Math.max(r.x0, q.x0), x1 = Math.min(r.x1, q.x1); a = this.scr(x0, y); b = this.scr(x1, y); }
+    else if (s.type === 'down') { const y = r.y1, x0 = Math.max(r.x0, q.x0), x1 = Math.min(r.x1, q.x1); a = this.scr(x0, y); b = this.scr(x1, y); }
+    else { const x = s.type === 'right' ? r.x0 : r.x1, y0 = Math.max(r.y0, q.y0), y1 = Math.min(r.y1, q.y1); a = this.scr(x, y1); b = this.scr(x, y0); }
+    g.dashed(a[0], a[1], b[0], b[1], col, 2, 1); g.rect((a[0] | 0) - 1, (a[1] | 0) - 1, 3, 3, col); g.rect((b[0] | 0) - 1, (b[1] | 0) - 1, 3, 3, col);
   },
   box(g, x0, y0, x1, y1, c, thick) { g.dashed(x0, y0, x1, y0, c, 3, 2); g.dashed(x0, y1, x1, y1, c, 3, 2); g.dashed(x0, y0, x0, y1, c, 3, 2); g.dashed(x1, y0, x1, y1, c, 3, 2); if (thick) { g.dashed(x0 + 1, y0 + 1, x1 - 1, y0 + 1, c, 3, 2); } }
 };

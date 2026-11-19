@@ -7,7 +7,7 @@ function tpl(id, name, kind, real, note, make) { TEMPLATES.push({ id, name, kind
 tpl('cubesat', 'CubeSat 3U', 'probe', 'стандарт CubeSat 10×10×34 см', 'Самый простой спутник: магнитометр, антенна, солнечные элементы на корпусе. Для первых запусков.', () => {
   const D = new Design('CubeSat 3U');
   D.add('batt_s'); const c = D.add('cubesat'); D.add('i_mag'); D.add('ant_lga');
-  D.add('solar_body', { x: -.25, y: c.y }); D.add('solar_body', { x: .25, y: c.y });
+  D.add('solar_body', { x: -.25, y: c.y, h: .34 }); D.add('solar_body', { x: .25, y: c.y, h: .34 });
   return D.finish();
 });
 
@@ -67,6 +67,49 @@ tpl('src_probe', 'Возврат образцов «Луна-16»', 'probe', 'Л
   D.add('core_bus'); D.add('batt_m'); D.add('ant_mga'); D.add('src');
   D.add('leg_lem', { x: -(.9 + 1.2), y: t0.y - 1.5 }); D.add('leg_lem', { x: .9 + 1.2, y: t0.y - 1.5 });
   D.add('i_scoop', { x: .9 + .15, y: t0.y + 1.0 });
+  return D.finish();
+});
+
+// ---------- готовые ракеты (настоящие прототипы, из настоящих деталей) ----------
+// stages: [{e: двигатель, n: сколько, D: диаметр, L: длина бака, tank: тип бака}], payloadId — шаблон-нагрузка
+function rocketDesign(name, stages, payloadId, o) {
+  o = o || {};
+  const payload = TEMPLATES.find(t => t.id === payloadId).make();
+  const pl = AutoBuild.payloadInfo(payload);
+  const S = stages.map(s => ({ e: PARTS[s.e], n: s.n || 1, D: s.D, L: s.L, tk: PARTS[s.tank || 'tank_kerolox'] }));
+  const r = AutoBuild.assemble(null, { atm: true }, pl, payload, { stages: S }, { name, fairing: o.fairing });
+  const D = r.design; D._stageLimit = r.nS;
+  if (o.ringW) for (const p of D.parts) if (p.defId === 'acs_ring') p.w = o.ringW;      // большой корабль: двигатели ориентации по широкому кольцу
+  for (const p of r.payloadParts) if (p.d.eng && !p.d.eng.rcs) p.stage = r.nS + 1;   // двигатель нагрузки включается после отделения
+  return D;
+}
+function rtpl(id, name, real, note, stages, payloadId, o) { tpl(id, name, 'rocket', real, note, () => rocketDesign(name, stages, payloadId, o)); }
+
+tpl('sound', 'Суборбитальная ракета', 'rocket', 'метеорологические / геофизические ракеты (Aerobee, «Вертикаль»)', 'Один двигатель Rutherford и маленький бак. Улетает выше 100 км (граница космоса) и падает обратно. Самый простой тест: нажмите ▶ и держите «макс. тягу».', () => {
+  const D = new Design('Суборбитальная ракета');
+  D.add('rutherford'); const tk = D.add('tank_kerolox', { w: .75, h: 2.0 });
+  D.add('core_bus'); D.add('batt_m'); D.add('i_mag'); D.add('ant_lga'); D.add('nose', { w: .75, h: 1.2 });
+  const fw = PARTS.fin.w;   // стабилизаторы по бокам нижней части бака — ракета летит носом вперёд сама
+  for (const sx of [-1, 1]) D.add('fin', { h: 1.4, x: sx * (tk.w / 2 + fw / 2), y: .7, noStack: true });
+  return D.finish();
+});
+rtpl('electron', 'Электрон', 'Rocket Lab Electron: 9 × Rutherford + Rutherford Vac, Ø1,2 м (2017)', 'Лёгкая двухступенчатая ракета для спутников. Первая ступень — девять двигателей Rutherford, вторая — один вакуумный. Выводит CubeSat на орбиту 200 км.',
+  [{ e: 'rutherford', n: 9, D: 1.25, L: 11.5 }, { e: 'rutherford_vac', n: 1, D: 1.25, L: 2.0 }], 'cubesat');
+rtpl('falcon9', 'Falcon 9', 'SpaceX Falcon 9: 9 × Merlin 1D + Merlin Vacuum, Ø3,7 м', 'Самая популярная ракета мира. Девять двигателей Merlin 1D на керосине, вторая ступень с вакуумным соплом. Выводит орбитальный зонд типа «Маринер».',
+  [{ e: 'merlin1d', n: 9, D: 3.7, L: 41 }, { e: 'merlin_vac', n: 1, D: 3.7, L: 11 }], 'orbiter1');
+rtpl('atlas5', 'Atlas V 401', 'ULA Atlas V: РД-180 + Centaur (RL10), Ø3,7 м', 'Керосиновая первая ступень с российским РД-180 (4,1 МН) и водородный «Центавр» с RL10 — эффективная верхняя ступень. Отправляет тяжёлые межпланетные зонды (Juno, New Horizons, MSL).',
+  [{ e: 'rd180', n: 1, D: 3.7, L: 30 }, { e: 'rl10', n: 1, D: 3.0, L: 6, tank: 'tank_hydrolox' }], 'probe_entry');
+rtpl('saturn5', 'Saturn V', 'НАСА Saturn V: 5 × F-1, 5 × J-2, 1 × J-2 (1967); Ø10 м', 'Самая мощная ракета в истории (7,7 МН на каждый F-1). Три ступени: S-IC на керосине, S-II и S-IVB на водороде. Рассчитана на полёт к Луне.',
+  [{ e: 'f1', n: 5, D: 10.1, L: 32 }, { e: 'j2', n: 5, D: 10.1, L: 19, tank: 'tank_hydrolox' }, { e: 'j2', n: 1, D: 6.0, L: 12.5, tank: 'tank_hydrolox' }], 'lander');
+rtpl('starship', 'Starship', 'SpaceX Starship / Super Heavy: Raptor 2 и Raptor Vacuum, метан + кислород, Ø9 м', 'Полностью метановая двухступенчатая ракета с кластером из 33 двигателей Raptor 2. Огромная грузоподъёмность — ей по силам отправить посадочный модуль к Марсу.',
+  [{ e: 'raptor2', n: 33, D: 10.1, L: 60, tank: 'tank_methalox' }, { e: 'raptor_vac', n: 6, D: 10.1, L: 20, tank: 'tank_methalox' }], 'lander2', { ringW: 9 });
+
+tpl('rover', 'Луноход (вездеход)', 'rover', 'Луноход-1 (1970) / LRV (Apollo 15–17)', 'Четыре колеса LRV, батарея, солнечные панели, камера и антенна. Ехать по поверхности. В «Готовых ракетах» его можно сразу поставить на Луну или Марс и поездить; настоящий — запускать на ракете.', () => {
+  const D = new Design('Вездеход');
+  const cw = 1.8, c = D.add('core_bus', { w: cw, h: .6 }); const bt = D.add('batt_m'); D.add('i_mastcam'); D.add('ant_mga');
+  const r = PARTS.wheel_lrv.w / 2;
+  for (const sx of [-1, 1]) for (const k of [0, 1]) D.add('wheel_lrv', { x: sx * (cw / 2 + r + k * 2 * r), y: c.y - .1, noStack: true });
+  for (const sx of [-1, 1]) D.add('solar_small', { w: 1.6, x: sx * (bt.w / 2 + .8), y: bt.y, noStack: true });
   return D.finish();
 });
 

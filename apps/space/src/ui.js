@@ -17,7 +17,8 @@ const TECH = [
 ];
 const HELP = [
   ['Цель', 'Изучать космос по-настоящему: запускайте зонды, собирайте образцы и данные, передавайте их на Землю — за это дают науку и деньги.'],
-  ['1. Ангар', 'Соберите зонд из настоящих деталей (двигатели, камеры, колёса…) или возьмите шаблон. Каждая новая деталь крепится к выбранной.'],
+  ['Готовые ракеты 🚀', 'В центре управления: Electron, Falcon 9, Atlas V, Saturn V и Starship уже собраны. Нажмите «Старт» — пуск бесплатный, автопилот выведет на орбиту.'],
+  ['1. Ангар', 'Нажмите на деталь внизу — она встанет к выбранной. Или потяните её вверх на поле: магнит покажет зелёной рамкой, куда она встанет (между ступенями — раздвинет стопку). Значок «i» или удержание детали — зачем она нужна и её настоящие характеристики.'],
   ['2. Автосборка ✨', 'Нажмите «авто» — ИИ подберёт и достроит ракету под ваш зонд и выбранную цель (орбита, Луна, Марс…), проверит её виртуальным полётом.'],
   ['3. Полёт', 'Ползунок слева — тяга, «СТУП» — следующая ступень. Автопилот выведет на орбиту сам. Карта (🌍) — орбиты и перелёты.'],
   ['4. Наука', 'Включайте приборы, ловите нужные условия (орбита, посадка), передавайте данные антенной; образцы нужно вернуть домой.'],
@@ -83,7 +84,7 @@ const UI = {
   },
   sheet(title, body, o) {
     o = o || {}; const el = h('div', { class: 'pn solid sheet' + (o.full ? ' full' : ''), style: (o.height ? 'max-height:' + o.height + ';' : '') + 'z-index:' + (30 + this.sheets.length) });
-    const tt = h('h3', { style: 'flex:1;font-size:15px' }, title);
+    const tt = h('h3', { style: 'flex:1;font-size:17px' }, title);
     const sh = { el, body, close: () => { el.remove(); this.sheets = this.sheets.filter(x => x !== sh); if (o.onClose) o.onClose(); }, setTitle: t => { tt.textContent = t; } };
     const head = h('div', { class: 'row', style: 'padding-bottom:6px' }, tt, h('button', { class: 'btn sm', onclick: () => sh.close() }, '✕'));
     const sc = h('div', { class: 'scroll' }, body); if (body.classList && !body.classList.contains('col')) { }
@@ -92,7 +93,7 @@ const UI = {
   },
   closeSheets() { for (const s of this.sheets.slice()) s.close(); },
   confirm(text, yes, no) {
-    const b = h('div', { class: 'col' }, h('div', { style: 'font-size:14px;line-height:1.35' }, text));
+    const b = h('div', { class: 'col' }, h('div', { style: 'font-size:15px;line-height:1.35' }, text));
     const sh = this.sheet('Подтвердите', b, { height: '40%' });
     b.append(h('div', { class: 'row' }, h('button', { class: 'btn go sp', onclick: () => { sh.close(); yes && yes(); } }, 'Да'), h('button', { class: 'btn sp', onclick: () => { sh.close(); no && no(); } }, 'Отмена')));
     return sh;
@@ -123,7 +124,7 @@ const UI = {
     const has = !!Store.get('save', null);
     const body = h('div', { class: 'scr' },
       h('div', { style: 'position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 40px);text-align:center;pointer-events:none' },
-        h('div', { style: 'font-family:PixB;font-size:38px;letter-spacing:3px;color:#fff;text-shadow:3px 3px 0 #1a2d70,-1px -1px 0 #000' }, 'КОСМОС'),
+        h('div', { style: 'font-family:Pix;font-size:44px;letter-spacing:3px;color:#fff;text-shadow:3px 3px 0 #1a2d70,-1px -1px 0 #000' }, 'КОСМОС'),
         h('div', { class: 'small', style: 'color:#bcd4ff;text-shadow:1px 1px 0 #000;margin-top:4px' }, 'исследуйте настоящие миры')),
       h('div', { class: 'col pn', style: 'position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);gap:8px' },
         h('button', { class: 'btn go big' + (has ? '' : ' dis'), onclick: () => { if (this.loadSave()) this.go('hub'); } }, '▶  Продолжить'),
@@ -166,13 +167,14 @@ const UI = {
   // ---------- центр управления ----------
   hubScreen() {
     const W = App.W; if (!W) { this.go('menu'); return; }
-    const top = h('div', { class: 'top' }, h('div', { class: 'hud', id: 'hubhud', style: 'position:static;pointer-events:auto;display:flex;gap:10px;flex-wrap:wrap;font-size:13px' }));
+    const top = h('div', { class: 'top' }, h('div', { class: 'hud', id: 'hubhud', style: 'position:static;pointer-events:auto;display:flex;gap:10px;flex-wrap:wrap;font-size:14px' }));
     const live = W.vessels.filter(v => v.alive && !v.debris);
     const btn = (t, sub, f, cls) => h('button', { class: 'btn ' + (cls || ''), style: 'flex:1;min-width:46%;white-space:normal;padding:8px 6px;line-height:1.15', onclick: f }, t, sub ? h('div', { class: 'tiny mut' }, sub) : null);
     const bot = h('div', { class: 'pn col', style: 'position:absolute;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);gap:7px' },
       (W.active && W.active.alive ? h('button', { class: 'btn go big', onclick: () => this.go('flight') }, '▶ Вернуться к «' + W.active.name + '»') : null),
       h('div', { class: 'row w' }, btn('🛠 Ангар', 'собрать ракету или зонд', () => { const dr = Store.get('draft', null); this.go('build', dr ? desDesign(dr) : null); }, 'big'),
         btn('🚀 Аппараты', live.length + ' в космосе', () => this.vesselsSheet())),
+      h('button', { class: 'btn', style: 'white-space:normal;padding:8px 6px;line-height:1.15;background:#1d4a2a', onclick: () => this.examplesSheet() }, '🚀 Готовые ракеты', h('div', { class: 'tiny mut' }, 'Electron, Falcon 9, Atlas V, Saturn V, Starship — старт в один тап')),
       h('div', { class: 'row w' }, btn('📜 Контракты', null, () => this.contractsSheet()), btn('🔬 Наука', 'кодекс знаний', () => this.scienceSheet())),
       h('div', { class: 'row w' }, btn('⚙ Технологии', null, () => this.techSheet()), btn('🧪 Читы', null, () => this.cheatSheet())),
       h('div', { class: 'row' }, btn('💾 Сохранить', null, () => this.save()), btn('☰ Меню', null, () => { this.save(true); this.go('menu'); })));
@@ -253,10 +255,34 @@ const UI = {
     };
     draw();
   },
+  // ---------- готовые ракеты: один тап — и в полёт ----------
+  examplesSheet() {
+    const W = App.W; const b = h('div', { class: 'col' }); const sh = this.sheet('🚀 Готовые ракеты', b, { height: '88%' });
+    let auto = true;
+    const autoBtn = h('button', { class: 'btn on', onclick: () => { auto = !auto; autoBtn.classList.toggle('on', auto); autoBtn.textContent = auto ? '🤖 Автопилот: выведет на орбиту сам' : '🕹 Автопилот выключен: летите сами'; } }, '🤖 Автопилот: выведет на орбиту сам');
+    b.append(h('div', { class: 'small mut', style: 'line-height:1.35' }, 'Настоящие ракеты уже собраны. Пуск бесплатный и не тратит деньги — просто запускайте и смотрите. «В ангар» откроет ракету, чтобы разобрать и переделать.'), autoBtn);
+    const launch = (t, extra) => {
+      const D = t.make(); let goal = null;
+      if (auto && t.kind === 'rocket' && t.id !== 'sound') { try { goal = AutoBuild.planGoal(W, null, 200e3); } catch (e) { goal = null; } }
+      sh.close(); const ok = this.launch(D, goal, { test: true });
+      if (ok && extra) extra(W.active);
+    };
+    const card = (t, btns) => {
+      const D = t.make(); let st = ''; try { const val = validateDesign(D.parts, W, {}); const H = Math.max(...D.parts.map(p => p.y + p.h / 2)); st = fmtMass(val.mass) + ' · высота ' + Math.round(H) + ' м · стоит ' + fmtMoney(val.cost); } catch (e) { }
+      return h('div', { class: 'card col', style: 'gap:4px' }, h('b', { class: 'yl' }, t.name), h('div', { class: 'tiny cy' }, t.real), h('div', { class: 'small', style: 'line-height:1.35' }, t.note), h('div', { class: 'tiny mut' }, st), h('div', { class: 'row' }, ...btns));
+    };
+    const toHangar = t => h('button', { class: 'btn sm sp', onclick: () => { sh.close(); this.go('build', t.make()); } }, '🛠 В ангар');
+    for (const t of TEMPLATES.filter(x => x.kind === 'rocket')) b.append(card(t, [toHangar(t), h('button', { class: 'btn go sp', onclick: () => launch(t) }, '▶ Старт')]));
+    b.append(h('h3', null, 'Вездеход'));
+    for (const t of TEMPLATES.filter(x => x.kind === 'rover')) {
+      const go = (body, th) => h('button', { class: 'btn go sp', onclick: () => { const D = t.make(); sh.close(); if (!this.launch(D, null, { test: true })) return; const v = W.active; W.placeOnSurface(v, body, th); this.toast('Вездеход на поверхности: тяга колёс — стрелки/кнопки управления', 'info'); } }, '▶ ' + (W.U.byId[body] ? W.U.byId[body].name : body));
+      b.append(card(t, [toHangar(t), W.U.byId.moon ? go('moon', 0.3) : null, W.U.byId.mars ? go('mars', 0.3) : null].filter(Boolean)));
+    }
+  },
   // ---------- запуск аппарата ----------
-  launch(design, goal) {
-    const W = App.W; let cost = 0; for (const p of design.parts) cost += partCost(p);
-    const free = W.sandbox || W.cheats.freeBuild;
+  launch(design, goal, o) {
+    o = o || {}; const W = App.W; let cost = 0; for (const p of design.parts) cost += partCost(p);
+    const free = W.sandbox || W.cheats.freeBuild || o.test;
     if (!free) { if (cost > W.funds) { this.toast('Не хватает денег: нужно ' + fmtMoney(cost), 'bad'); return false; } W.funds -= cost; }
     const D = clonePartsDesign(design); D.name = design.name || 'Ракета'; D.edges = computeEdges(D.parts);
     const v = W.launch(D);

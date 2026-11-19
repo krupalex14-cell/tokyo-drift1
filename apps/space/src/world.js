@@ -42,7 +42,7 @@ World.prototype.launch = function (design, siteTheta) {
   const rr = B.R + gh + (v.mp.cy - ymin) + 0.01;
   const rot = bodyRot(B, this.ut), phi = th + rot;
   v.land = { th, rr, dang: -Math.PI / 2 };
-  v.mode = 'landed'; v.clamped = true; v.a = phi - Math.PI / 2; v.sas = 'hold'; v.sasTarget = v.a; v.rcs = false; v.age = 0; v.t0 = this.ut;
+  v.mode = 'landed'; v.clamped = v.engines.some(p => !p.d.eng.rcs); v.a = phi - Math.PI / 2; v.sas = 'hold'; v.sasTarget = v.a; v.rcs = false; v.age = 0; v.t0 = this.ut;
   this.setPinned(v);
   v.sas = 'up';
   for (const p of parts) { p.temp = 288; }
@@ -407,10 +407,16 @@ World.prototype.placeInOrbit = function (v, bodyId, alt, dir) {
 };
 World.prototype.placeOnSurface = function (v, bodyId, th) {
   const B = this.U.byId[bodyId]; v.body = bodyId; this.tile = null; ensureTile(this, B, th, 400);
-  let ymin = 1e9; for (const p of v.parts) { ymin = Math.min(ymin, p.y - pext(p)[1]); if (p.d.leg) ymin = Math.min(ymin, p.y + p.d.leg.foot[1]); if (p.d.wheel) ymin = Math.min(ymin, p.y - p.d.wheel.r); }
   vesselRefresh(v);
-  const sr = surfR(this, B, th);
-  v.land = { th, rr: sr + (v.mp.cy - ymin) + 0.01, dang: -Math.PI / 2 }; v.mode = 'landed'; v.throttle = 0; v.rest = 0;
+  // опорные точки (низ детали, ноги, колёса): ставим так, чтобы самая «глубокая» относительно рельефа касалась земли
+  let rr = 0;
+  for (const p of v.parts) {
+    let yb = p.y - pext(p)[1];
+    if (p.d.leg) yb = Math.min(yb, p.y + p.d.leg.foot[1]);
+    if (p.d.wheel) yb = Math.min(yb, p.y - p.d.wheel.r);
+    rr = Math.max(rr, surfR(this, B, th - p.x / B.R) + (v.mp.cy - yb));
+  }
+  v.land = { th, rr: rr + 0.01, dang: -Math.PI / 2 }; v.mode = 'landed'; v.throttle = 0; v.rest = 0; v.clamped = false;
   this.setPinned(v);
 };
 World.prototype.switchTo = function (v) {

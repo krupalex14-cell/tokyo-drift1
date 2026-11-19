@@ -21,6 +21,8 @@ with sync_playwright() as p:
                 pg.get_by_text(st[1], exact=False).first.click(timeout=3000)
             elif k=='tap': pg.mouse.click(st[1], st[2])
             elif k=='shot': pg.screenshot(path=st[1])
+            elif k=='dragshot':
+                pg.mouse.move(st[1],st[2]); pg.mouse.down(); pg.mouse.move(st[3],st[4],steps=10); pg.wait_for_timeout(250); pg.screenshot(path=st[5]); pg.mouse.up()
             elif k=='drag':
                 pg.mouse.move(st[1],st[2]); pg.mouse.down(); pg.mouse.move(st[3],st[4],steps=8); pg.mouse.up()
         except Exception as e:

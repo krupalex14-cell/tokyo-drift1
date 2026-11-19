@@ -38,7 +38,7 @@ const Flight = {
     hold(E.drvL, () => this.setDrive(-1), () => this.setDrive(0)); hold(E.drvR, () => this.setDrive(1), () => this.setDrive(0));
     const steer = h('div', { class: 'col', style: 'position:absolute;left:50%;transform:translateX(-50%);bottom:98px;align-items:center;gap:4px' }, h('div', { class: 'row' }, E.drvL, E.drvR), h('div', { class: 'row' }, E.left, E.right));
     // варп
-    E.warpL = h('b', { class: 'cy', style: 'min-width:62px;text-align:center;font-size:13px' }, '×1');
+    E.warpL = h('b', { class: 'cy', style: 'min-width:62px;text-align:center;font-size:14px' }, '×1');
     const warp = h('div', { class: 'row', style: 'position:absolute;left:50%;transform:translateX(-50%);bottom:58px;gap:4px' },
       h('button', { class: 'btn sm', onclick: () => this.warp(-1) }, '⏪'), E.warpL, h('button', { class: 'btn sm', onclick: () => this.warp(1) }, '⏩'), h('button', { class: 'btn sm', onclick: () => this.warp(0) }, '⏹'));
     // нижняя панель
