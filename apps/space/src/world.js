@@ -42,7 +42,7 @@ World.prototype.launch = function (design, siteTheta) {
   const rr = B.R + gh + (v.mp.cy - ymin) + 0.01;
   const rot = bodyRot(B, this.ut), phi = th + rot;
   v.land = { th, rr, dang: -Math.PI / 2 };
-  v.mode = 'landed'; v.clamped = v.engines.some(p => !p.d.eng.rcs); v.a = phi - Math.PI / 2; v.sas = 'hold'; v.sasTarget = v.a; v.rcs = false; v.age = 0; v.t0 = this.ut;
+  v.mode = 'landed'; v.clamped = v.engines.some(p => !p.d.eng.rcs); v.a = phi - Math.PI / 2; v.sas = 'hold'; v.sasTarget = v.a; v.rcs = v.rcsList.length > 0; v.age = 0; v.t0 = this.ut;
   this.setPinned(v);
   v.sas = 'up';
   for (const p of parts) { p.temp = 288; }
@@ -98,7 +98,7 @@ World.prototype.afterSplit = function (v, old, debris, events) {
     const rx = dx * c - dy * s, ry = dx * s + dy * c;
     nv.x = old.x + rx; nv.y = old.y + ry;
     nv.vx = old.vx - old.w * ry; nv.vy = old.vy + old.w * rx;
-    nv.a = old.a; nv.w = old.w; nv.body = v.body; nv.mode = v.mode === 'landed' ? 'phys' : v.mode; nv.sas = 'off'; nv.sasTarget = nv.a;
+    nv.a = old.a; nv.w = old.w; nv.body = v.body; nv.mode = v.mode === 'landed' ? 'phys' : v.mode; if (nv !== v) { nv.sas = 'off'; nv.sasTarget = nv.a; }   // основной аппарат сохраняет режим SAS и после ступенизации
     nv.age = 0; nv.armed = v.armed || v.age > 0.3; nv.throttle = 0; nv.t0 = v.t0;
     for (const p of nv.parts) p.st = p.st || {};
     return nv;
@@ -278,6 +278,9 @@ World.prototype.maxWarpIdx = function () {
       let idx = 2; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= tb) idx = i;
       return idx;
     }
+    if (v.ap.phase === 'land') {
+      if (v.ap.st !== 'fall') return 2; const L = landLead(this, v); let idx = 2; for (let i = 3; i < WARPS.length; i++) if (WARPS[i] * 6 <= L) idx = i; return idx;
+    }
     return 2;
   }
   const el = elements(B.gm, v.x, v.y, v.vx, v.vy);
@@ -300,7 +303,7 @@ World.prototype.chooseDt = function (v) {
 World.prototype.step = function (dtReal) {
   dtReal = Math.min(dtReal, 0.1);
   let warp = this.warpVal();
-  if (this.autoWarp && this.active && this.active.ap && !this.active.ap.done && (this.active.ap.phase === 'coast' || this.active.ap.phase === 'node' || this.active.ap.phase === 'hold' || this.active.ap.phase === 'wait')) this.setWarp(this.maxWarpIdx());
+  if (this.autoWarp && this.active && this.active.ap && !this.active.ap.done && (this.active.ap.phase === 'coast' || this.active.ap.phase === 'node' || this.active.ap.phase === 'hold' || this.active.ap.phase === 'wait' || (this.active.ap.phase === 'land' && this.active.ap.st === 'fall' && landLead(this, this.active) > 60))) this.setWarp(this.maxWarpIdx());
   const mx = this.maxWarpIdx(); if (this.warpIdx > mx) { this.setWarp(mx); }
   warp = this.warpVal();
   const A = this.active;
@@ -316,6 +319,10 @@ World.prototype.step = function (dtReal) {
     let dt;
     if (rails) {
       dt = Math.min(remaining, this.railsLimit());
+      // автопосадка: подойти к началу торможения в обычной физике
+      if (A && A.alive && A.ap && !A.ap.done && A.ap.phase === 'land' && A.ap.st === 'fall') {
+        const lead = landLead(this, A); if (lead < 40) { this.setWarp(0); break; } dt = Math.min(dt, Math.max(1, lead - 30));
+      }
       // подошло время манёвра: не пролетать мимо, вернуться в физику
       if (A && A.alive && A.ap && !A.ap.done && A.ap.phase === 'node' && A.ap.node) {
         const inf = nodeInfo(this, A), lead = A.ap.node.t - inf.burn / 2 - 60 - this.ut;
@@ -405,6 +412,19 @@ World.prototype.placeInOrbit = function (v, bodyId, alt, dir) {
   v.mode = 'phys'; v.land = null; v.rest = 0; v.a = Math.atan2(-v.vx, v.vy); v.w = 0; v.sasTarget = v.a; v.sas = 'prograde';
   this.tile = null; if (v.parts) vesselRefresh(v);
 };
+// «зависнуть» над телом в начале спуска: высота, скорость падения и горизонтальная скорость относительно поверхности (м/с)
+World.prototype.placeDescent = function (v, bodyId, alt, vDown, vHor, dir) {
+  const B = this.U.byId[bodyId]; v.body = bodyId; dir = dir || 1;
+  const th = (v.orbPhase = ((v.orbPhase || 0) + 1.3)), rx = Math.cos(th), ry = Math.sin(th), tx = -ry * dir, ty = rx * dir;
+  this.tile = null; if (v.parts) vesselRefresh(v); ensureTile(this, B, th - bodyRot(B, this.ut), 2000);
+  let down = 1; for (const p of (v.parts || [])) { let yb = p.y - pext(p)[1]; if (p.d.leg) yb = Math.min(yb, p.y + p.d.leg.foot[1]); down = Math.max(down, v.mp.cy - yb); }
+  const r = surfR(this, B, th - bodyRot(B, this.ut)) + down + alt;       // высота — над грунтом, а не над средним радиусом
+  v.x = r * rx; v.y = r * ry;
+  const sx = -vDown * rx + vHor * tx, sy = -vDown * ry + vHor * ty;
+  v.vx = sx - B.rotW * v.y; v.vy = sy + B.rotW * v.x;
+  v.mode = 'phys'; v.land = null; v.rest = 0; v.w = 0; v.sas = 'sretro'; v.a = Math.atan2(sx, -sy); v.sasTarget = v.a;
+  this.tile = null; if (v.parts) vesselRefresh(v);
+};
 World.prototype.placeOnSurface = function (v, bodyId, th) {
   const B = this.U.byId[bodyId]; v.body = bodyId; this.tile = null; ensureTile(this, B, th, 400);
   vesselRefresh(v);
@@ -424,14 +444,13 @@ World.prototype.switchTo = function (v) {
 };
 World.prototype.recover = function (v) {
   const B = this.U.byId[v.body]; if (!(B.id === this.U.home && v.mode === 'landed')) return null;
-  let val = 0; for (const p of v.parts) val += partCost(p) * 0.6;
   let sci = 0;
   for (const it of v.science.slice()) { if (it.type === 'sample' || it.type === 'data') { sci += Science.credit(this, it, 1.0); } }
   v.science = [];
-  this.funds += val; v.alive = false; this.vessels = this.vessels.filter(x => x !== v);
+  v.alive = false; this.vessels = this.vessels.filter(x => x !== v);
   if (this.active === v) this.active = this.vessels.find(x => x.alive && hasCore(x)) || null;
-  this.log('Аппарат возвращён: +' + fmtMoney(val) + ', наука +' + sci.toFixed(1), 'ok');
-  return { funds: val, sci };
+  this.log('Аппарат возвращён, наука +' + sci.toFixed(1), 'ok');
+  return { sci };
 };
 // ---------- сохранение ----------
 function serPart(p) { return { i: p.id, d: p.defId, x: p.x, y: p.y, w: p.w, h: p.h, w2: p.w2, n: p.n, r: p.rot, f: p.flip ? 1 : 0, s: p.stage, res: p.res, a: p.abl, on: p.on ? 1 : 0, ign: p.ign, st: p.st, t: p.temp }; }

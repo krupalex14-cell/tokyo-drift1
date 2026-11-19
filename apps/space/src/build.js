@@ -58,7 +58,7 @@ const Builder = {
     this.dom(); this.touch(true); this.fit(); this.bindPointer();
     if (!this.D.parts.length) UI.toast('Нажмите на деталь внизу — она встанет на площадку, или потяните её вверх на поле. Значок «i» — зачем деталь нужна', 'info');
   },
-  leave() { const ts = $('#toast'); if (ts) ts.classList.remove('lo'); if (this.pal) { this.pal.g.remove(); this.pal = null; } this.unbindPointer(); if (this.propSheet) { this.propSheet.close(); this.propSheet = null; } if (this.root) this.root.remove(); this.root = null; this.ptrs.clear(); this.drag = null; },
+  leave() { if (this.stSheet) { this.stSheet.close(); this.stSheet = null; } const ts = $('#toast'); if (ts) ts.classList.remove('lo'); if (this.pal) { this.pal.g.remove(); this.pal = null; } this.unbindPointer(); if (this.propSheet) { this.propSheet.close(); this.propSheet = null; } if (this.root) this.root.remove(); this.root = null; this.ptrs.clear(); this.drag = null; },
   close() { UI.go('hub'); },
 
   // ---------- история ----------
@@ -73,7 +73,7 @@ const Builder = {
   touch(first) {
     const D = this.D; D.edges = computeEdges(D.parts);
     if (!this.manualStage) autoStage(D.parts, D.edges);
-    this.normalize(); this.vp.parts = D.parts; this.stats = null; this.anaT = 0.25; this.upd();
+    this.normalize(); this.vp.parts = D.parts; this.stats = null; this.anaT = 0.25; this.upd(); if (this.stSheet) this.stagesRefresh();
   },
   fit() {
     const ps = this.D.parts, H = Gfx.h, top = H * .17, bot = H * .60;   // полоса между верхней панелью и палитрой
@@ -102,6 +102,7 @@ const Builder = {
   // подогнать размер новой детали под соседа (диаметр, длина бака и т.п.)
   sizeFor(p, tgt, dir) {
     const d = p.d;
+    if (d.fin) { p.h = clamp(Math.round(Math.max(.8, Math.min(tgt.h, 12) * .5) / .2) * .2, .6, 8); p.w = snapDia(clamp(pw(tgt) * .3, .3, 3.2), d.size.dia); fillPart(p); return; }   // стабилизатор — по размеру ракеты
     if (d.size && d.size.dia && (dir === 'up' || dir === 'down') && !d.fair) { const w = snapDia(pw(tgt), d.size.dia); if (!(d.eng) && !d.shield) { p.w = w; if (d.id === 'adapter') { p.w2 = snapDia(Math.max(.3, w * .5), d.size.dia); } if (d.tank && d.size.len) p.h = clamp(Math.round(w * 2.7 * 4) / 4, d.size.len[0], d.size.len[1]); if (d.id === 'nose' && d.size.len) p.h = clamp(Math.round(w * 2 * 4) / 4, d.size.len[0], d.size.len[1]); fillPart(p); } }
     if (d.fair && (dir === 'up' || dir === 'down')) { p.w = snapDia(Math.max(pw(tgt), p.w), d.size.dia); fillPart(p); }
   },
@@ -125,32 +126,78 @@ const Builder = {
     else { x = tgt.x + side * ((r.x1 - r.x0) / 2 + e[0]); y = tgt.y; if (d.leg || d.wheel || d.fin) y = r.y0 + e[1] + (d.leg ? 0 : 0); if (dir === 'left') p.flip = true; }
     p.x = x; p.y = y;
     if (dir === 'up' || dir === 'down') { const ch = this.chainOf(tgt, dir === 'up'); const dy = (dir === 'up' ? 1 : -1) * e[1] * 2; for (const o of ch) o.y += dy; }
-    D.parts.push(p); const added = [p];
-    if (this.sym && (dir === 'left' || dir === 'right') && !(Math.abs(tgt.x) > 1e-6 && false)) {
-      const q = clonePart(p); q.id = _pid++; q.x = 2 * tgt.x - p.x; q.flip = !p.flip; q.st = {}; D.parts.push(q); added.push(q);
-    }
+    D.parts.push(p);
     // если после этого есть пересечение (и не «читерим»), сдвигаем наружу
-    if (!this.W.cheats.overlap && (dir === 'left' || dir === 'right')) {
-      for (const a of added) { const sgn = a.x >= tgt.x ? 1 : -1; for (let k = 0; k < 80 && overlaps(D.parts, a); k++) a.x += sgn * .25; }
+    if (!this.W.cheats.overlap && (dir === 'left' || dir === 'right')) { const sgn = p.x >= tgt.x ? 1 : -1; for (let k = 0; k < 80 && overlaps(D.parts, p); k++) p.x += sgn * .25; }
+    // симметрия: зеркальная пара с другой стороны оси ракеты
+    if (this.sym && Math.abs(p.x) > .03) {
+      if (dir === 'left' || dir === 'right') this.addTwin(p);
+      else { const tq = this.findTwin(tgt); if (tq) { const q = this.addTwin(p); if (q) { const ch = this.chainOf(tq, dir === 'up'); const dy = (dir === 'up' ? 1 : -1) * e[1] * 2; for (const o of ch) o.y += dy; } } }
     }
     this.select(p); this.touch();
   },
   select(p) { this.sel = p; this.upd(); if (this.propSheet) this.propsRefresh(); },
-  remove(p) {
-    if (!p) return; this.snap(); const D = this.D;
-    const r = prect(p); const col = !(p.d.attach === 'radial') && !(p.rot & 1);
-    let up = []; if (col) up = this.chainOf(p, true);
+  // ---------- симметрия (как в Spaceflight Simulator): зеркало относительно оси ракеты x = 0 ----------
+  findTwin(p) {
+    if (!p || Math.abs(p.x) < .03) return null; let best = null, bd = 1e9;
+    for (const q of this.D.parts) { if (q === p || q.defId !== p.defId || q.x * p.x >= 0) continue; const dx = Math.abs(q.x + p.x), dy = Math.abs(q.y - p.y); if (dx < .12 && dy < .12 && dx + dy < bd) { bd = dx + dy; best = q; } }
+    return best;
+  },
+  twinOf(p) { return this.sym ? this.findTwin(p) : null; },
+  syncTwin(p, q) {
+    if (!p || !q) return; q.x = -p.x; q.y = p.y; q.flip = !p.flip; q.rot = (4 - (p.rot | 0)) & 3;
+    q.w = p.w; q.w2 = p.w2; q.h = p.h; q.n = p.n; q.stage = p.stage; if (p.abl != null) q.abl = p.abl; fillPart(q);
+  },
+  // создаёт пару для p; если с той стороны не к чему крепить или не хватает места — не создаёт
+  addTwin(p) {
+    const D = this.D, q = clonePart(p); q.id = _pid++; this.syncTwin(p, q); D.parts.push(q);
+    const ok = (this.W.cheats.overlap || !overlaps(D.parts, q)) && computeEdges(D.parts).some(e => e[0] === q.id || e[1] === q.id);
+    if (!ok) { D.parts = D.parts.filter(o => o !== q); this.vp.parts = D.parts; UI.toast('С другой стороны нет опоры — деталь поставлена без пары', 'info'); return null; }
+    return q;
+  },
+  _rm(p) {
+    const D = this.D, r = prect(p), col = !(p.d.attach === 'radial') && !(p.rot & 1); let up = []; if (col) up = this.chainOf(p, true);
     D.parts = D.parts.filter(q => q !== p); this.vp.parts = D.parts;
     if (col && up.length) { const h = r.y1 - r.y0; for (const o of up) o.y -= h; }
+    D.edges = computeEdges(D.parts);
+  },
+  remove(p) {
+    if (!p) return; this.snap(); const tw = this.twinOf(p);
+    this._rm(p); if (tw) this._rm(tw);
     this.sel = null; this.touch();
   },
-  dup(p) { if (!p) return; this.snap(); const q = clonePart(p); q.id = _pid++; q.st = {}; const r = prect(p); if (p.d.attach === 'radial') { q.x = p.x + (p.x >= 0 ? 1 : -1) * (r.x1 - r.x0 + .05); } else { q.y = r.y1 + (r.y1 - r.y0) / 2; const ch = this.chainOf(p, true); for (const o of ch) o.y += (r.y1 - r.y0); } this.D.parts.push(q); this.select(q); this.touch(); },
-  rotate(p) { if (!p) return; this.snap(); p.rot = (p.rot + 1) & 3; this.touch(); },
-  mirror(p) { if (!p) return; this.snap(); p.flip = !p.flip; this.touch(); },
-  mirrorSide(p) { if (!p) return; this.snap(); const q = clonePart(p); q.id = _pid++; q.st = {}; q.x = -p.x; q.flip = !p.flip; this.D.parts.push(q); this.touch(); },
+  dup(p) {
+    if (!p) return; this.snap(); const tw = this.twinOf(p); const q = clonePart(p); q.id = _pid++; q.st = {}; const r = prect(p);
+    if (p.d.attach === 'radial') { q.x = p.x + (p.x >= 0 ? 1 : -1) * (r.x1 - r.x0 + .05); } else { q.y = r.y1 + (r.y1 - r.y0) / 2; const ch = this.chainOf(p, true); for (const o of ch) o.y += (r.y1 - r.y0); }
+    this.D.parts.push(q); if (tw && p.d.attach === 'radial') { const q2 = clonePart(q); q2.id = _pid++; this.syncTwin(q, q2); this.D.parts.push(q2); }
+    this.select(q); this.touch();
+  },
+  rotate(p) { if (!p) return; this.snap(); const tw = this.twinOf(p); p.rot = (p.rot + 1) & 3; if (tw) this.syncTwin(p, tw); this.touch(); },
+  mirror(p) { if (!p) return; this.snap(); const tw = this.twinOf(p); p.flip = !p.flip; if (tw) this.syncTwin(p, tw); this.touch(); },
+  // «симметричная копия» — зеркальная пара на другой стороне оси (кнопка работает и при выключенной симметрии)
+  mirrorSide(p) {
+    if (!p) return; if (Math.abs(p.x) < .03) { UI.toast('Деталь стоит на оси — пара не нужна', 'info'); return; }
+    if (this.findTwin(p)) { UI.toast('Пара у этой детали уже есть', 'info'); return; }
+    this.snap(); this.addTwin(p); this.touch();
+  },
+  // панель ступеней (как в Rocket Simulator)
+  stagesOpen() {
+    if (this.stSheet) this.stSheet.close();
+    this.stSheet = UI.sheet('Ступени ракеты', h('div', { class: 'col' }), { onClose: () => { this.stSheet = null; }, height: '62%' }); this.stagesRefresh();
+  },
+  stagesRefresh() {
+    const sh = this.stSheet; if (!sh) return; const top = sh.body.parentNode ? sh.body.parentNode.scrollTop : 0; sh.body.innerHTML = '';
+    sh.body.append(StagePanel.render({ parts: this.D.parts, edit: true,
+      onChange: () => { this.snapStage(); this.manualStage = true; this.touch(); },
+      onAuto: () => { this.snap(); this.manualStage = false; this.touch(); UI.toast('Ступени расставлены автоматически', 'info'); },
+      onPick: p => { this.select(p); } }));
+    if (sh.body.parentNode) sh.body.parentNode.scrollTop = top;
+  },
+  snapStage() { if (!this._stT || performance.now() - this._stT > 400) this.snap(); this._stT = performance.now(); },
+  setStage(p, s) { this.manualStage = true; p.stage = s; const tw = this.twinOf(p); if (tw) tw.stage = s; this.touch(); },
   // изменение размера
   resize(p, o) {
-    const r0 = prect(p), d = p.d; const stackish = !(d.attach === 'radial') && !(p.rot & 1) && !(Math.abs(p.x) > pw(p) * .6 && d.attach === 'both');
+    const tw = this.twinOf(p); const r0 = prect(p), d = p.d; const stackish = !(d.attach === 'radial') && !(p.rot & 1) && !(Math.abs(p.x) > pw(p) * .6 && d.attach === 'both');
     const ch = stackish ? this.chainOf(p, true) : [];
     if (o.w != null) { p.w = o.w; if (d.shield && !d.shield.own) { p.h = Math.max(.15, p.w * .08); p.abl = d.shield.abl * Math.PI * p.w * p.w / 4; } }
     if (o.w2 != null) p.w2 = o.w2; if (o.h != null) p.h = o.h;
@@ -159,9 +206,10 @@ const Builder = {
     const r1 = prect(p), dh = (r1.y1 - r1.y0) - (r0.y1 - r0.y0), e = pext(p);
     if (!stackish) { const sg = p.x >= 0 ? 1 : -1; p.x = sg > 0 ? r0.x0 + e[0] : r0.x1 - e[0]; p.y = r0.y0 + e[1]; }
     else { p.y = r0.y0 + e[1]; if (Math.abs(dh) > 1e-6) for (const o2 of ch) o2.y += dh; }
+    if (tw) this.syncTwin(p, tw);
     this.touch();
   },
-  nudge(p, dx, dy) { p.x += dx; p.y += dy; this.touch(); },
+  nudge(p, dx, dy) { const tw = this.twinOf(p); p.x += dx; p.y += dy; if (tw) this.syncTwin(p, tw); this.touch(); },
 
   // ---------- магнитная стыковка (как в Spaceflight Simulator) ----------
   // Ищет лучшее место крепления детали P, если её центр «хотят» поставить в (nx, ny).
@@ -232,7 +280,10 @@ const Builder = {
     const s = pal.snap; D.parts.push(P); const added = [P];
     if (s) {
       this.pushFor(P, s);
-      if (this.sym && (s.type === 'left' || s.type === 'right')) { const q = clonePart(P); q.id = _pid++; q.x = 2 * s.q.x - P.x; q.flip = !P.flip; q.st = {}; D.parts.push(q); added.push(q); }
+      if (this.sym && Math.abs(P.x) > .03) {
+        if (s.type === 'left' || s.type === 'right') this.addTwin(P);
+        else { const tq = this.findTwin(s.q); if (tq) { const q = this.addTwin(P); if (q) this.pushFor(q, { type: s.type, q: tq }); } }
+      }
     } else UI.toast('Деталь не касается ракеты — подтяните её к другой детали', 'info');
     this.select(P); this.touch();
   },
@@ -254,7 +305,7 @@ const Builder = {
       if (!s) this.stripEl.append(h('span', { class: 'mut' }, 'считаю…'));
       else {
         const bad = s.issues.filter(i => i.lvl === 'err').length, warn = s.issues.filter(i => i.lvl === 'warn').length;
-        this.stripEl.append(...[h('span', null, fmtMass(s.mass)), h('span', { class: 'cy' }, 'Δv ' + Math.round(s.dv) + ' м/с'), h('span', { class: s.twr < 1 && s.twr > 0 ? 'rd' : '' }, 'TWR ' + s.twr.toFixed(2)), h('span', { class: 'yl' }, fmtMoney(s.cost)), (bad ? h('span', { class: 'rd' }, '⛔' + bad) : null), (warn ? h('span', { class: 'or' }, '⚠' + warn) : null)].filter(Boolean));
+        this.stripEl.append(...[h('span', null, fmtMass(s.mass)), h('span', { class: 'cy' }, 'Δv ' + Math.round(s.dv) + ' м/с'), h('span', { class: s.twr < 1 && s.twr > 0 ? 'rd' : '' }, 'TWR ' + s.twr.toFixed(2)), h('span', { class: 'mut' }, 'цена ' + fmtMoney(s.cost)), (bad ? h('span', { class: 'rd' }, '⛔' + bad) : null), (warn ? h('span', { class: 'or' }, '⚠' + warn) : null)].filter(Boolean));
       }
     }
     if (this.chipEl) this.chips();
@@ -276,8 +327,8 @@ const Builder = {
     this.goBtn = h('button', { class: 'btn go big', onclick: () => this.launchManual(), style: 'width:76px;padding:6px' }, '▶', h('br'), h('span', { class: 'small' }, 'старт'));
     const aut = h('button', { class: 'btn big', onclick: () => AutoUI.open(this.D), style: 'width:76px;padding:6px;background:#4a2a8a' }, '✨', h('br'), h('span', { class: 'small' }, 'авто'));
     const side = h('div', { class: 'col', style: 'position:absolute;right:6px;top:calc(env(safe-area-inset-top) + 100px)' }, this.goBtn, aut,
-      h('button', { class: 'btn sm', onclick: () => this.fit() }, '⌂'), h('button', { class: 'btn sm', onclick: () => this.zoom(1.3) }, '＋'), h('button', { class: 'btn sm', onclick: () => this.zoom(1 / 1.3) }, '−'));
-    this.chipEl = h('div', { class: 'pn', style: 'position:absolute;left:0;right:0;bottom:158px;padding:5px 6px' });
+      h('button', { class: 'btn stagesb', style: 'width:76px;padding:5px 4px;font-size:11px', onclick: () => this.stagesOpen() }, h('i', { class: 'px mono', 'data-n': 'stages', style: 'width:22px;height:22px' }), h('br'), 'ступени'), h('button', { class: 'btn sm', onclick: () => this.fit() }, '⌂'), h('button', { class: 'btn sm', onclick: () => this.zoom(1.3) }, '＋'), h('button', { class: 'btn sm', onclick: () => this.zoom(1 / 1.3) }, '−'));
+    this.chipEl = h('div', { class: 'pn chipbar', style: 'position:absolute;left:0;right:0;bottom:158px;padding:5px 6px' });
     this.tilesEl = h('div', { class: 'row scroll', style: 'overflow-x:auto;overflow-y:hidden;gap:6px;padding:4px 2px 2px;align-items:stretch' });
     this.tabsEl = h('div', { class: 'tabs' });
     const dock = h('div', { class: 'pn solid', style: 'position:absolute;left:0;right:0;bottom:0;padding:4px 4px calc(env(safe-area-inset-bottom) + 4px)' }, this.tabsEl, this.tilesEl); this.dockEl = dock; const ts = $('#toast'); if (ts) ts.classList.add('lo');
@@ -339,17 +390,21 @@ const Builder = {
   },
   chips() {
     const el = this.chipEl, p = this.sel; el.innerHTML = '';
+    const ic = (n, t) => [h('i', { class: 'px mono', 'data-n': n }), t ? ' ' + t : ''];
     const dirBtn = (k, l) => h('button', { class: 'btn sm' + (this.dir === k ? ' on' : ''), onclick: () => { this.dir = k; this.chips(); } }, l);
     const r1 = h('div', { class: 'row' }, dirBtn('up', '↑'), dirBtn('down', '↓'), dirBtn('left', '←'), dirBtn('right', '→'),
-      h('button', { class: 'btn sm' + (this.sym ? ' on' : ''), onclick: () => { this.sym = !this.sym; this.chips(); } }, '⇆ симм.'),
-      h('span', { class: 'sp' }), h('button', { class: 'btn sm' + (this.magnet ? ' on' : ''), onclick: () => { this.magnet = !this.magnet; this.chips(); } }, '🧲 магнит'),
-      h('button', { class: 'btn sm' + (this.chain ? ' on' : ''), onclick: () => { this.chain = !this.chain; this.chips(); } }, '⇡ цепь'));
+      h('button', { class: 'btn sm symb' + (this.sym ? ' on' : ''), style: 'flex:1', onclick: () => { this.sym = !this.sym; this.chips(); UI.toast(this.sym ? 'Симметрия включена: детали ставятся, двигаются и удаляются парами' : 'Симметрия выключена: каждая деталь сама по себе', 'info'); } }, ...ic('sym', 'Симметрия')),
+      h('button', { class: 'btn sm' + (this.magnet ? ' on' : ''), onclick: () => { this.magnet = !this.magnet; this.chips(); UI.toast(this.magnet ? 'Магнит включён: детали сами прилипают друг к другу' : 'Магнит выключен: детали ставятся где отпустили', 'info'); } }, h('i', { class: 'px', 'data-n': 'magnet' })),
+      h('button', { class: 'btn sm' + (this.chain ? ' on' : ''), onclick: () => { this.chain = !this.chain; this.chips(); UI.toast(this.chain ? 'Цепь включена: вместе с деталью двигается всё, что выше неё' : 'Цепь выключена: двигается одна деталь', 'info'); } }, '⇡'));
     el.append(r1);
     if (p) {
-      el.append(h('div', { class: 'row w', style: 'margin-top:4px' }, h('b', { class: 'small cy', style: 'flex:1;min-width:90px' }, p.d.name + (p.n > 1 ? ' ×' + p.n : '')),
-        h('button', { class: 'btn sm', onclick: () => PartInfo.show(p.defId) }, h('span', { class: 'inf s' }, 'i'), ' что это'), h('button', { class: 'btn sm', onclick: () => this.props() }, '✎ размер'), h('button', { class: 'btn sm', onclick: () => this.rotate(p) }, '⟳'), h('button', { class: 'btn sm', onclick: () => this.mirror(p) }, '⇋'),
-        h('button', { class: 'btn sm', onclick: () => this.dup(p) }, '⧉'), (Math.abs(p.x) > .01 ? h('button', { class: 'btn sm', onclick: () => this.mirrorSide(p) }, '⇆+') : null),
-        h('button', { class: 'btn sm warn', onclick: () => this.remove(p) }, '🗑')));
+      const tw = this.findTwin(p), off = Math.abs(p.x) > .03;
+      el.append(h('div', { class: 'row', style: 'margin-top:4px' }, h('b', { class: 'small cy', style: 'flex:1;min-width:60px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis' }, p.d.name + (p.n > 1 ? ' ×' + p.n : '') + (tw ? ' · пара' : '')),
+        h('button', { class: 'btn sm', onclick: () => PartInfo.show(p.defId) }, h('span', { class: 'inf s' }, 'i'), ' что это'), h('button', { class: 'btn sm', onclick: () => this.props() }, '✎ размер')),
+        h('div', { class: 'row', style: 'margin-top:4px' },
+          h('button', { class: 'btn sm', style: 'flex:1', onclick: () => this.rotate(p) }, ...ic('rot', 'Поворот')), h('button', { class: 'btn sm', style: 'flex:1', onclick: () => this.mirror(p) }, ...ic('flip', 'Отразить')),
+          h('button', { class: 'btn sm', style: 'flex:1', onclick: () => this.dup(p) }, ...ic('copy', 'Дубль')), (off && !tw ? h('button', { class: 'btn sm', style: 'flex:1', onclick: () => this.mirrorSide(p) }, ...ic('sym', 'Пара')) : null),
+          h('button', { class: 'btn sm warn', onclick: () => this.remove(p) }, h('i', { class: 'px', 'data-n': 'trash' }))));
     }
   },
   // ---------- свойства детали ----------
@@ -368,7 +423,7 @@ const Builder = {
     }
     if (d.size && d.size.dia) {
       const list = d.size.dia; const idx = Math.max(0, list.findIndex(x => Math.abs(x - p.w) < 1e-6)); const wv = h('b', { class: 'cy' }, p.w.toFixed(2) + ' м');
-      b.append(h('div', { class: 'row' }, h('span', { class: 'small' }, d.id === 'adapter' ? 'Диаметр снизу: ' : 'Диаметр: '), wv),
+      b.append(h('div', { class: 'row' }, h('span', { class: 'small' }, d.id === 'adapter' ? 'Диаметр снизу: ' : d.fin ? 'Ширина (вылет): ' : 'Диаметр: '), wv),
         h('input', { type: 'range', min: 0, max: list.length - 1, step: 1, value: idx, oninput: e => { self.resizeLive(p, { w: list[+e.target.value] }); wv.textContent = p.w.toFixed(2) + ' м'; } }));
       if (d.id === 'adapter') { const iv = h('b', { class: 'cy' }, (p.w2 || 0).toFixed(2) + ' м'); const i2 = Math.max(0, list.findIndex(x => Math.abs(x - p.w2) < 1e-6)); b.append(h('div', { class: 'row' }, h('span', { class: 'small' }, 'Диаметр сверху: '), iv), h('input', { type: 'range', min: 0, max: list.length - 1, step: 1, value: i2, oninput: e => { self.resizeLive(p, { w2: list[+e.target.value] }); iv.textContent = p.w2.toFixed(2) + ' м'; } })); }
     }
@@ -382,8 +437,8 @@ const Builder = {
     if (act) {
       const sv = h('b', { class: 'yl' }, p.stage < 0 ? '—' : String(p.stage + 1));
       b.append(h('div', { class: 'hr' }), h('div', { class: 'row' }, h('span', { class: 'small' }, ACT_NAMES[act] + ' на ступени: '), sv, h('span', { class: 'sp' }),
-        h('button', { class: 'btn sm', onclick: () => { this.manualStage = true; p.stage = Math.max(-1, p.stage - 1); sv.textContent = p.stage < 0 ? '—' : p.stage + 1; this.touch(); } }, '−'),
-        h('button', { class: 'btn sm', onclick: () => { this.manualStage = true; p.stage = Math.min(30, p.stage + 1); sv.textContent = p.stage + 1; this.touch(); } }, '+')));
+        h('button', { class: 'btn sm', onclick: () => { this.setStage(p, Math.max(-1, p.stage - 1)); sv.textContent = p.stage < 0 ? '—' : p.stage + 1; } }, '−'),
+        h('button', { class: 'btn sm', onclick: () => { this.setStage(p, Math.min(30, p.stage + 1)); sv.textContent = p.stage + 1; } }, '+')));
     }
     // точная подвижка
     b.append(h('div', { class: 'hr' }), h('div', { class: 'small mut' }, 'Сдвиг детали (шаг 0,25 м):'), h('div', { class: 'row w' },
@@ -420,21 +475,14 @@ const Builder = {
   },
   // ---------- анализ и ступени ----------
   analysis() {
-    this.analyze(); const s = this.stats; const sh = UI.sheet('Анализ и ступени', h('div', { class: 'col' }), { height: '78%' }); const b = sh.body;
+    this.analyze(); const s = this.stats; const sh = UI.sheet('Анализ и ступени', h('div', { class: 'col' }), { height: '78%' }); this.anSheet = sh; const b = sh.body;
     if (!s || !this.D.parts.length) { b.append(h('div', { class: 'mut' }, 'Добавьте детали.')); return; }
     for (const i of s.issues) b.append(h('div', { class: 'card ' + (i.lvl === 'err' ? 'rd' : 'or'), style: 'font-size:13px' }, (i.lvl === 'err' ? '⛔ ' : '⚠ ') + i.text));
     b.append(h('div', { class: 'card' }, h('div', { class: 'kv' }, h('span', null, 'Масса на старте'), h('span', null, fmtMass(s.mass))), h('div', { class: 'kv' }, h('span', null, 'Стоимость'), h('span', null, fmtMoney(s.cost))), h('div', { class: 'kv' }, h('span', null, 'Δv (вакуум)'), h('span', { class: 'cy' }, Math.round(s.dv) + ' м/с')),
       h('div', { class: 'kv' }, h('span', null, 'Тяговооружённость 1-й ступени'), h('span', null, s.twr.toFixed(2) + ' на ' + this.W.homeBody.name))));
     if (s.stages && s.stages.length) { b.append(h('h3', null, 'Ступени (выгорание)')); for (const st of s.stages) b.append(h('div', { class: 'card' }, h('div', { class: 'kv' }, h('b', null, 'Ступень ' + (st.stage + 1)), h('span', { class: 'cy' }, Math.round(st.dv) + ' м/с')), h('div', { class: 'kv' }, h('span', null, 'время работы'), h('span', null, fmtDur(st.t))), h('div', { class: 'kv' }, h('span', null, 'масса до → после'), h('span', null, fmtMass(st.mStart) + ' → ' + fmtMass(st.mEnd))))); }
     // расстановка по ступеням
-    b.append(h('h3', null, 'Что срабатывает на каждой ступени'), h('div', { class: 'small mut' }, 'Кнопка ± двигает деталь между ступенями. Ступень 1 срабатывает при старте.'));
-    const acts = this.D.parts.filter(p => partAction(p) && !(p.d.leg) && !(p.d.eng && p.d.eng.rcs)).sort((a, b) => (a.stage < 0 ? 99 : a.stage) - (b.stage < 0 ? 99 : b.stage));
-    for (const p of acts) {
-      const lbl = h('b', { class: 'yl', style: 'min-width:22px;text-align:center' }, p.stage < 0 ? '—' : p.stage + 1);
-      b.append(h('div', { class: 'card row' }, h('div', { class: 'sp small' }, h('b', null, p.d.name), h('div', { class: 'tiny mut' }, ACT_NAMES[partAction(p)] + (p.n > 1 ? ' ×' + p.n : ''))),
-        h('button', { class: 'btn sm', onclick: () => { this.manualStage = true; p.stage = Math.max(-1, p.stage - 1); lbl.textContent = p.stage < 0 ? '—' : p.stage + 1; this.touch(); } }, '−'), lbl,
-        h('button', { class: 'btn sm', onclick: () => { this.manualStage = true; p.stage = Math.min(30, p.stage + 1); lbl.textContent = p.stage + 1; this.touch(); } }, '+')));
-    }
+    b.append(h('button', { class: 'btn go', onclick: () => { if (this.anSheet) this.anSheet.close(); this.stagesOpen(); } }, h('i', { class: 'px mono', 'data-n': 'stages' }), ' Панель ступеней: что срабатывает и когда'));
   },
   exit() { if (this.D.parts.length) { UI.confirm('Выйти из ангара? Проект сохранится как черновик.', () => { Store.set('draft', serDesign(this.D)); this.close(); }); } else this.close(); },
 
@@ -457,7 +505,7 @@ const Builder = {
     if (App.mode !== 'build') return; const [x, y] = this.xy(e); this.ptrs.set(e.pointerId, { x, y, x0: x, y0: y }); try { App.cv.setPointerCapture(e.pointerId); } catch (_) { }
     if (this.ptrs.size === 1) {
       const p = this.hit(x, y); this.drag = { part: p, moved: false, mode: (p && p === this.sel) ? 'part' : 'pan', cam0: { x: this.cam.x, y: this.cam.y }, p0: p ? { x: p.x, y: p.y } : null, sx: x, sy: y, snapped: false };
-      if (p && p === this.sel) this.drag.snapSaved = false;
+      if (p && p === this.sel) { this.drag.snapSaved = false; this.drag.twin = this.twinOf(p); }
     } else if (this.ptrs.size === 2) { const a = [...this.ptrs.values()]; this.pinch = { d: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y), ppm: this.cam.ppm, cx: (a[0].x + a[1].x) / 2, cy: (a[0].y + a[1].y) / 2, cam: { x: this.cam.x, y: this.cam.y } }; this.drag = null; }
   },
   pmove(e) {
@@ -476,7 +524,7 @@ const Builder = {
       let nx = dr.p0.x + dx / this.cam.ppm, ny = dr.p0.y - dy / this.cam.ppm;
       dr.snap = null;
       if (this.magnet) { const ex = new Set(dr.chainSet ? dr.chainSet.map(c => c.o) : []); const s = this.dockCands(dr.part, nx, ny, ex); if (s) { nx = s.x; ny = s.y; dr.snap = s; } else { const f = this.freePos(dr.part, nx, ny); nx = f[0]; ny = f[1]; } }
-      const mx = nx - dr.part.x, my = ny - dr.part.y; dr.part.x = nx; dr.part.y = ny; if (dr.chainSet) for (const c of dr.chainSet) { c.o.x += mx; c.o.y += my; }
+      const mx = nx - dr.part.x, my = ny - dr.part.y; dr.part.x = nx; dr.part.y = ny; if (dr.twin) { dr.twin.x = -nx; dr.twin.y = ny; } if (dr.chainSet) for (const c of dr.chainSet) { c.o.x += mx; c.o.y += my; }
       this.D.edges = computeEdges(this.D.parts); this.stats = null; this.anaT = .3;
     }
   },
@@ -486,7 +534,7 @@ const Builder = {
       const dr = this.drag; this.drag = null; this.pinch = null;
       if (dr) {
         if (!dr.moved) { const p = this.hit(P.x, P.y); this.select(p); }
-        else if (dr.mode === 'part') { this.pushFor(dr.part, dr.snap, new Set(dr.chainSet ? dr.chainSet.map(c => c.o) : [])); this.touch(); }
+        else if (dr.mode === 'part') { this.pushFor(dr.part, dr.snap, new Set(dr.chainSet ? dr.chainSet.map(c => c.o) : [])); if (dr.twin) this.syncTwin(dr.part, dr.twin); this.touch(); }
       }
     } else if (this.ptrs.size < 2) this.pinch = null;
   },
@@ -516,7 +564,8 @@ const Builder = {
     for (let X = Math.ceil(wx0 / st) * st; X <= wx1; X += st) { const sx = this.scr(X, 0)[0] | 0; const major = Math.abs(Math.round(X / st)) % 5 === 0; const col = major ? gridM : gridC; for (let y = 0; y < g.h; y++) g.px(sx, y, col); }
     for (let Y = Math.ceil(wy0 / st) * st; Y <= wy1; Y += st) { const sy = this.scr(0, Y)[1] | 0; const major = Math.abs(Math.round(Y / st)) % 5 === 0; const col = major ? gridM : gridC; g.hline(0, g.w - 1, sy, col); if (major && Y >= 0) g.micro(2, sy - 6, String(Math.round(Y)) + (Math.abs(Y) >= 1 ? 'M' : ''), rgb(90, 120, 190)); }
     // центральная ось
-    const [cx0] = this.scr(0, 0); for (let y = 0; y < g.h; y += 4) g.px(cx0 | 0, y, rgb(60, 90, 160));
+    const [cx0] = this.scr(0, 0); const axC = this.sym ? rgb(120, 190, 255) : rgb(60, 90, 160); for (let y = 0; y < g.h; y += (this.sym ? 3 : 4)) g.px(cx0 | 0, y, axC);
+    if (this.sym) g.micro((cx0 | 0) + 3, Math.round(g.h * .2), 'SYM', rgb(120, 190, 255));
     // границы площадки
     if (!this.W.cheats.infField) { const [bx0, by0] = this.scr(-BUILD_W, BUILD_H), [bx1] = this.scr(BUILD_W, 0); const bc = rgb(120, 70, 70); g.dashed(bx0, by0, bx1, by0, bc, 4, 4); g.dashed(bx0, by0, bx0, gy, bc, 4, 4); g.dashed(bx1, by0, bx1, gy, bc, 4, 4); }
     // площадка
@@ -533,6 +582,7 @@ const Builder = {
       // выбранная
       const s = this.sel; if (s && ps.includes(s)) {
         const r = prect(s), a = this.scr(r.x0, r.y1), b = this.scr(r.x1, r.y0); this.box(g, a[0] - 1, a[1] - 1, b[0] + 1, b[1] + 1, rgb(255, 226, 90), false);
+        const tw = this.twinOf(s); if (tw) { const rt = prect(tw), ta = this.scr(rt.x0, rt.y1), tb = this.scr(rt.x1, rt.y0); this.box(g, ta[0] - 1, ta[1] - 1, tb[0] + 1, tb[1] + 1, rgb(150, 190, 215), false); }
         // стрелка направления крепления
         const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, cc = rgb(111, 216, 255), k = 6 + Math.sin(App.t * 6) * 1.5;
         if (this.dir === 'up') g.tri(mx, a[1] - 3 - k, mx - 4, a[1] - 3, mx + 4, a[1] - 3, cc); if (this.dir === 'down') g.tri(mx, b[1] + 3 + k, mx - 4, b[1] + 3, mx + 4, b[1] + 3, cc);

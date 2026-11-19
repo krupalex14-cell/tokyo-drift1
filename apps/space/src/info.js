@@ -133,7 +133,7 @@ const PART_INFO = {
 // Общий список параметров детали (из каталога — настоящие числа)
 function partSpecs(d) {
   const R = [], add = (k, v) => R.push([k, v]);
-  add('Прототип', d.real); add('Размер', d.w.toFixed(d.w < 1 ? 2 : 1) + ' × ' + d.h.toFixed(d.h < 1 ? 2 : 1) + ' м'); add('Масса (сухая)', fmtMass(d.mass || 0)); add('Цена', fmtMoney(d.cost)); add('Технология', 'ур. ' + d.tier);
+  add('Прототип', d.real); add('Размер', d.w.toFixed(d.w < 1 ? 2 : 1) + ' × ' + d.h.toFixed(d.h < 1 ? 2 : 1) + ' м'); add('Масса (сухая)', fmtMass(d.mass || 0)); add('Цена (справочно)', fmtMoney(d.cost)); add('Технология', 'ур. ' + d.tier);
   if (d.eng) {
     const e = d.eng;
     if (e.rcs) add('Тяга', fmtForce(e.Fv)), add('Удельный импульс', e.IspV + ' с');

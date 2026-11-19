@@ -143,7 +143,7 @@ let _vid = 1;
 function makeVessel(parts, edges, name) {
   const v = {
     id: _vid++, name: name || 'Аппарат', parts, edges: edges || computeEdges(parts), body: null,
-    x: 0, y: 0, vx: 0, vy: 0, a: 0, w: 0, mode: 'phys', throttle: 0, stageIdx: 0, stages: [], sas: 'hold', sasTarget: 0, rcs: false,
+    x: 0, y: 0, vx: 0, vy: 0, a: 0, w: 0, mode: 'phys', throttle: 0, stageIdx: 0, stages: [], sas: 'hold', sasTarget: 0, rcs: true,
     mp: null, dirty: true, landed: null, ec: 0, ecCap: 0, t0: 0, age: 0, alive: true, science: [], samples: [], log: [], ap: null, gim: 0, ctl: { rot: 0, thr: 0 }, cross: false, alt: 0, crashed: false, maxQ: 0
   };
   return v;
@@ -161,6 +161,18 @@ function vesselRefresh(v) {
   v.dirty = false; v.exp = null; v._expT = -1;
 }
 function hasCore(v) { return v.parts.some(p => p.d.core && !p.dead); }
+// запас управляемости: сумма моментов маховиков, РСУ и кардана / момент инерции (рад/с²) и время разворота на 90°
+function attAuthority(parts, mp) {
+  mp = mp || massProps(parts); const cx = mp.cx, cy = mp.cy; let wheel = 0, rcs = 0, gim = 0;
+  for (const p of parts) {
+    if (p.dead) continue; if (p.d.rw) wheel += p.d.rw.torque; if (p.d.core) wheel += p.d.core.torque;
+    const e = p.d.eng; if (!e) continue;
+    if (e.rcs) { const ang = (p.rot || 0) * Math.PI / 2, dlx = -Math.sin(ang), dly = Math.cos(ang); rcs += e.pair ? e.Fv * p.w : Math.abs((p.x - cx) * dly - (p.y - cy) * dlx) * e.Fv; }
+    else if (e.gim) gim += e.Fv * (p.n || 1) * Math.abs(p.y - cy + p.h * 0.15) * Math.sin(e.gim * Math.PI / 180);
+  }
+  const cap = wheel + rcs + gim, aMax = cap / Math.max(1e-6, mp.I);
+  return { wheel, rcs, gim, cap, aMax, t90: aMax > 0 ? 2 * Math.sqrt(1.5708 / aMax) : 1e9 };
+}
 function controlTorque(v) {
   let t = 0; for (const p of v.parts) { if (p.d.rw) t += p.d.rw.torque; if (p.d.core) t += p.d.core.torque; }
   return t;
@@ -343,6 +355,7 @@ function totalDV(design, g, pAmb) { try { return analyzeStages(design, g, { pAmb
 function Design(name) { this.name = name || 'Проект'; this.parts = []; this.edges = []; this.top = 0; }
 Design.prototype.add = function (defId, o) {
   o = o || {}; const p = newPart(defId, 0, 0, o); p.x = o.x || 0;
+  if (o.flip == null && p.x < -.03 && p.d.attach === 'radial') p.flip = true;   // деталь слева от оси — зеркально (опоры, стабилизаторы, панели)
   p.y = o.y != null ? o.y : this.top + p.h / 2;   // на верх стопки
   this.parts.push(p);
   if (o.y == null && !o.noStack) this.top = p.y + p.h / 2;

@@ -268,7 +268,7 @@ const Contracts = {
         case 'sci': ok = W.science.rec.some(r => r.body === c.body && (!c.sit || r.sit === c.sit) && (!c.kind || r.kind === c.kind) && r.t >= (c.since || 0)); break;
         case 'sample': ok = c._got; break;
       }
-      if (ok) { c.state = 'done'; W.funds += c.reward.funds; W.science.points += c.reward.sci; W.log('Контракт выполнен: «' + c.title + '»  +' + fmtMoney(c.reward.funds) + ' +' + c.reward.sci + ' науки', 'ok'); W.event({ t: 'contract', c }); }
+      if (ok) { c.state = 'done'; W.science.points += c.reward.sci; W.log('Контракт выполнен: «' + c.title + '»  +' + c.reward.sci + ' науки', 'ok'); W.event({ t: 'contract', c }); }
     }
   }
 };

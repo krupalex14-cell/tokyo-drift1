@@ -16,13 +16,15 @@ const TECH = [
   { n: 'Первые зонды', cost: 0 }, { n: 'Орбитальные аппараты', cost: 12 }, { n: 'Дальний космос', cost: 60 }, { n: 'Тяжёлые носители', cost: 220 }, { n: 'Ядерные двигатели', cost: 650 }
 ];
 const HELP = [
-  ['Цель', 'Изучать космос по-настоящему: запускайте зонды, собирайте образцы и данные, передавайте их на Землю — за это дают науку и деньги.'],
+  ['Цель', 'Изучать космос по-настоящему: запускайте зонды, собирайте образцы и данные, передавайте их на Землю — за это дают науку. Всё бесплатно, цены деталей — просто справка.'],
   ['Готовые ракеты 🚀', 'В центре управления: Electron, Falcon 9, Atlas V, Saturn V и Starship уже собраны. Нажмите «Старт» — пуск бесплатный, автопилот выведет на орбиту.'],
-  ['1. Ангар', 'Нажмите на деталь внизу — она встанет к выбранной. Или потяните её вверх на поле: магнит покажет зелёной рамкой, куда она встанет (между ступенями — раздвинет стопку). Значок «i» или удержание детали — зачем она нужна и её настоящие характеристики.'],
+  ['1. Ангар', 'Нажмите на деталь внизу — она встанет к выбранной. Или потяните её вверх на поле: магнит покажет зелёной рамкой, куда она встанет (между ступенями — раздвинет стопку). Значок «i» или удержание детали — зачем она нужна и её настоящие характеристики. Кнопка «Симметрия»: деталь с одной стороны сразу получает пару с другой, и двигаются, удаляются и меняют размер они вместе.'],
   ['2. Автосборка ✨', 'Нажмите «авто» — ИИ подберёт и достроит ракету под ваш зонд и выбранную цель (орбита, Луна, Марс…), проверит её виртуальным полётом.'],
-  ['3. Полёт', 'Ползунок слева — тяга, «СТУП» — следующая ступень. Автопилот выведет на орбиту сам. Карта (🌍) — орбиты и перелёты.'],
-  ['4. Наука', 'Включайте приборы, ловите нужные условия (орбита, посадка), передавайте данные антенной; образцы нужно вернуть домой.'],
-  ['5. Энергия', 'Солнечные панели нужно развернуть. В тени и вдали от Солнца работает батарея; РИТЭГ даёт ток всегда.'],
+  ['3. Ступени ▤', 'Кнопка «ступени» в ангаре (и «Ступени» в меню слева в полёте) показывает, что сработает на каждом нажатии «СТУП»: двигатели и разделители. ▲ ▼ переносят деталь в другую ступень. На самой кнопке «СТУП» нарисованы двигатели, которые сработают следующими.'],
+  ['4. Полёт', 'Ползунок слева — тяга, «СТУП» — следующая ступень, ◀ ▶ — поворот, SAS — автоматический руль. Стрелка у левого края открывает меню: автопилот, посадка, приборы, детали. Карта (🌍) — орбиты и перелёты.'],
+  ['Посадка 🛬', 'Меню слева → «Посадка» показывает, готов ли аппарат (опоры, тяга, запас скорости). «Автопосадка» сама сойдёт с орбиты и сядет. Луна: воздуха нет — только двигатель. Марс: воздуха мало — парашют и двигатель. Земля: достаточно парашюта.'],
+  ['5. Наука', 'Включайте приборы, ловите нужные условия (орбита, посадка), передавайте данные антенной; образцы нужно вернуть домой.'],
+  ['6. Энергия', 'Солнечные панели нужно развернуть. В тени и вдали от Солнца работает батарея; РИТЭГ даёт ток всегда.'],
   ['Читы 🧪', 'Бесконечное поле, наложение деталей, без гравитации, телепорт, бесконечное топливо и энергия — в центре управления и в полёте.']
 ];
 
@@ -55,6 +57,7 @@ const UI = {
     if (this.cur) { const c = this.cur; this.cur = null; if (c.leave) c.leave(); }
     if (this.scr) { this.scr.remove(); this.scr = null; }
     App.mode = mode;
+    if (mode === 'menu' && typeof Tutor !== 'undefined') Tutor.stop();
     if (mode === 'menu') this.menuScreen();
     else if (mode === 'hub') { this.hubScreen(); Cam.z = 0.95; }
     else if (mode === 'flight') { this.logBase(); this.cur = Flight; Flight.open(); }
@@ -73,6 +76,7 @@ const UI = {
     }
     g.present();
     if (this.hubTick) this.hubTick(dt);
+    if (typeof Tutor !== 'undefined' && Tutor.cur) Tutor.tick(dt);
   },
   // ---------- вспомогательные виджеты ----------
   toast(text, kind) {
@@ -115,7 +119,7 @@ const UI = {
     try { App.W = worldFromSave(s); if (!App.W.contracts.length) Contracts.generate(App.W); return true; } catch (e) { console.error(e); this.toast('Сохранение повреждено', 'bad'); return false; }
   },
   startNew(kind, seed, sandbox) {
-    const U = this.getU(kind, seed); const W = new World(U, { funds: sandbox ? 1e12 : 8e6, tier: sandbox ? 9 : 0, sandbox });
+    const U = this.getU(kind, seed); const W = new World(U, { tier: sandbox ? 9 : 0, sandbox });
     Contracts.generate(W); App.W = W; Store.set('save', W.serialize()); W.log('Добро пожаловать в космическую программу!', 'info');
     this.go('hub');
   },
@@ -144,8 +148,8 @@ const UI = {
         opt('random', 'Случайная система', 'выдуманный мир по числу-зерну: планеты, луны, газовые гиганты, свои звёзды.'));
       if (kind === 'random') body.append(h('div', { class: 'row' }, h('span', { class: 'small' }, 'Зерно:'), h('input', { type: 'number', value: seed, style: 'width:110px', oninput: e => { seed = +e.target.value | 0; } }), h('button', { class: 'btn sm', onclick: () => { seed = (Math.random() * 99999) | 0; draw(); } }, '🎲')));
       body.append(h('h3', null, 'Режим'),
-        h('div', { class: 'card' + (mode === 'career' ? ' sel' : ''), style: 'cursor:pointer', onclick: () => { mode = 'career'; draw(); } }, h('b', null, 'Карьера'), h('div', { class: 'tiny mut' }, 'деньги ограничены, детали открываются за науку, есть контракты.')),
-        h('div', { class: 'card' + (mode === 'sandbox' ? ' sel' : ''), style: 'cursor:pointer', onclick: () => { mode = 'sandbox'; draw(); } }, h('b', null, 'Песочница'), h('div', { class: 'tiny mut' }, 'все детали и бесконечные деньги — просто играть и изучать.')),
+        h('div', { class: 'card' + (mode === 'career' ? ' sel' : ''), style: 'cursor:pointer', onclick: () => { mode = 'career'; draw(); } }, h('b', null, 'Карьера'), h('div', { class: 'tiny mut' }, 'всё бесплатно; детали и технологии открываются за очки науки, есть контракты.')),
+        h('div', { class: 'card' + (mode === 'sandbox' ? ' sel' : ''), style: 'cursor:pointer', onclick: () => { mode = 'sandbox'; draw(); } }, h('b', null, 'Песочница'), h('div', { class: 'tiny mut' }, 'все детали и технологии открыты сразу — просто строить, летать и изучать.')),
         h('button', { class: 'btn go big', onclick: () => { sh.close(); this.toast('Строим вселенную…', 'info'); setTimeout(() => this.startNew(kind, seed, mode === 'sandbox'), 40); } }, 'Начать'));
     };
     draw();
@@ -172,6 +176,7 @@ const UI = {
     const btn = (t, sub, f, cls) => h('button', { class: 'btn ' + (cls || ''), style: 'flex:1;min-width:46%;white-space:normal;padding:8px 6px;line-height:1.15', onclick: f }, t, sub ? h('div', { class: 'tiny mut' }, sub) : null);
     const bot = h('div', { class: 'pn col', style: 'position:absolute;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);gap:7px' },
       (W.active && W.active.alive ? h('button', { class: 'btn go big', onclick: () => this.go('flight') }, '▶ Вернуться к «' + W.active.name + '»') : null),
+      h('button', { class: 'btn go', style: 'white-space:normal;padding:8px 6px;line-height:1.15', onclick: () => Tutor.open() }, '🎓 Обучение', h('div', { class: 'tiny' }, 'постройка, полёт, орбита, посадка на Луну и Марс')),
       h('div', { class: 'row w' }, btn('🛠 Ангар', 'собрать ракету или зонд', () => { const dr = Store.get('draft', null); this.go('build', dr ? desDesign(dr) : null); }, 'big'),
         btn('🚀 Аппараты', live.length + ' в космосе', () => this.vesselsSheet())),
       h('button', { class: 'btn', style: 'white-space:normal;padding:8px 6px;line-height:1.15;background:#1d4a2a', onclick: () => this.examplesSheet() }, '🚀 Готовые ракеты', h('div', { class: 'tiny mut' }, 'Electron, Falcon 9, Atlas V, Saturn V, Starship — старт в один тап')),
@@ -184,7 +189,7 @@ const UI = {
   },
   hubHud() {
     const W = App.W, el = $('#hubhud'); if (!el || !W) return; el.innerHTML = '';
-    el.append(h('span', { class: 'yl' }, W.sandbox ? '∞ $' : fmtMoney(W.funds)), h('span', { class: 'cy' }, '🔬 ' + W.science.points.toFixed(1)), h('span', null, 'Техн. ' + (W.cheats.freeBuild || W.sandbox ? 'все' : W.tier)), h('span', { class: 'mut' }, fmtDate(W.ut)), h('span', { class: 'mut' }, W.U.name));
+    el.append(h('span', { class: 'cy' }, '🔬 ' + W.science.points.toFixed(1)), h('span', null, 'Техн. ' + (W.cheats.freeBuild || W.sandbox ? 'все' : W.tier)), h('span', { class: 'mut' }, fmtDate(W.ut)), h('span', { class: 'mut' }, W.U.name));
   },
   vesselsSheet() {
     const W = App.W; const b = h('div', { class: 'col' }); const sh = this.sheet('Аппараты', b, { height: '70%' });
@@ -200,7 +205,7 @@ const UI = {
     const W = App.W; const b = h('div', { class: 'col' }); this.sheet('Контракты', b, { height: '78%' });
     const open = W.contracts.filter(c => c.state === 'open'), done = W.contracts.filter(c => c.state === 'done');
     b.append(h('div', { class: 'small mut' }, 'Выполнено: ' + done.length + ' из ' + W.contracts.length));
-    for (const c of open.concat(done)) b.append(h('div', { class: 'card' + (c.state === 'done' ? '' : ' sel'), style: c.state === 'done' ? 'opacity:.55' : '' }, h('div', { class: 'row' }, h('b', { class: c.state === 'done' ? 'gr' : 'yl', style: 'flex:1' }, (c.state === 'done' ? '✔ ' : '') + c.title), h('span', { class: 'tiny cy' }, '+' + fmtMoney(c.reward.funds) + ' · 🔬' + c.reward.sci)), h('div', { class: 'tiny mut', style: 'margin-top:2px' }, c.desc)));
+    for (const c of open.concat(done)) b.append(h('div', { class: 'card' + (c.state === 'done' ? '' : ' sel'), style: c.state === 'done' ? 'opacity:.55' : '' }, h('div', { class: 'row' }, h('b', { class: c.state === 'done' ? 'gr' : 'yl', style: 'flex:1' }, (c.state === 'done' ? '✔ ' : '') + c.title), h('span', { class: 'tiny cy' }, '+' + c.reward.sci + ' науки')), h('div', { class: 'tiny mut', style: 'margin-top:2px' }, c.desc)));
   },
   scienceSheet() {
     const W = App.W; const b = h('div', { class: 'col' }); this.sheet('Наука и кодекс', b, { height: '82%' });
@@ -238,7 +243,6 @@ const UI = {
           h('div', { class: 'sp' }, h('b', { class: on ? 'gr' : '' }, name), h('div', { class: 'tiny mut' }, desc)), h('b', { class: on ? 'gr' : 'mut' }, on ? 'ВКЛ' : 'выкл')));
       }
       b.append(h('div', { class: 'row w' },
-        h('button', { class: 'btn sm', onclick: () => { W.funds += 1e9; this.toast('+$1 млрд', 'ok'); this.hubHud(); } }, '+$1 млрд'),
         h('button', { class: 'btn sm', onclick: () => { W.science.points += 1000; this.toast('+1000 науки', 'ok'); this.hubHud(); } }, '+1000 🔬'),
         h('button', { class: 'btn sm', onclick: () => { W.tier = 9; this.toast('Все технологии открыты', 'ok'); this.hubHud(); } }, 'Все технологии'),
         h('button', { class: 'btn sm', onclick: () => { const v = W.active; if (!v) return this.toast('Нет активного аппарата', 'bad'); for (const p of v.parts) { fillPart(p); p.temp = 288; p.hp = 1; } vesselRefresh(v); v.ec = v.ecCap; this.toast('Заправлен и починен', 'ok'); } }, 'Заправить + починить'),
@@ -273,6 +277,17 @@ const UI = {
     };
     const toHangar = t => h('button', { class: 'btn sm sp', onclick: () => { sh.close(); this.go('build', t.make()); } }, '🛠 В ангар');
     for (const t of TEMPLATES.filter(x => x.kind === 'rocket')) b.append(card(t, [toHangar(t), h('button', { class: 'btn go sp', onclick: () => launch(t) }, '▶ Старт')]));
+    b.append(h('h3', null, 'Посадочные аппараты'), h('div', { class: 'small mut', style: 'line-height:1.35' }, 'Аппарат сразу над планетой, опоры выпущены, парашюты взведены. Сядьте сами или включите «Автопосадку»: меню слева → «Посадка».'));
+    for (const [id, body, alt, vd, vh, where] of [['lander', 'moon', 1800, 20, 55, 'Луна, высота 1,8 км'], ['lander2', 'moon', 1800, 20, 55, 'Луна, высота 1,8 км'], ['lander_mars', 'mars', 6000, 110, 40, 'Марс, высота 6 км'], ['capsule', 'earth', 3500, 120, 40, 'Земля, высота 3,5 км']]) {
+      const t = TEMPLATES.find(x => x.id === id); if (!t || !W.U.byId[body]) continue;
+      const go = h('button', { class: 'btn go sp', onclick: () => {
+        const D = t.make(); sh.close(); if (!this.launch(D, null, { test: true })) return; const v = W.active; W.placeDescent(v, body, alt, vd, vh);
+        if (!v.engines.some(p => p.on)) { try { W.stage(v); } catch (e) { } }
+        v.throttle = 0; v.sas = 'sretro'; v.rcs = v.rcsList.length > 0; for (const p of v.parts) { if (p.d.leg) p.st.deployed = true; if (p.d.chute || p.d.src) p.st.chute = 'arm'; }
+        W.setWarp(0); this.toast(where + '. Гасите скорость и садитесь мягко.', 'info');
+      } }, '▶ Тест посадки');
+      b.append(card(t, [toHangar(t), go]));
+    }
     b.append(h('h3', null, 'Вездеход'));
     for (const t of TEMPLATES.filter(x => x.kind === 'rover')) {
       const go = (body, th) => h('button', { class: 'btn go sp', onclick: () => { const D = t.make(); sh.close(); if (!this.launch(D, null, { test: true })) return; const v = W.active; W.placeOnSurface(v, body, th); this.toast('Вездеход на поверхности: тяга колёс — стрелки/кнопки управления', 'info'); } }, '▶ ' + (W.U.byId[body] ? W.U.byId[body].name : body));
@@ -282,8 +297,7 @@ const UI = {
   // ---------- запуск аппарата ----------
   launch(design, goal, o) {
     o = o || {}; const W = App.W; let cost = 0; for (const p of design.parts) cost += partCost(p);
-    const free = W.sandbox || W.cheats.freeBuild || o.test;
-    if (!free) { if (cost > W.funds) { this.toast('Не хватает денег: нужно ' + fmtMoney(cost), 'bad'); return false; } W.funds -= cost; }
+    // всё бесплатно: цена деталей — только справочная
     const D = clonePartsDesign(design); D.name = design.name || 'Ракета'; D.edges = computeEdges(D.parts);
     const v = W.launch(D);
     if (goal) AutoBuild.startMission(W, v, goal, design);

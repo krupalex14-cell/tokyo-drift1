@@ -3,7 +3,7 @@
 import base64, sys, os, re
 ROOT = os.path.dirname(os.path.abspath(__file__))
 ORDER = ['util','bodies','parts','orbits','planner','vessel','physics','world','science','autobuild',
-         'gfx','art','render','fx','audio','templates','info','build','autoui','ui','flight','map','main']
+         'gfx','art','render','fx','audio','templates','info','pxicons','build','stages','autoui','ui','tutor','flight','map','main']
 def b64(p): return base64.b64encode(open(os.path.join(ROOT,'fonts',p),'rb').read()).decode()
 def main(outs):
     tpl = open(os.path.join(ROOT,'src','template.html'),encoding='utf8').read()

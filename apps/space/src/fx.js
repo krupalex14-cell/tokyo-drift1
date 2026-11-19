@@ -23,8 +23,25 @@ const FX = {
       case 'sep': if (e.v && e.v.body === B.id) this.sepPuff(W, B, e); break;
     }
   },
+  // деталь без топлива сломалась (опора, панель, антенна, пустой бак): щепки, искры и пыль — огненного шара нет
+  structural(W, B, e, ev) {
+    const vac = ev.rho < 1e-4, size = Math.max(0.25, e.size || 1), vx = e.vx || 0, vy = e.vy || 0, ux = ev.rx, uy = ev.ry, tx = -uy, ty = ux;
+    this.add({ k: 'flash', x: e.x, y: e.y, vx, vy, age: 0, life: 0.07, size: Math.min(1.8, size * 0.5), l: 1 });
+    const g = Math.max(0.3, ev.g), nD = Math.min(26, Math.round(4 + size * 3.5));
+    const cols = [rgb(214, 218, 224), rgb(150, 156, 166), rgb(88, 94, 104), rgb(60, 80, 150), rgb(236, 200, 90)];
+    for (let i = 0; i < nD; i++) {
+      const a = (Math.random() - 0.5) * 2.4, sp = (3 + Math.random() * 14) * (0.7 + 0.3 * Math.min(2, size)), c = Math.cos(a), sn = Math.sin(a);
+      this.add({ k: 'deb', x: e.x + (Math.random() - 0.5) * size * 0.4, y: e.y + (Math.random() - 0.5) * size * 0.4, vx: vx * 0.3 + (ux * c + tx * sn) * sp, vy: vy * 0.3 + (uy * c + ty * sn) * sp, age: 0, life: 5 + Math.random() * 7, size: 0.1 + Math.random() * 0.22 * Math.min(2, size), col: cols[(Math.random() * cols.length) | 0], l: 1, rot: Math.random() * TAU, spin: (Math.random() - 0.5) * 14, drag: 0.08 });
+    }
+    for (let i = 0; i < 8; i++) { const a = (Math.random() - 0.5) * 3, sp = 6 + Math.random() * 24 / Math.sqrt(g), c = Math.cos(a), sn = Math.sin(a); this.add({ k: 'spark', x: e.x, y: e.y, vx: vx * 0.3 + (ux * c + tx * sn) * sp, vy: vy * 0.3 + (uy * c + ty * sn) * sp, age: 0, life: 0.25 + Math.random() * 0.5, size: 0.08, l: 1, drag: ev.rho > 0.05 ? 1.2 : 0 }); }
+    if (!vac) for (let i = 0; i < 3; i++) this.add({ k: 'smoke', x: e.x, y: e.y, vx: vx * 0.5 + ux * 2 + (Math.random() - 0.5) * 3, vy: vy * 0.5 + uy * 2 + (Math.random() - 0.5) * 3, age: 0, life: 1.5 + Math.random() * 1.5, size: Math.min(1.2, size * 0.5), grow: 0.3, buoy: 0.4, l: 0, dark: 0.3, drag: 1.5 });
+    this.shake = Math.max(this.shake, Math.min(4, 1 + size * 0.4));
+    if (typeof Sfx !== 'undefined' && Sfx.clunk) Sfx.clunk();
+    if (ev.alt < 6 + size && B.landable) this.dustBurst(W, B, e.x, e.y, ev, Math.min(14, 3 + size * 2), 3 + size, 0.7);
+  },
   explosion(W, B, e) {
     const ev = this.env(W, B, e.x, e.y); const fuel = e.fuel || 0, size = Math.max(0.3, e.size || 1);
+    if (fuel < 3 && !e.solid) return this.structural(W, B, e, ev);
     const rho = ev.rho, vacuum = rho < 1e-4, dense = rho > 1;
     const burn = e.ox ? 1 : (fuel > 0 ? 0.35 : 0.12);                 // есть собственный окислитель — огненный шар и без воздуха
     const atmK = vacuum ? 0.4 : (dense ? 0.55 : 1);
@@ -62,9 +79,10 @@ const FX = {
     const th = Math.atan2(y, x) - bodyRot(B, W.ut), gr = B.R + (B.T ? terrH(W, B, th) : 0);
     const r0 = Math.hypot(x, y); const rx = x / r0, ry = y / r0, tx = -ry, ty = rx; const gx = rx * gr, gy = ry * gr;
     const col = this.groundCol(B, 2), col2 = this.groundCol(B, 0), wet = B.sea && (B.T ? terrH(W, B, th) < B.sea.level : false);
+    const vac = ev.rho < 1e-3;           // вакуум: зёрна реголита летят баллистическими дугами, облака не образуют
     for (let i = 0; i < n; i++) {
-      const dir = Math.random() < 0.5 ? -1 : 1, sp = speed * (0.25 + Math.random() * 0.9), upv = sp * (0.12 + Math.random() * 0.5) * (up || 1);
-      this.add({ k: wet ? 'water' : 'dust', x: gx + tx * (Math.random() - 0.5) * 3, y: gy + ty * (Math.random() - 0.5) * 3, vx: tx * dir * sp + rx * upv, vy: ty * dir * sp + ry * upv, age: 0, life: 2 + Math.random() * 4, size: 0.25 + Math.random() * 0.7, col: Math.random() < 0.5 ? col : col2, l: 0, drag: wet ? 0.12 : 2.2, grow: 0.5 });
+      const dir = Math.random() < 0.5 ? -1 : 1, sp = speed * (0.25 + Math.random() * 0.9), upv = sp * (vac ? 0.04 + Math.random() * 0.3 : 0.12 + Math.random() * 0.5) * (up || 1);
+      this.add({ k: wet ? 'water' : 'dust', x: gx + tx * (Math.random() - 0.5) * 1.2 + rx * 0.05, y: gy + ty * (Math.random() - 0.5) * 1.2 + ry * 0.05, vx: tx * dir * sp + rx * upv, vy: ty * dir * sp + ry * upv, age: 0, life: vac ? 2 + Math.random() * 4 : 2 + Math.random() * 4, size: vac ? 0.03 + Math.random() * 0.07 : 0.25 + Math.random() * 0.6, col: Math.random() < 0.5 ? col : col2, l: 0, drag: vac ? 0 : (wet ? 0.12 : 2.2), grow: vac ? 0 : 0.4 });
     }
   },
   impact(W, B, e) {
@@ -78,14 +96,16 @@ const FX = {
       this.add({ k: 'ring', x: e.x, y: e.y, vx: 0, vy: 0, age: 0, life: 0.9, size: 0.6, grow: 5 + vn, l: 0, water: 1 });
     } else {
       this.dustBurst(W, B, e.x, e.y, ev, n, 2 + vn * 0.8, 1);
-      if (vn > 4) for (let i = 0; i < Math.min(10, vn); i++) { const a = Math.random() * TAU, sp = 3 + Math.random() * vn * 0.7; this.add({ k: 'spark', x: e.x, y: e.y, vx: Math.cos(a) * sp + (W.active ? W.active.vx : 0), vy: Math.sin(a) * sp + (W.active ? W.active.vy : 0), age: 0, life: 0.3 + Math.random() * 0.6, size: 0.08, l: 1, drag: 0.4 }); }
+      if (vn > 5 && !(e.p && e.p.d && e.p.d.leg && vn < 9)) { const nx = e.nx || ev.rx, ny = e.ny || ev.ry; for (let i = 0; i < Math.min(8, vn * 0.6); i++) { const a = (Math.random() - 0.5) * 2.6, sp = 2 + Math.random() * vn * 0.6, c = Math.cos(a), sn = Math.sin(a); this.add({ k: 'spark', x: e.x, y: e.y, vx: (e.v ? e.v.vx : 0) * 0.1 + (nx * c - ny * sn) * sp, vy: (e.v ? e.v.vy : 0) * 0.1 + (nx * sn + ny * c) * sp, age: 0, life: 0.25 + Math.random() * 0.4, size: 0.08, l: 1, drag: ev.rho > 0.05 ? 1.5 : 0 }); } }
     }
     this.shake = Math.max(this.shake, Math.min(8, vn * 0.35));
   },
   scrape(W, B, e) {
-    if (Math.random() > 0.35) return; const ev = this.env(W, B, e.x, e.y);
-    this.add({ k: 'spark', x: e.x, y: e.y, vx: (e.v ? e.v.vx : 0) * 0.1 + (Math.random() - 0.5) * 6, vy: (e.v ? e.v.vy : 0) * 0.1 + (Math.random() - 0.5) * 6, age: 0, life: 0.25 + Math.random() * 0.3, size: 0.08, l: 1, drag: 0.4 });
-    if (Math.random() < 0.5) this.dustBurst(W, B, e.x, e.y, ev, 1, Math.min(6, e.vt * 0.3), 1);
+    if (Math.random() > 0.3) return; const ev = this.env(W, B, e.x, e.y), v = e.v;
+    const dx = e.dx || 0, dy = e.dy || 0, nx = e.nx || ev.rx, ny = e.ny || ev.ry, vt = e.vt || 0;
+    // искры вылетают назад по скольжению и немного вверх от грунта, только у жёсткой детали и при заметной скорости
+    if (vt > 6 && (!e.p || !e.p.d || !e.p.d.leg)) this.add({ k: 'spark', x: e.x, y: e.y, vx: v.vx * 0.05 - dx * vt * 0.25 + nx * (1 + Math.random() * 4) + (Math.random() - 0.5) * 3, vy: v.vy * 0.05 - dy * vt * 0.25 + ny * (1 + Math.random() * 4) + (Math.random() - 0.5) * 3, age: 0, life: 0.25 + Math.random() * 0.3, size: 0.08, l: 1, drag: ev.rho > 0.05 ? 1.5 : 0 });
+    if (Math.random() < 0.6) this.dustBurst(W, B, e.x, e.y, ev, 1 + (vt > 10 ? 1 : 0), Math.min(8, 1.5 + vt * 0.3), 1);
   },
   ignition(W, B, e) {
     const p = e.p, v = e.v, ex = this.enginePos(v, p); if (!ex) return;

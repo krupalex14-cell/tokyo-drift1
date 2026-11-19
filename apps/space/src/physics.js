@@ -162,7 +162,7 @@ function stepVessel(W, v, dt) {
       const wd = pw(p), Aa = Math.PI * wd * wd / 4, An = wd * p.h * 0.85;
       let Fa = 0, Fn = 0;
       if (d.fin) {
-        const S = d.fin.area; const cn = clamp(2 * Math.PI * nn / lsp, -1.2, 1.2);
+        const S = d.fin.area * clamp(wd * p.h / (d.w * d.h), .08, 10); const cn = clamp(2 * Math.PI * nn / lsp, -1.2, 1.2);
         Fn = -half * lsp * S * cn; Fa = -half * ax * S * (0.06 + 0.5 * cn * cn) * cdm;
       } else {
         const front = ax > 0 ? v.exp.ex[i] : v.exp.eb[i]; const back = ax > 0 ? v.exp.eb[i] : v.exp.ex[i];
@@ -263,7 +263,7 @@ function thermalStep(W, v, air, avx, avy, dt) {
 
 // ---- контактные силы ----
 function contactForces(W, v, B, dt, ca, sa, thb, rr, rx, ry) {
-  const mp = v.mp, m = mp.m, cx = mp.cx, cy = mp.cy; const ch = W.cheats || {};
+  const mp = v.mp, m = mp.m, cx = mp.cx, cy = mp.cy, I0 = Math.max(1, mp.I); const ch = W.cheats || {};
   const wB = B.rotW; let fx = 0, fy = 0, tq = 0, n = 0, maxPen = 0;
   const pts = v.cpts || (v.cpts = buildContactPoints(v));
   if (v._cptsN !== v.parts.length || v.dirty) { v.cpts = buildContactPoints(v); v._cptsN = v.parts.length; }
@@ -315,7 +315,10 @@ function contactForces(W, v, B, dt, ca, sa, thb, rr, rx, ry) {
     let f = 6.5, z = 0.65, mu_ = 0.75;
     if (c.kind === 'leg') { f = p.d.leg.k; z = p.d.leg.z; mu_ = 0.9; } else if (c.kind === 'wheel') { f = 3.5; z = 0.5; mu_ = 0.85; }
     if (water) { f = 1.3; z = 1.6; mu_ = 0.03; }
-    const om = TAU * f; const k = m / nEff * om * om, cd = 2 * z * m / nEff * om;
+    // эффективная масса точки контакта с учётом вращения: m_eff = 1/(1/m' + (плечо)²/I). Без неё длинное плечо при малом моменте инерции
+    // делает пружину неустойчивой (угловая скорость «взрывается» и аппарат подбрасывает). Частота ограничена шагом интегрирования.
+    const lN = q.rx_ * ny - q.ry_ * nx, mEff = 1 / (nEff / m + lN * lN / I0);
+    const om = Math.min(TAU * f, 0.5 / (Math.max(z, 0.5) * dt)); const k = mEff * om * om, cd = 2 * z * mEff * om;
     // удар
     if (!c.was) {
       c.was = true; const vin = -vn;
@@ -343,12 +346,17 @@ function contactForces(W, v, B, dt, ca, sa, thb, rr, rx, ry) {
       v.wheelPower = (v.drive ? Math.abs(drive) * Math.min(Math.abs(vl) + 0.05, p.d.wheel.vmax) : 0);
     } else {
       const sm = clamp(vt / 0.35, 0, 1);
-      if (vt > 1e-6) { Fx += -mu_ * Fn * sm * vtx / vt; Fy += -mu_ * Fn * sm * vty / vt; }
+      if (vt > 1e-6) {
+        // трение не может погасить больше, чем есть скорости скольжения за шаг (с учётом момента инерции) — иначе колебания
+        const ltx = -ny, lty = nx, lT = q.rx_ * lty - q.ry_ * ltx, mT = 1 / (nEff / m + lT * lT / I0);
+        const Ff = Math.min(mu_ * Fn * sm, 0.5 * mT * vt / dt);
+        Fx += -Ff * vtx / vt; Fy += -Ff * vty / vt;
+      }
     }
     // вычитаем из «вращения грунта» эффект на момент
     fx += Fx; fy += Fy; tq += q.rx_ * Fy - q.ry_ * Fx; sumFn += Fn;
     v.contact++;
-    if (vt > 3 && Fn > 0 && W.event) W.event({ t: 'scrape', v, x: q.wx, y: q.wy, vt, nx, ny, th: q.th });
+    if (vt > 3 && Fn > 0 && W.event) W.event({ t: 'scrape', v, x: q.wx, y: q.wy, vt, nx, ny, th: q.th, dx: vtx / vt, dy: vty / vt, p });
   }
   // сила и момент в системе аппарата → вернём в МСК: функция вызывается из stepVessel, ожидающего локальные.
   // перевод в локальные: (stepVessel добавляет в lfx, lfy: локальные оси аппарата) => вращаем обратно
@@ -411,7 +419,7 @@ function controlStep(W, v, dt, rx, ry) {
   const manual = Math.abs(v.ctl.rot) > 0.01;
   if (manual) { tgt = null; } else if (v.sas === 'hold' || v.sas === 'off') tgt = v.sasTarget; else tgt = targetAngleFor(W, v, v.sas, rx, ry);
   let wCmd;
-  const aMax = cap / I;
+  const aMax = cap / I; v.ctlA = aMax;
   const wLim = Math.min(1.2, Math.sqrt(2 * aMax * 0.7) * 1.0 + 0.02);
   if (manual) { wCmd = -v.ctl.rot * Math.min(wLim, 0.6 + 0.4 * Math.min(1, aMax * 10)); v.sasTarget = v.a; }
   else {
@@ -437,6 +445,160 @@ function controlStep(W, v, dt, rx, ry) {
 function orbitInfo(W, v) {
   const B = W.U.byId[v.body]; return elements(B.gm, v.x, v.y, v.vx, v.vy);
 }
+
+// ---- Автопосадка и подсказки для ручной посадки ----
+// Высота «до опор» над грунтом: расстояние от центра масс до самой нижней точки при вертикальном положении
+function vesselDown(v) {
+  let lo = 1e9;
+  for (const p of v.parts) { if (p.dead) continue; const d = p.d; let y; if (d.leg) y = p.y + (p.st.deployed ? d.leg.foot[1] : -p.h * 0.2); else if (d.wheel) y = p.y - d.wheel.r; else y = p.y - pext(p)[1]; if (y < lo) lo = y; }
+  return lo > 1e8 ? 1 : Math.max(0.2, v.mp.cy - lo);
+}
+// максимальная тяга работающих двигателей при данном давлении и минимальный дроссель
+function landThrust(W, v, pAmb) {
+  let F = 0, tm = 0, solid = false, any = false;
+  for (const p of v.engines) {
+    if (!p.on || p.dead) continue; const e = p.d.eng; if (e.rcs) continue;
+    const av = e.solid ? (p.res.solid || 0) : propAvail(v, p, e.prop);
+    if (!(av > 0) && !(W.cheats && W.cheats.infFuel && !e.solid)) continue;
+    any = true; if (e.solid) solid = true; F += engThrust(e, p, pAmb, 1); tm = Math.max(tm, e.solid ? 1 : e.thrMin);
+  }
+  return { F, tm, solid, any };
+}
+// всё, что нужно и автопосадке, и подсказкам на экране
+function landCalc(W, v) {
+  const B = W.U.byId[v.body]; const r = Math.hypot(v.x, v.y), rx = v.x / r, ry = v.y / r;
+  if (!B.landable) return null;
+  const th = Math.atan2(v.y, v.x) - bodyRot(B, W.ut), gnd = surfR(W, B, th), down = vesselDown(v);
+  const hg = r - gnd - down, g = B.gm / (r * r);
+  const sx = v.vx + B.rotW * v.y, sy = v.vy - B.rotW * v.x, vv = sx * rx + sy * ry;
+  const hx = sx - vv * rx, hy = sy - vv * ry, vh = Math.hypot(hx, hy), vs = Math.hypot(sx, sy);
+  const pa = B.atm ? B.atm.press(Math.max(0, r - B.R)) : 0;
+  const T = landThrust(W, v, pa), m = v.mp.m, aT = T.F / Math.max(1, m);
+  const sinG = vs > 0.5 ? clamp(-vv / vs, -1, 1) : 1;
+  const aDec = aT * 0.85 - g * Math.max(0, sinG);                  // чистое торможение вдоль скорости
+  const d = hg / Math.max(sinG, 0.02);                              // путь до грунта вдоль скорости
+  const dStop = aDec > 0.05 ? vs * vs / (2 * aDec) : 1e12;
+  let hgA = hg; { const hsT = hx * -ry + hy * rx; if (Math.abs(hsT) > 20) for (const tl of [6, 12, 20, 30]) hgA = Math.min(hgA, r - surfR(W, B, th + hsT * tl / r) - down); }   // рельеф впереди по курсу
+  return { B, r, rx, ry, hg, hgA, g, vv, vh, vs, hx, hy, aT, T, sinG, aDec, d, dStop, gnd, down, m, pa, tc: vv < -0.3 ? hg / -vv : 1e9 };
+}
+// номинальный профиль скорости снижения: на высоте h разрешённая скорость падения (м/с, <0)
+function landProfile(c, aUse) { const h = Math.max(0, c.hg - 0.3), aU = aUse * clamp(0.45 + h / 40, 0.45, 1); return -(0.6 + Math.sqrt(2 * aU * h)); }   // у самой земли торможение мягче
+// команда дросселя 0..1 из доли максимальной тяги f с «ШИМом» ниже минимального дросселя
+function landThr(ap, f, tm) {
+  if (f <= 0.02) return 0; if (f >= tm) return clamp((f - tm) / Math.max(1e-6, 1 - tm), 0, 1) || 0.001;
+  ap.pw = (ap.pw || 0) + f / tm; if (ap.pw >= 1) { ap.pw -= 1; return 0.001; } return 0;
+}
+// запас скорости (м/с) по формуле Циолковского для работающих двигателей и сколько нужно для посадки с текущей скорости
+function landDv(W, v, c) {
+  const B = c.B; let isp = 0, nE = 0;
+  for (const p of v.engines) { if (p.dead || p.d.eng.rcs || p.d.eng.solid) continue; isp += p.d.eng.IspV; nE++; }
+  if (!nE) return { have: 0, need: 0 }; isp /= nE;
+  let fuel = 0; const props = new Set(v.engines.filter(p => !p.dead && !p.d.eng.rcs).map(p => p.d.eng.prop));
+  for (const t of v.tanks) for (const k of props) fuel += (t.res && t.res[k]) || 0;
+  const m = v.mp.m, have = isp * 9.80665 * Math.log(m / Math.max(1, m - fuel));
+  const shield = B.atm && v.parts.some(p => p.d.shield && !p.dead);
+  return { have, need: shield ? 500 : c.vs * 1.1 + 100 };
+}
+// целевой периапсис схода с орбиты: с тепловым щитом — входим в атмосферу, без щита — тормозим двигателем почти до земли
+function landPeT(v, B) { return (B.atm && v.parts.some(p => p.d.shield && !p.dead)) ? Math.min(B.atm.top * 0.2, 40000) : -2500; }
+// сколько секунд до начала торможения (по орбите: время до касания грунта минус время, нужное на торможение)
+function landLead(W, v) {
+  const B = W.U.byId[v.body]; if (!B.landable) return 1e9;
+  const c = landCalc(W, v); if (!c) return 1e9;
+  if (c.hg < 3000) return 0;
+  const el = orbitInfo(W, v); const rg = B.R + 300;
+  if (el.bound && el.rp - B.R > landPeT(v, B) + 300 && v.ap && v.ap.phase === 'land' && v.ap.st === 'fall') return 0;   // орбита не ведёт к земле: пора снова тормозить
+  if (el.e < 1e-6 || el.rp >= rg) return 1e9;
+  const cosN = (el.p / rg - 1) / el.e; if (!(Math.abs(cosN) <= 1)) return 1e9;
+  const nuH = -Math.acos(cosN);
+  let tHit; if (el.bound) { if (el.nu > 0 && el.r > rg) return 1e9; tHit = timeToNu(el, nuH); } else { tHit = timeFromPeri(el, nuH) - timeFromPeri(el, el.nu); if (tHit < 0) return 0; }
+  const vsH = speedAt(el, rg), vtH = Math.abs(el.h) / rg, vrH = Math.sqrt(Math.max(0, vsH * vsH - vtH * vtH)), sinH = clamp(vrH / vsH, 0.02, 1);
+  const gH = B.gm / (rg * rg), aDec = Math.max(0.05, c.aT * 0.85 - gH * sinH), dStop = vsH * vsH / (2 * aDec);
+  return tHit - dStop * 1.4 / (0.55 * vsH) - 40;
+}
+function landStep(W, v, dt, rx, ry, ap) {
+  const fail = t => { ap.fail = t; ap.done = true; v.throttle = 0; W.log('Автопосадка: ' + t, 'bad'); };
+  const B = W.U.byId[v.body];
+  if (!B.landable) return fail('на этом теле нет твёрдой поверхности');
+  if (v.mode === 'landed') { v.throttle = 0; ap.done = true; W.log('Посадка выполнена', 'ok'); W.event({ t: 'landed', v }); return; }
+  const c = landCalc(W, v); if (!c) return;
+  v.rcs = true;
+  const setDir = (dxu, dyu) => { v.sas = 'hold'; v.sasTarget = Math.atan2(-dxu, dyu); };
+  const angErr = () => Math.abs(wrapPI(v.sasTarget - v.a));
+  // подготовка: двигатель, опоры, парашюты
+  if (!ap.st) {
+    ap.st = 'init'; ap.t0 = W.ut;
+    for (const p of v.parts) { if (p.d.leg) p.st.deployed = true; if ((p.d.chute || p.d.src) && B.atm && B.atm.dens(0) > 0.02 && !p.st.chute) p.st.chute = 'arm'; }
+  }
+  // только парашют: в атмосфере капсула без тяги просто спускается на куполе
+  if (B.atm && v.parts.some(p => (p.d.chute || p.d.src) && !p.dead) && (!c.T.any || c.T.solid || c.aT * 0.9 - c.g < 0.12 * c.g + 0.05)) {
+    if (ap.st !== 'fall') { ap.st = 'fall'; ap.chuteOnly = true; W.log('Автопосадка: только на парашюте (тяги для посадки нет)', 'info'); }
+    for (const p of v.parts) if ((p.d.chute || p.d.src) && !p.st.chute) p.st.chute = 'arm';
+    v.throttle = 0; v.sas = 'sretro'; return;
+  }
+  if (v.ctlA != null && v.ctlA < 0.003) return fail('нет управления поворотом — добавьте РСУ (кольцо РСУ, Draco) или маховики');
+  if (!c.T.any) {                                    // двигатель не включён — пробуем следующую ступень
+    ap.stT = (ap.stT || 0) + dt; v.throttle = 0;
+    if (ap.stT > 0.5) { ap.stT = 0; if (v.stageIdx < v.stages.length) { W.stage(v); } else return fail('нет работающего двигателя с топливом'); }
+    return;
+  }
+  if (ap.st === 'init' && !ap.dvChecked) { ap.dvChecked = true; const d = landDv(W, v, c); if (d.have < d.need) return fail('не хватает топлива для посадки: нужно ≈' + Math.round(d.need) + ' м/с, есть ≈' + Math.round(d.have) + ' м/с'); }
+  if (c.T.solid) return fail('твердотопливный двигатель нельзя дросселировать — мягкая посадка невозможна');
+  const aUseMax = c.aT * 0.9 - c.g;
+  if (aUseMax < 0.12 * c.g + 0.05) return fail('не хватает тяги: тяговооружённость у этого тела ' + (c.aT / c.g).toFixed(2) + ' (нужно хотя бы 1,3)');
+  const el = orbitInfo(W, v), peAlt = el.rp - B.R;
+  const peT = landPeT(v, B);
+  const chuteOn = v.parts.some(p => (p.d.chute || p.d.src) && (p.st.chute === 'arm' || p.st.chute === 'deploy' || p.st.chute === 'open'));
+  // выбор этапа
+  if (ap.st === 'init' || ap.st === 'deorbit' || ap.st === 'fall') {
+    const hits = !el.bound || peAlt < peT + 300 || c.vv < -3;
+    if (!hits && c.hg > 2000) ap.st = 'deorbit'; else if (ap.st !== 'brake') ap.st = 'fall';
+  }
+  if (ap.st === 'fall') {
+    const lead = landLead(W, v);
+    if (chuteOn) { if (c.hg < 300) ap.st = 'final'; }
+    else if (lead <= 0 || (c.hg < 1500 && c.vs > 12)) ap.st = (c.vh > 10 && c.vs > 30) ? 'brake' : 'final';
+  }
+  if (ap.st === 'brake' && (c.vs < 30 || c.vh < 110)) ap.st = 'final';
+  // действия
+  if (ap.st === 'deorbit') {
+    v.sas = 'retrograde';
+    const errA = Math.abs(wrapPI(targetAngleFor(W, v, 'retrograde', rx, ry) - v.a));
+    if (peAlt <= peT) { v.throttle = 0; ap.st = 'fall'; return; }
+    const f = clamp((peAlt - peT) / 30000 + 0.12, 0.12, 1);
+    v.throttle = errA < 0.12 ? landThr(ap, f, c.T.tm) : 0; return;
+  }
+  if (ap.st === 'fall') { v.sas = 'sretro'; v.throttle = 0; return; }
+  if (ap.st === 'brake') {
+    // тормозной манёвр: тяга на максимум против скорости, лёгкий наклон вверх держит коридор высоты (рельеф шумит — берём сглаженную высоту)
+    const hC = Math.min(c.hg, c.hgA);                               // самая низкая высота над рельефом на ближайшие 30 с
+    ap.hgS = (ap.hgS == null || hC < ap.hgS || Math.abs(hC - ap.hgS) > 6000) ? hC : ap.hgS + (hC - ap.hgS) * Math.min(1, dt / 6);
+    const hold = 4500, vt = ap.hgS > hold ? -clamp((ap.hgS - hold) / 40, 1, 60) : clamp((hold - ap.hgS) / 30, 0, 25);
+    const hdx = c.vh > 1e-6 ? c.hx / c.vh : 0, hdy = c.vh > 1e-6 ? c.hy / c.vh : 0;
+    const gc = c.g - c.vh * c.vh / c.r;
+    const av = clamp(gc + 0.4 * (vt - c.vv), 0, (ap.hgS < hold ? 0.9 : 0.5) * c.aT);
+    const pitch = Math.atan2(av, Math.sqrt(Math.max(1e-6, c.aT * c.aT - av * av)));
+    ap.pitch = ap.pitch == null ? pitch : ap.pitch + clamp(pitch - ap.pitch, -0.25 * dt, 0.25 * dt);
+    setDir(Math.sin(ap.pitch) * rx - Math.cos(ap.pitch) * hdx, Math.sin(ap.pitch) * ry - Math.cos(ap.pitch) * hdy);
+    ap.on = angErr() < (ap.on ? 0.9 : 0.35);
+    v.throttle = ap.on ? landThr(ap, 1, c.T.tm) : 0; return;
+  }
+  // финальное снижение: вертикальный канал по профилю скорости + гашение боковой скорости наклоном тяги
+  const aUse = Math.max(0.3, 0.55 * aUseMax);
+  const tx = -ry, ty = rx, hs = c.hx * tx + c.hy * ty;      // боковая скорость со знаком (в 2D она одна) — наклон непрерывен и не «дребезжит» около нуля
+  let tilt = 0; { const ah = clamp((c.hg > 40 ? 0.5 : 0.3) * hs, -0.45 * c.aT, 0.45 * c.aT); tilt = Math.atan2(ah, Math.max(c.g, 0.5 * c.aT)); const lim = c.hg > 30 ? 0.9 : 0.5; tilt = clamp(tilt, -lim, lim); }
+  if (c.hg < 3 && Math.abs(hs) < 2) tilt = 0;
+  setDir(Math.cos(tilt) * rx - Math.sin(tilt) * tx, Math.cos(tilt) * ry - Math.sin(tilt) * ty);
+  const vt = landProfile(c, aUse);
+  const ff = aUse * clamp((vt - c.vv + 2) / 2, 0, 1);
+  const aCmd = c.g + ff + 2.0 * (vt - c.vv);
+  let f = aCmd / (c.aT * Math.max(0.5, Math.cos(tilt)));
+  if (c.hg < 0.5 || v.contact > 0) f = c.vv < -3 ? f : 0;
+  if (c.vv > 0.3 && c.hg < 50) f = 0;                      // уже поднимаемся у самой земли — не взлетать
+  ap.on = angErr() < (ap.on ? 1.0 : 0.4);
+  v.throttle = ap.on ? landThr(ap, clamp(f / Math.max(0.5, Math.cos(angErr())), 0, 1), c.T.tm) : 0;
+}
+
 function apStep(W, v, dt, rx, ry) {
   const ap = v.ap; if (!ap || ap.done) return;
   const B = W.U.byId[v.body], R = B.R, alt = Math.hypot(v.x, v.y) - R;
@@ -447,6 +609,7 @@ function apStep(W, v, dt, rx, ry) {
   const g = B.gm / ((R + alt) * (R + alt));
   const setDir = (dxu, dyu) => { v.sas = 'hold'; v.sasTarget = Math.atan2(-dxu, dyu); };
   ap.t = (ap.t || 0) + dt;
+  if (ap.phase === 'land') { landStep(W, v, dt, rx, ry, ap); return; }
   const hTurn = Math.max(0.8 * atmTop, 0.3 * hT, 2500);
   const vC = Math.sqrt(B.gm / (R + hT));
   // автоматическая ступенизация

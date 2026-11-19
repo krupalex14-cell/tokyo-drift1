@@ -63,13 +63,13 @@ const AutoUI = {
     if (r.err) { b.append(h('div', { class: 'card rd' }, '⛔ ' + r.err)); return; }
     b.append(h('h3', null, 'Готовые ракеты'));
     for (const V of r.variants) {
-      const rp = V.report; const can = free || V.cost <= W.funds;
+      const rp = V.report; const can = true;
       const stg = rp.stages.map((s, i) => h('div', { class: 'tiny' }, (i + 1) + '. ' + s.n + '× ' + s.eng + ' · ' + s.prop.split(' ')[0] + ' · ⌀' + s.D + '×' + s.L.toFixed(1) + ' м'));
-      b.append(h('div', { class: 'card col', style: 'gap:3px' }, h('div', { class: 'row' }, h('b', { class: 'yl', style: 'flex:1;font-size:17px' }, V.name), h('b', { class: 'cy' }, fmtMoney(V.cost))), ...stg,
+      b.append(h('div', { class: 'card col', style: 'gap:3px' }, h('div', { class: 'row' }, h('b', { class: 'yl', style: 'flex:1;font-size:17px' }, V.name), h('b', { class: 'mut' }, 'цена ' + fmtMoney(V.cost))), ...stg,
         h('div', { class: 'kv' }, h('span', null, 'Масса на старте'), h('span', null, fmtMass(rp.m0))), h('div', { class: 'kv' }, h('span', null, 'Тяговооружённость'), h('span', null, rp.twr0.toFixed(2))),
         h('div', { class: 'kv' }, h('span', null, 'Запас Δv после вывода'), h('span', null, Math.round(rp.dvLeft) + ' м/с')), h('div', { class: 'kv' }, h('span', null, 'Макс. перегрузка / Q'), h('span', null, rp.maxG.toFixed(1) + ' g · ' + fmtNum(rp.maxQ / 1000) + ' кПа')),
         h('div', { class: 'kv' }, h('span', null, 'Подъём до орбиты'), h('span', null, fmtDur(rp.tAscent) + ', Pe ' + fmtDist(rp.pe))),
-        h('div', { class: 'row', style: 'margin-top:4px' }, h('button', { class: 'btn go sp' + (can ? '' : ' dis'), onclick: () => { this.sh && this.sh.close(); UI.launch(V.design, this.goal); } }, can ? '🚀 Запустить миссию' : 'Не хватает денег'),
+        h('div', { class: 'row', style: 'margin-top:4px' }, h('button', { class: 'btn go sp' + (can ? '' : ' dis'), onclick: () => { this.sh && this.sh.close(); UI.launch(V.design, this.goal); } }, '🚀 Запустить миссию'),
           h('button', { class: 'btn sp', onclick: () => { this.sh && this.sh.close(); Builder.snap(); Builder.D.parts = V.design.parts.map(clonePart); Builder.D.name = V.design.name; Builder.nameEl.value = V.design.name; Builder.D.top = 0; Builder.manualStage = true; Builder.vp.parts = Builder.D.parts; Builder.sel = null; Builder.touch(); Builder.fit(); UI.toast('Ракета в ангаре — можно доработать', 'ok'); } }, '🛠 В ангар'))));
     }
     b.append(h('div', { class: 'tiny mut' }, 'Каждая ракета проверена виртуальным полётом: выведена на орбиту автопилотом с запасом Δv на отлёт. «Эконом» — дешевле, «Мощная» — с большим запасом.'));
