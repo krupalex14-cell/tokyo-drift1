@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-    paths-ignore: [ 'web/chess/**', 'web/p/**', 'web/love/**', 'web/fly/**', 'web/space/**', 'apps/chess/**', 'apps/fly/**', 'apps/space/**', '.github/workflows/chess-android.yml' ]   # chess pages/app don't change the drift app
+    paths-ignore: [ 'web/chess/**', 'web/p/**', 'web/love/**', 'web/fly/**', 'web/space/**', 'web/globe/**', 'apps/chess/**', 'apps/fly/**', 'apps/space/**', '.github/workflows/chess-android.yml' ]   # chess pages/app don't change the drift app
 permissions:
   contents: write
 concurrency:
