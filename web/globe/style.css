@@ -362,3 +362,63 @@ i{font-style:normal}
 #app.live #dock{animation:dock-in 1.3s var(--ease) 1.2s backwards}
 @keyframes top-in{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
 @keyframes dock-in{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+
+/* ───── bottle badge above a city name ───── */
+.cl .bt{display:none;width:26px;height:26px;margin-bottom:4px;border-radius:50%;place-items:center;color:#ffd6e7;pointer-events:auto;position:relative;align-self:flex-start;
+  background:rgba(255,141,181,calc(.14 + var(--bl,0)*.32));border:1px solid rgba(255,141,181,calc(.5 + var(--bl,0)*.5));
+  box-shadow:0 0 calc(5px + var(--bl,0)*18px) rgba(255,141,181,calc(.22 + var(--bl,0)*.7));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);text-shadow:none}
+.cl.r .bt{align-self:flex-end}
+.cl .bt svg{width:15px;height:15px;stroke-width:1.5;transform:rotate(calc(-12deg + var(--bl,0)*10deg)) scale(calc(1 + var(--bl,0)*.14))}
+.cl .bt.on{display:grid;animation:btfloat 3.4s ease-in-out infinite}
+.cl .bt.out{color:var(--mute);background:rgba(255,255,255,.05);border-color:var(--line);box-shadow:none}
+.cl .bt.land{animation:btland .9s cubic-bezier(.2,1.6,.4,1) both,btfloat 3.4s .9s ease-in-out infinite}
+.cl .bt::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--acc);color:#2a0f1b;font-size:10px;font-weight:600;line-height:15px;text-align:center;box-sizing:border-box}
+.cl .bt[data-n=""]::after{display:none}
+.cl.hid .bt{pointer-events:none}
+.cl.alert .cn{text-shadow:0 0 calc(var(--bl,0)*14px) rgba(255,141,181,calc(var(--bl,0)*.95)),0 0 12px rgba(0,0,0,.95),0 1px 3px rgba(0,0,0,.75)}
+@keyframes btfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes btland{0%{transform:translateY(-16px) scale(.2);opacity:0}55%{transform:translateY(2px) scale(1.25);opacity:1}100%{transform:none}}
+
+/* ───── bottle card ───── */
+.modal-wrap.bcard-modal{align-items:center;padding:18px}
+.bcard-modal .modal{border-radius:28px;max-width:420px;padding:20px 20px 18px;transform:translateY(26px) scale(.9);transition:transform .75s cubic-bezier(.2,1.25,.35,1),opacity .35s}
+.bcard-modal.in .modal{transform:none}
+.bcard{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.bc-x{position:absolute;right:-8px;top:-8px;z-index:2}
+.bc-glyph{align-self:center;width:30px;height:30px;color:var(--acc);filter:drop-shadow(0 0 12px rgba(255,141,181,.55));animation:bcglyph 3.2s ease-in-out infinite}
+.bc-glyph svg{width:30px;height:30px;stroke-width:1.2}
+@keyframes bcglyph{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(6deg) translateY(-3px)}}
+.bc-from{text-align:center;color:var(--dim);font-size:12px;letter-spacing:.04em;margin-top:-4px}
+.bc-paper{clip-path:inset(0 0 100% 0 round 18px);animation:unroll .9s .22s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes unroll{to{clip-path:inset(0 0 0 0 round 18px)}}
+.bc-msg{animation:rise .8s .6s var(--ease) both}
+.bc-actions{animation:rise .8s .7s var(--ease) both}
+.bc-actions .btn{margin:2px 0}
+.bc-more{margin:0}
+
+/* ───── "waiting for you in a game" pill ───── */
+#invite{position:absolute;left:0;right:0;bottom:calc(var(--sab) + 108px);display:flex;justify-content:center;z-index:48;pointer-events:none;padding:0 14px;transition:bottom .5s var(--ease)}
+#screen.open~#invite{bottom:calc(var(--sab) + 16px)}
+.invite{pointer-events:auto;display:flex;align-items:center;gap:10px;max-width:100%;padding:8px 8px 8px 14px;border-radius:999px;background:rgba(14,17,27,.9);
+  -webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);box-shadow:0 0 0 1px rgba(255,141,181,.38),0 14px 40px rgba(0,0,0,.5),0 0 28px rgba(255,141,181,.16);
+  animation:invin .8s cubic-bezier(.2,1.35,.35,1) both}
+.invite.out{animation:invout .34s cubic-bezier(.5,0,1,.6) forwards;pointer-events:none}
+.iv-ic{position:relative;width:22px;height:22px;color:var(--acc);flex:none}.iv-ic svg{width:22px;height:22px;stroke-width:1.4}
+.iv-ic::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--acc);opacity:0;animation:ivring 2.2s ease-out infinite}
+.iv-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.25}.iv-t b{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iv-t small{color:var(--mute);font-size:12px}
+.iv-go{flex:none;height:32px;padding:0 15px;border-radius:999px;background:var(--acc);color:#2a0f1b;font-weight:600;font-size:13px;transition:transform .3s var(--ease)}
+.iv-go:active{transform:scale(.93)}
+.iv-x{flex:none;width:28px;height:28px;display:grid;place-items:center;color:var(--dim);border-radius:50%}.iv-x svg{width:15px;height:15px}
+@keyframes invin{from{transform:translateY(34px) scale(.86);opacity:0}to{transform:none;opacity:1}}
+@keyframes invout{to{transform:translateY(26px) scale(.92);opacity:0}}
+@keyframes ivring{0%{transform:scale(.7);opacity:.75}100%{transform:scale(1.7);opacity:0}}
+.gs.on{animation:badgepop .6s cubic-bezier(.2,1.7,.4,1)}
+
+/* ───── mood reactions ───── */
+.mfx-big,.mfx-p{position:absolute;line-height:1;opacity:0;will-change:transform,opacity;pointer-events:none;font-family:"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif}
+.mfx-big{filter:drop-shadow(0 8px 20px rgba(0,0,0,.45))}
+.mfx-glow{position:absolute;width:230px;height:230px;margin:0;border-radius:50%;opacity:0;pointer-events:none;background:radial-gradient(circle,rgba(255,170,205,.42),rgba(255,170,205,0) 66%);mix-blend-mode:screen}
+.mfx-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,190,215,.9);opacity:0;pointer-events:none}
+.mood-grid .mood{animation:moodin .6s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--i,0)*26ms + 90ms)}
+@keyframes moodin{from{transform:scale(.25);opacity:0}to{transform:none;opacity:1}}
+.mood.on{box-shadow:0 0 0 4px rgba(255,141,181,.07),0 6px 22px rgba(255,141,181,.14)}
