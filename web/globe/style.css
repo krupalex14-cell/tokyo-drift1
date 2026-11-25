@@ -415,10 +415,19 @@ i{font-style:normal}
 .gs.on{animation:badgepop .6s cubic-bezier(.2,1.7,.4,1)}
 
 /* ───── mood reactions ───── */
-.mfx-big,.mfx-p{position:absolute;line-height:1;opacity:0;will-change:transform,opacity;pointer-events:none;font-family:"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif}
+.mfx-big,.mfx-p{position:absolute;display:block;max-width:none;opacity:0;will-change:transform,opacity;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .mfx-big{filter:drop-shadow(0 8px 20px rgba(0,0,0,.45))}
 .mfx-glow{position:absolute;width:230px;height:230px;margin:0;border-radius:50%;opacity:0;pointer-events:none;background:radial-gradient(circle,rgba(255,170,205,.42),rgba(255,170,205,0) 66%);mix-blend-mode:screen}
 .mfx-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,190,215,.9);opacity:0;pointer-events:none}
 .mood-grid .mood{animation:moodin .6s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--i,0)*26ms + 90ms)}
 @keyframes moodin{from{transform:scale(.25);opacity:0}to{transform:none;opacity:1}}
 .mood.on{box-shadow:0 0 0 4px rgba(255,141,181,.07),0 6px 22px rgba(255,141,181,.14)}
+
+/* vector emoji (Twemoji) */
+.em{display:block;width:1.15em;height:1.15em;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.emf{display:inline-block;line-height:1}
+.cl .cm .em{width:16px;height:16px}
+.dk i.emo{display:grid;place-items:center}.dk i.emo .em{width:25px;height:25px}
+.who .av .em{width:23px;height:23px}
+.mini .em{width:23px;height:23px}
+.mood .em{width:36px;height:36px;margin:auto}
