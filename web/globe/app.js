@@ -4282,7 +4282,7 @@ void main(){
   float ndl0 = dot(N0, L);
   float ndl = dot(N, L);
   float dayAmt = smoothstep(-0.14, 0.30, ndl0);
-  float lightMod = 1.0;
+  float lightMod = 1.0, closeAmt = 0.0;
 #ifdef TILE
   vec3 tileRGB = texture2D(uTile, vT).rgb;
   vec3 albedo = lin(tileRGB);
@@ -4293,7 +4293,9 @@ void main(){
     float lum = dot(tileRGB, LW);
     float loc = 0.25 * (dot(texture2D(uTile, vT + vec2(o.x, o.y)).rgb, LW) + dot(texture2D(uTile, vT + vec2(-o.x, o.y)).rgb, LW)
                       + dot(texture2D(uTile, vT + vec2(o.x, -o.y)).rgb, LW) + dot(texture2D(uTile, vT + vec2(-o.x, -o.y)).rgb, LW));
-    lightMod = mix(1.0, clamp(1.0 + 3.4 * (lum - loc) / (loc + 0.06), 0.10, 3.4), uSmooth);
+    float st = clamp(0.5 + 1.1 * (lum - loc) / (loc + 0.08), 0.0, 1.0);
+    closeAmt = 1.0 - uMatch;
+    lightMod = mix(1.0, 0.08 + 1.9 * st * st, closeAmt);         // gentle: streets read as a soft texture, never a harsh engraving
   }
   {
     // far out, nudge each tile's overall colour toward the base map's (same place, same footprint) so tiles blend in without a visible edge;
@@ -4319,7 +4321,9 @@ void main(){
   // city lights on the night side, hidden a bit by clouds
   vec3 city = lin(nightLights(vUv)) * lightMod;
   float nightAmt = 1.0 - smoothstep(-0.20, 0.06, ndl0);
-  col += city * vec3(1.0, 0.76, 0.46) * 2.6 * nightAmt * (1.0 - cl * 0.72);
+  vec3 cityC = city * vec3(1.0, 0.76, 0.46) * mix(2.6, 0.3, closeAmt) * nightAmt * (1.0 - cl * 0.72);
+  cityC = mix(cityC, cityC / (1.0 + cityC * 1.0), closeAmt);   // up close a big city must not burn out the whole screen
+  col += cityC;
 #ifdef TILE
   col += albedo * vec3(0.30, 0.45, 1.0) * 0.050 * nightAmt;
 #else
