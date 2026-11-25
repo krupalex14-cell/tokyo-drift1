@@ -431,3 +431,7 @@ i{font-style:normal}
 .who .av .em{width:23px;height:23px}
 .mini .em{width:23px;height:23px}
 .mood .em{width:36px;height:36px;margin:auto}
+
+/* satellite imagery credit: shown only while the detailed tiles are on screen */
+#attr{position:fixed;left:14px;right:14px;bottom:calc(var(--sab,0px) + 104px);z-index:3;font-size:8.5px;line-height:1.3;letter-spacing:.02em;color:rgba(255,255,255,.42);text-shadow:0 0 6px rgba(0,0,0,.9);pointer-events:none;opacity:0;transition:opacity .6s}
+body.tiles-on #attr{opacity:1}
