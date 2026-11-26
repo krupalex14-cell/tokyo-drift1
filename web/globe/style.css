@@ -559,3 +559,7 @@ body.tiles-on #attr{opacity:1}
 .pz-photo .pz-th{display:grid;place-items:center;border:1px dashed rgba(255,141,181,.45);background:transparent}
 .pz-plus{font-size:38px;font-weight:200;color:var(--acc);line-height:1}
 .pz-file{display:none!important}
+
+.tb:disabled{opacity:.28;pointer-events:none}
+.toolbar .row:last-child{flex-wrap:nowrap;gap:3px}
+.toolbar .tb,.toolbar .sz{flex:0 1 38px;width:38px;min-width:0;height:38px}
