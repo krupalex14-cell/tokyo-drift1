@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#04060d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Globe">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Our Globe</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="gl"></canvas>
+  <div id="labels"></div>
+
+  <header id="top">
+    <button id="hearts-pill" class="stats" aria-label="streak">
+      <span class="st"><small id="hp-me-n"></small><span class="row1"><b id="hp-me">0</b><i class="hi" data-ic="heartO"></i><span class="fl off" id="fl-me"><i data-ic="flame"></i><span id="hp-me-s">0</span></span></span></span>
+      <span class="st"><small><span id="hp-ot-n"></span><span id="hp-dot" class="dot"></span></small><span class="row1"><b id="hp-ot">0</b><i class="hi" data-ic="heartO"></i><span class="fl off" id="fl-ot"><i data-ic="flame"></i><span id="hp-ot-s">0</span></span></span></span>
+    </button>
+    <button id="btn-set" class="ibtn" data-ic="gear" aria-label="settings"></button>
+    <button id="meet" class="meet"><span id="meet-t"></span></button>
+  </header>
+
+  <nav id="dock">
+    <button id="b-both" class="dk" title="globe"><i data-ic="globe"></i><span class="sr" data-i="both"></span></button>
+    <button id="b-games" class="dk" title="games"><i data-ic="games"></i><span class="sr" data-i="games"></span><em class="badge"></em></button>
+    <button id="b-heart" class="heart-btn" aria-label="heart" data-ic="heart"></button>
+    <button id="b-bottles" class="dk" title="bottles"><i data-ic="bottle"></i><span class="sr" data-i="bottles"></span><em class="badge"></em></button>
+    <button id="b-mood" class="dk" title="mood"><i id="mood-e" data-ic="smile"></i><span class="sr" data-i="mood"></span></button>
+  </nav>
+
+  <section id="sheet" class="glass"><div class="grab"></div><div id="sheet-body"></div></section>
+  <div id="screen"></div>
+  <div id="modals"></div>
+  <div id="invite"></div>
+  <div id="attr">Sentinel-2 cloudless · s2maps.eu · EOX IT Services GmbH · modified Copernicus Sentinel data 2020</div>
+  <div id="toast"></div>
+  <div id="fx"></div>
+  <div id="loader"><div class="ld-ring"></div><p data-i="loading">…</p><div class="bar"><i></i></div></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
