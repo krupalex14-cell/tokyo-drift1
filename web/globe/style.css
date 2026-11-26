@@ -404,7 +404,7 @@ i{font-style:normal}
 /* ───── motion ───── */
 #fx{position:absolute;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .fxh{position:absolute;width:var(--s,20px);height:var(--s,20px);margin:calc(var(--s,20px)/-2) 0 0 calc(var(--s,20px)/-2);color:var(--c,#ff8db5);will-change:transform,opacity;opacity:0;
-  animation:fxrise var(--t,1.1s) cubic-bezier(.15,.7,.25,1) both;filter:drop-shadow(0 0 8px currentColor)}
+  animation:fxrise var(--t,1.1s) cubic-bezier(.15,.7,.25,1) both}
 .fxh svg{width:100%;height:100%}
 @keyframes fxrise{0%{transform:translate(0,0) scale(.2) rotate(0);opacity:0}14%{opacity:1;transform:translate(calc(var(--dx)*.12),calc(var(--dy)*.12)) scale(1.1) rotate(calc(var(--r)*.2))}100%{transform:translate(var(--dx),var(--dy)) scale(.65) rotate(var(--r));opacity:0}}
 .rip{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,170,205,.9);pointer-events:none;animation:rip .9s cubic-bezier(.1,.6,.3,1) forwards}
